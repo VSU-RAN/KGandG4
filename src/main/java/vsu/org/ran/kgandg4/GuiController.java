@@ -71,6 +71,10 @@ public class GuiController {
         fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Model (*.obj)", "*.obj"));
         fileChooser.setTitle("Load Model");
 
+        //Для более удобной работы, сразу папка с моделями
+        fileChooser.setInitialDirectory(new File("C:\\Users\\Merkury\\Desktop\\KGandG4\\3DModels"));
+
+
         File file = fileChooser.showOpenDialog((Stage) canvas.getScene().getWindow());
         if (file == null) {
             return;
