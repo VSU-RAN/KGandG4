@@ -1,4 +1,4 @@
-package vsu.org.ran.kgandg4.objreader;
+package vsu.org.ran.kgandg4;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;

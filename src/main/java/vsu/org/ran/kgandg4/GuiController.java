@@ -7,20 +7,18 @@ import javafx.animation.Timeline;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.canvas.Canvas;
-import javafx.scene.control.Label;
-import javafx.scene.control.ListCell;
-import javafx.scene.control.ListView;
-import javafx.scene.control.TextField;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 import vsu.org.ran.kgandg4.model.Model;
-import vsu.org.ran.kgandg4.objreader.ObjReader;
-import vsu.org.ran.kgandg4.render_engine.Camera;
+import vsu.org.ran.kgandg4.normals.FaceNormalCalculator;
+import vsu.org.ran.kgandg4.normals.NormalCalculator;
 import vsu.org.ran.kgandg4.render_engine.CameraManager;
 import vsu.org.ran.kgandg4.render_engine.RenderEngine;
+import vsu.org.ran.kgandg4.triangulation.SimpleTriangulator;
+import vsu.org.ran.kgandg4.triangulation.Triangulator;
 
 import javax.vecmath.Vector3f;
 import java.io.File;
@@ -44,6 +42,10 @@ public class GuiController {
 
     private CameraManager cameraManager;
 
+    private Triangulator triangulator;
+
+    private NormalCalculator normalCalculator;
+
     private Timeline timeline;
 
     @FXML
@@ -55,6 +57,11 @@ public class GuiController {
         }
 
         cameraManager = new CameraManager();
+
+        triangulator = new SimpleTriangulator();
+        //triangulator = new EarCuttingTriangulator();
+
+        normalCalculator = new FaceNormalCalculator();
 
         cameraPanelController.setCameraManager(cameraManager);
 
@@ -97,6 +104,9 @@ public class GuiController {
         try {
             String fileContent = Files.readString(fileName);
             mesh = ObjReader.read(fileContent);
+            triangulator.triangulateModel(mesh);
+            normalCalculator.calculateNormals(mesh);
+
             // todo: обработка ошибок
         } catch (IOException exception) {
 
