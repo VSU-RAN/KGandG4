@@ -1,6 +1,8 @@
 package vsu.org.ran.kgandg4.rasterization;
 
 
+import java.util.NoSuchElementException;
+
 import static java.lang.Math.abs;
 
 /**
@@ -8,82 +10,101 @@ import static java.lang.Math.abs;
  * Путь строится алгоритмом Брезенхейма и включает в себя все положения, в которых может находиться линия.
  */
 public class BresenhamBorderIterator implements BorderIterator {
-    private int cntSteps;
-
     private final int x0;
     private final int y0;
     private final int x1;
     private final int y1;
     private final int dx;
     private final int dy;
-    private final int step;
-    private final boolean wasChangeY;
-    private final boolean wasChangeX;
+    private int stepX;
+    private int stepY;
+    private final boolean isScanlineOnX;
 
     private int currentX;
     private int currentY;
     private int error;
 
-    public BresenhamBorderIterator(int x0, int y0, int x1, int y1) {
-        cntSteps = Math.max(abs(y1 - y0), abs(x1 - x0)) + 1;
-        wasChangeY = abs(y1 - y0) > abs(x1 - x0);
-        if (wasChangeY) {
-            int tmp = y0;
-            y0 = x0;
-            x0 = tmp;
-
-            tmp = y1;
-            y1 = x1;
-            x1 = tmp;
-        }
-        wasChangeX = x1 < x0;
-        if (wasChangeX) {
-            int tmp = x1;
-            x1 = x0;
-            x0 = tmp;
-
-            tmp = y1;
-            y1 = y0;
-            y0 = tmp;
-        }
-
+    public BresenhamBorderIterator(int x0, int y0, int x1, int y1, boolean scanlineOnX) {
         this.x0 = x0;
-        this.y0 = y0;
         this.x1 = x1;
+        this.y0 = y0;
         this.y1 = y1;
-        dx = x1 - x0;
-        dy = y1 - y0;
-        step = dy > 0 ? 1 : -1;
-        currentY = y0;
+
+        dx = abs(x0 - x1);
+        dy = abs(y0 - y1);
+
         currentX = x0;
+        currentY = y0;
         error = 0;
+        stepX = 1;
+        stepY = 1;
+        if (x1 - x0 < 0) {
+            stepX *= -1;
+        }
+        if (y1 - y0 < 0) {
+            stepY *= -1;
+        }
+        isScanlineOnX = scanlineOnX;
     }
 
     @Override
     public int getX() {
-        if (!wasChangeY)
-            return wasChangeX ? x1 - (currentX - x0) : currentX;
-        return wasChangeX ? y1 - (currentY - y0) : currentY;
+        return currentX;
     }
 
     @Override
     public int getY() {
-        if (wasChangeY)
-            return wasChangeX ? x1 - (currentX - x0) : currentX;
-        return wasChangeX ? y1 - (currentY - y0) : currentY;
+        return currentY;
     }
 
     public void next() {
-        error += abs(2 * dy);
-        currentX++;
-        if (error > dx) {
-            currentY += step;
-            error = -(2 * dx - error);
+        if (!hasNext()) throw new NoSuchElementException();
+        if (isScanlineOnX) {
+            if (dx > dy) {
+                boolean wasChange = false;
+                while (!wasChange) {
+                    error += 2 * dy;
+                    if (error > dx) {
+                        currentY += stepY;
+                        error = -(2 * dx - error);
+                        wasChange = true;
+                    }
+                    currentX += stepX;
+                }
+            } else {
+                error += 2 * dx;
+                if (error > dy) {
+                    currentX += stepX;
+                    error = -(2 * dy - error);
+                }
+                currentY += stepY;
+            }
+        } else {
+            if (dx > dy) {
+                error += 2 * dy;
+                if (error > dx) {
+                    currentY += stepY;
+                    error = -(2 * dx - error);
+                }
+                currentX += stepX;
+            } else {
+                boolean wasChange = false;
+                while (!wasChange) {
+                    error += 2 * dx;
+                    if (error > dy) {
+                        currentX += stepX;
+                        error = -(2 * dy - error);
+                        wasChange = true;
+                    }
+                    currentY += stepY;
+                }
+            }
         }
     }
 
     @Override
     public boolean hasNext() {
-        return currentX != x1 || currentY != y1;
+        if (isScanlineOnX) return y1 != currentY;
+        return currentX != x1;
     }
 }

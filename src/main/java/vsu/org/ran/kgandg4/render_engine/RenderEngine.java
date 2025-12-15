@@ -61,14 +61,13 @@ public class RenderEngine {
                 screenPoints.add(screenPoint);
             }
             if (screenPoints.size() != 3) {
-                System.out.println("Скипнут треугольник");
                 continue;
             }
             Point2f p0 = screenPoints.get(0);
             Point2f p1 = screenPoints.get(1);
             Point2f p2 = screenPoints.get(2);
 
-            Rasterization.drawTriangle(graphicsContext.getPixelWriter(),
+            Rasterization.drawTriangleBresenhamByIterator(graphicsContext.getPixelWriter(),
                     (int) p0.x, (int) p0.y,
                     (int) p1.x, (int) p1.y,
                     (int) p2.x, (int) p2.y

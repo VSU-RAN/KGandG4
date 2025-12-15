@@ -52,7 +52,7 @@ public class GraphicConveyor {
         float tangensMinusOnDegreeFov = (float) (1.0F / (Math.tan(fov * 0.5F)));
 
         return new Matrix4f(
-                tangensMinusOnDegreeFov / aspectRatio, 0, 0, 0,
+                tangensMinusOnDegreeFov  /aspectRatio, 0, 0, 0,
                 0, tangensMinusOnDegreeFov, 0, 0,
                 0, 0, (farPlane + nearPlane) / (farPlane - nearPlane), (2 * farPlane * nearPlane) / (nearPlane - farPlane),
                 0, 0, 1, 0
