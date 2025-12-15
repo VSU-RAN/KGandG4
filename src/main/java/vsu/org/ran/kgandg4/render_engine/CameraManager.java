@@ -11,11 +11,12 @@ public class CameraManager {
     private ObservableList<Camera> cameraList = FXCollections.observableArrayList();
     private int nextId = 0;
     private final ReadOnlyObjectWrapper<Camera> activeCameraProperty = new ReadOnlyObjectWrapper<>();
-
-    public CameraManager() {
+    private final float aspectRatio;
+    public CameraManager(double width, double height) {
+        this.aspectRatio = (float) (width / height);
         Camera initialCamera = new Camera(nextId ++,  new Vector3f(0, 0, 100),
                 new Vector3f(0, 0, 0),
-                1.0F, 1, 0.01F, 100);
+                1.0F, aspectRatio, 0.01F, 100);
         this.activeCameraProperty.set(initialCamera);
         this.cameraList.add(initialCamera);
     }

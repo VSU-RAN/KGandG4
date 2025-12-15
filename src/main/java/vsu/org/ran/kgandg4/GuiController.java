@@ -56,7 +56,7 @@ public class GuiController {
             canvas.heightProperty().bind(canvasContainer.heightProperty());
         }
 
-        cameraManager = new CameraManager();
+        cameraManager = new CameraManager(canvas.getWidth(), canvas.getHeight());
 
         triangulator = new SimpleTriangulator();
         //triangulator = new EarCuttingTriangulator();

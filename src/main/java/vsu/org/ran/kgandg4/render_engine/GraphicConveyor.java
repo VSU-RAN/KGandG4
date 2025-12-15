@@ -40,6 +40,7 @@ public class GraphicConveyor {
                 resultZ.x, resultZ.y, resultZ.z, -(resultZ.dot(eye)),
                 0, 0, 0, 1
         );
+        //Как в методичке
     }
 
     public static Matrix4f perspective(
@@ -51,25 +52,27 @@ public class GraphicConveyor {
         float tangensMinusOnDegreeFov = (float) (1.0F / (Math.tan(fov * 0.5F)));
 
         return new Matrix4f(
-                tangensMinusOnDegreeFov, 0, 0, 0,
-                0, tangensMinusOnDegreeFov / aspectRatio, 0, 0,
+                tangensMinusOnDegreeFov / aspectRatio, 0, 0, 0,
+                0, tangensMinusOnDegreeFov, 0, 0,
                 0, 0, (farPlane + nearPlane) / (farPlane - nearPlane), (2 * farPlane * nearPlane) / (nearPlane - farPlane),
                 0, 0, 1, 0
         );
+        //Как в методичке
     }
 
-    public static Vector3f getVertexAfterMVPandNormalize(final Matrix4f MVP, final Vector3f vertex) {
+    public static Vector3f getVertexAfterMVPandNormalize(final Matrix4f PVM, final Vector3f vertex) {
         Vector4f vertexWithW = new Vector4f(vertex.x, vertex.y, vertex.z, 1.0F);
 
         Vector4f result4f = new Vector4f();
 
-        MVP.transform(vertexWithW, result4f);
+        PVM.transform(vertexWithW, result4f); // v' = PVM * v
 
         return new Vector3f(result4f.x / result4f.w, result4f.y / result4f.w, result4f.z / result4f.w);
     }
 
     public static Point2f vertexToPoint(final Vector3f vertex, final int width, final int height) {
-        return new Point2f(vertex.x * width + width / 2.0F, -vertex.y * height + height / 2.0F);
+        return new Point2f((float) (width - 1) / 2 * vertex.x + (float) (width - 1) / 2, (float) (1 - height) / 2 * vertex.y + (float) (height - 1) / 2);
+        //Как в методичке
     }
 
     public static boolean isValidVertex(Vector3f vertex) {

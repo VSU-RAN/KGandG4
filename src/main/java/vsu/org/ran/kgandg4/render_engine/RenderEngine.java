@@ -9,6 +9,7 @@ import vsu.org.ran.kgandg4.rasterization.Rasterization;
 
 import javax.vecmath.Matrix4f;
 import javax.vecmath.Point2f;
+import javax.vecmath.Vector4f;
 
 import java.util.ArrayList;
 
@@ -28,9 +29,10 @@ public class RenderEngine {
         Matrix4f viewMatrix = camera.getViewMatrix();
         Matrix4f projectionMatrix = camera.getProjectionMatrix();
 
-        Matrix4f modelViewProjectionMatrix = new Matrix4f(projectionMatrix);
-        modelViewProjectionMatrix.mul(viewMatrix);
-        modelViewProjectionMatrix.mul(modelMatrix);
+        Matrix4f projectionViewModelMatrixProjectionMatrix = new Matrix4f(projectionMatrix);
+        projectionViewModelMatrixProjectionMatrix.mul(viewMatrix);
+        projectionViewModelMatrixProjectionMatrix.mul(modelMatrix);
+        //Как в методичке
 
         final int nPolygons = mesh.polygons.size();
 
@@ -49,19 +51,19 @@ public class RenderEngine {
 
                 javax.vecmath.Vector3f vertexVecmath = new javax.vecmath.Vector3f(vertex.getX(), vertex.getY(), vertex.getZ());
 
-                javax.vecmath.Vector3f vertexAfterMVPandNormalize = getVertexAfterMVPandNormalize(modelViewProjectionMatrix, vertexVecmath);
-//                if (!GraphicConveyor.isValidVertex(vertexAfterMVPandNormalize)) {
-//                    break;
-//                }
+                javax.vecmath.Vector3f vertexAfterMVPandNormalize = getVertexAfterMVPandNormalize(projectionViewModelMatrixProjectionMatrix, vertexVecmath);
+                if (!GraphicConveyor.isValidVertex(vertexAfterMVPandNormalize)) {
+                    break;
+                }
 
                 Point2f screenPoint = vertexToPoint(vertexAfterMVPandNormalize, width, height);
 
                 screenPoints.add(screenPoint);
             }
-//            if (screenPoints.size() != 3) {
-//                System.out.println("Скипнут треугольник");
-//                continue;
-//            }
+            if (screenPoints.size() != 3) {
+                System.out.println("Скипнут треугольник");
+                continue;
+            }
             Point2f p0 = screenPoints.get(0);
             Point2f p1 = screenPoints.get(1);
             Point2f p2 = screenPoints.get(2);
