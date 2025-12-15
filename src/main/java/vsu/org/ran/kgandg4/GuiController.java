@@ -76,7 +76,8 @@ public class GuiController {
             cameraManager.getActiveCamera().setAspectRatio((float) (width / height));
 
             if (mesh != null) {
-                RenderEngine.render(canvas.getGraphicsContext2D(), cameraManager.getActiveCamera(), mesh, (int) width, (int) height);
+//                RenderEngine.render(canvas.getGraphicsContext2D(), cameraManager.getActiveCamera(), mesh, (int) width, (int) height);
+                RenderEngine.testZBuffer(canvas.getGraphicsContext2D(), (int) width, (int) height);
             }
         });
 

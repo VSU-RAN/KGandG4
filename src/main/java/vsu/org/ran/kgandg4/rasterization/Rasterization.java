@@ -2,6 +2,7 @@ package vsu.org.ran.kgandg4.rasterization;
 
 import javafx.scene.image.PixelWriter;
 import javafx.scene.paint.Color;
+import vsu.org.ran.kgandg4.render_engine.Zbuffer;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -340,7 +341,7 @@ public class Rasterization {
         return ((a00 * a11 * a22) + (a10 * a21 * a02) + (a01 * a12 * a20)) - ((a02 * a11 * a20) + (a01 * a10 * a22) + (a12 * a21 * a00));
     }
 
-    private static double[] findBarycentricCords(int xCur, int yCur, int x0, int y0, int x1, int y1, int x2, int y2) {
+    public static double[] findBarycentricCords(int xCur, int yCur, int x0, int y0, int x1, int y1, int x2, int y2) {
         int mainDet = findThirdOrderDeterminant(
                 x0, x1, x2,
                 y0, y1, y2,
@@ -455,7 +456,7 @@ public class Rasterization {
         }
     }
 
-    public static void drawTriangleBresenhamByIterator(PixelWriter pw, int x0, int y0, int x1, int y1, int x2, int y2) {
+    public static void drawTriangleBresenhamByIterator(PixelWriter pw, Zbuffer zbuffer, Color color, int x0, int y0, float z0, int x1, int y1, float z1, int x2, int y2, float z2) {
         if (max(y0, max(y1, y2)) - min(y0, max(y1, y2)) >= max(x0, max(x1, x2)) - min(x0, max(x1, x2))) {
             int tmp;
             if (y0 > y1) {
@@ -496,7 +497,14 @@ public class Rasterization {
                 int xLineEnd = borderIterator2.getX();
                 it_2_out.put(y, xLineEnd);
                 for (int x = min(xLineStart, xLineEnd); x <= max(xLineStart, xLineEnd); x++) {
-                    pw.setColor(x, y, Color.BLACK);
+                    double[] barycentric = findBarycentricCords(x, y, x0, y0, x1, y1, x2, y2);
+                    double alpha = barycentric[0], beta = barycentric[1], gamma = barycentric[2];
+                    if (alpha >= -0.0001f && beta >= -0.0001f && gamma >= -0.0001f) {
+                        float z = (float) (alpha * z0 + beta * z1 + gamma * z2);
+                        if (zbuffer.testPointAndSet(x, y, z)) {
+                            pw.setColor(x, y, color);
+                        }
+                    }
                 }
                 borderIterator1.next();
                 borderIterator2.next();
@@ -508,7 +516,14 @@ public class Rasterization {
                 int xLineEnd = borderIterator3.getX();
                 it_2_out.put(y, xLineStart);
                 for (int x = min(xLineStart, xLineEnd); x <= max(xLineStart, xLineEnd); x++) {
-                    pw.setColor(x, y, Color.BLACK);
+                    double[] barycentric = findBarycentricCords(x, y, x0, y0, x1, y1, x2, y2);
+                    double alpha = barycentric[0], beta = barycentric[1], gamma = barycentric[2];
+                    if (alpha >= -0.0001f && beta >= -0.0001f && gamma >= -0.0001f) {
+                        float z = (float) (alpha * z0 + beta * z1 + gamma * z2);
+                        if (zbuffer.testPointAndSet(x, y, z)) {
+                            pw.setColor(x, y, color);
+                        }
+                    }
                 }
                 borderIterator2.next();
                 borderIterator3.next();
@@ -518,7 +533,14 @@ public class Rasterization {
             int xLineEnd = borderIterator3.getX();
             it_2_out.put(y, xLineStart);
             for (int x = min(xLineStart, xLineEnd); x <= max(xLineStart, xLineEnd); x++) {
-                pw.setColor(x, y, Color.BLACK);
+                double[] barycentric = findBarycentricCords(x, y, x0, y0, x1, y1, x2, y2);
+                double alpha = barycentric[0], beta = barycentric[1], gamma = barycentric[2];
+                if (alpha >= -0.0001f && beta >= -0.0001f && gamma >= -0.0001f) {
+                    float z = (float) (alpha * z0 + beta * z1 + gamma * z2);
+                    if (zbuffer.testPointAndSet(x, y, z)) {
+                        pw.setColor(x, y, color);
+                    }
+                }
             }
 
         } else {
@@ -561,7 +583,14 @@ public class Rasterization {
                 int yLineEnd = borderIterator2.getY();
                 it_2_out.put(x, yLineEnd);
                 for (int y = min(yLineStart, yLineEnd); y <= max(yLineStart, yLineEnd); y++) {
-                    pw.setColor(x, y, Color.BLACK);
+                    double[] barycentric = findBarycentricCords(x, y, x0, y0, x1, y1, x2, y2);
+                    double alpha = barycentric[0], beta = barycentric[1], gamma = barycentric[2];
+                    if (alpha >= -0.0001f && beta >= -0.0001f && gamma >= -0.0001f) {
+                        float z = (float) (alpha * z0 + beta * z1 + gamma * z2);
+                        if (zbuffer.testPointAndSet(x, y, z)) {
+                            pw.setColor(x, y, color);
+                        }
+                    }
                 }
                 borderIterator1.next();
                 borderIterator2.next();
@@ -573,7 +602,14 @@ public class Rasterization {
                 int yLineEnd = borderIterator3.getY();
                 it_2_out.put(x, yLineStart);
                 for (int y = min(yLineStart, yLineEnd); y <= max(yLineStart, yLineEnd); y++) {
-                    pw.setColor(x, y, Color.BLACK);
+                    double[] barycentric = findBarycentricCords(x, y, x0, y0, x1, y1, x2, y2);
+                    double alpha = barycentric[0], beta = barycentric[1], gamma = barycentric[2];
+                    if (alpha >= -0.0001f && beta >= -0.0001f && gamma >= -0.0001f) {
+                        float z = (float) (alpha * z0 + beta * z1 + gamma * z2);
+                        if (zbuffer.testPointAndSet(x, y, z)) {
+                            pw.setColor(x, y, color);
+                        }
+                    }
                 }
                 borderIterator2.next();
                 borderIterator3.next();
@@ -584,7 +620,14 @@ public class Rasterization {
             int yLineEnd = borderIterator3.getY();
             it_2_out.put(x, yLineStart);
             for (int y = min(yLineStart, yLineEnd); y <= max(yLineStart, yLineEnd); y++) {
-                pw.setColor(x, y, Color.BLACK);
+                double[] barycentric = findBarycentricCords(x, y, x0, y0, x1, y1, x2, y2);
+                double alpha = barycentric[0], beta = barycentric[1], gamma = barycentric[2];
+                if (alpha >= -0.0001f && beta >= -0.0001f && gamma >= -0.0001f) {
+                    float z = (float) (alpha * z0 + beta * z1 + gamma * z2);
+                    if (zbuffer.testPointAndSet(x, y, z)) {
+                        pw.setColor(x, y, color);
+                    }
+                }
             }
         }
     }
