@@ -4,6 +4,7 @@ module vsu.org.ran.kgandg4 {
     requires java.desktop;
     requires vecmath;
 
+
     opens vsu.org.ran.kgandg4 to javafx.fxml;
     opens vsu.org.ran.kgandg4.model to org.junit.jupiter, org.junit.platform.commons;
     exports vsu.org.ran.kgandg4;
