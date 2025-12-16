@@ -1,13 +1,16 @@
 package vsu.org.ran.kgandg4.render_engine;
 
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
+
 import javax.vecmath.Matrix4f;
 import javax.vecmath.Vector3f;
 import java.util.Objects;
 
 public class Camera {
     private final int id;
-    private Vector3f position;
-    private Vector3f target;
+    private final ObjectProperty<Vector3f> position = new SimpleObjectProperty<>();
+    private final ObjectProperty<Vector3f> target = new SimpleObjectProperty<>();
     private float fov;
     private float aspectRatio;
     private float nearPlane;
@@ -22,8 +25,8 @@ public class Camera {
             final float nearPlane,
             final float farPlane) {
         this.id = id;
-        this.position = position;
-        this.target = target;
+        this.position.set(position);
+        this.target.set(target);
         this.fov = fov;
         this.aspectRatio = aspectRatio;
         this.nearPlane = nearPlane;
@@ -31,11 +34,11 @@ public class Camera {
     }
 
     public void setPosition(final Vector3f position) {
-        this.position = position;
+        this.position.set(position);
     }
 
     public void setTarget(final Vector3f target) {
-        this.target = target;
+        this.target.set(target);
     }
 
     public void setAspectRatio(final float aspectRatio) {
@@ -47,23 +50,34 @@ public class Camera {
     }
 
     public Vector3f getPosition() {
-        return position;
+        return this.position.get();
     }
 
     public Vector3f getTarget() {
+        return target.get();
+    }
+
+    public ObjectProperty<Vector3f> positionProperty() {
+        return position;
+    }
+
+    public ObjectProperty<Vector3f> targetProperty() {
         return target;
     }
 
     public void movePosition(final Vector3f translation) {
-        this.position.add(translation);
+        Vector3f newPos = new Vector3f(this.position.get());
+        newPos.add(translation);
+        this.position.set(newPos);
+
     }
 
     public void moveTarget(final Vector3f translation) {
-        this.target.add(translation);
+        this.target.get().add(translation);
     }
 
     Matrix4f getViewMatrix() {
-        return GraphicConveyor.lookAt(position, target);
+        return GraphicConveyor.lookAt(position.get(), target.get());
     }
 
     Matrix4f getProjectionMatrix() {

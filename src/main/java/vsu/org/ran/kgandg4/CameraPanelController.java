@@ -39,6 +39,7 @@ public class CameraPanelController implements Initializable {
                 activeCameraLabel.setText(newCam.toString());
                 cameraListView.getSelectionModel().select(newCam);
                 updateButtonsState();
+                setupCameraListeners(newCam);
             }
         });
 
@@ -49,7 +50,30 @@ public class CameraPanelController implements Initializable {
             activeCameraLabel.setText(active.toString());
             cameraListView.getSelectionModel().select(active);
             updateButtonsState();
+            setupCameraListeners(active);
         }
+    }
+
+    private void setupCameraListeners(Camera camera) {
+        camera.positionProperty().addListener((obs, oldPos, newPos) -> {
+            if (!isUpdatingFields && newPos != null) {
+                isUpdatingFields = true;
+                camPosX.getValueFactory().setValue((double) newPos.x);
+                camPosY.getValueFactory().setValue((double) newPos.y);
+                camPosZ.getValueFactory().setValue((double) newPos.z);
+                isUpdatingFields = false;
+            }
+        });
+
+        camera.targetProperty().addListener((obs, oldTarget, newTarget) -> {
+            if (!isUpdatingFields && newTarget != null) {
+                isUpdatingFields = true;
+                camTargetX.getValueFactory().setValue((double) newTarget.x);
+                camTargetY.getValueFactory().setValue((double) newTarget.y);
+                camTargetZ.getValueFactory().setValue((double) newTarget.z);
+                isUpdatingFields = false;
+            }
+        });
     }
 
     //Задаем отображение списка камер, а также для этого списка задаем слушатель на изменение камеры, который будет обновлять поля активной камеры в гуи
@@ -108,8 +132,8 @@ public class CameraPanelController implements Initializable {
         }
     }
 
-    private void updateCameraFields(Camera camera) {
-        if (camera == null) return;
+    public void updateCameraFields(Camera camera) {
+        if (camera == null || isUpdatingFields) return;
         isUpdatingFields = true;
 
         camPosX.getValueFactory().setValue((double)camera.getPosition().x);

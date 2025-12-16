@@ -55,6 +55,9 @@ public class GuiController {
             canvas.widthProperty().bind(canvasContainer.widthProperty());
             canvas.heightProperty().bind(canvasContainer.heightProperty());
         }
+        rootPane.setOnMouseClicked(event -> {
+            rootPane.requestFocus();
+        });
 
         cameraManager = new CameraManager(canvas.getWidth(), canvas.getHeight());
 
@@ -76,8 +79,8 @@ public class GuiController {
             cameraManager.getActiveCamera().setAspectRatio((float) (width / height));
 
             if (mesh != null) {
-//                RenderEngine.render(canvas.getGraphicsContext2D(), cameraManager.getActiveCamera(), mesh, (int) width, (int) height);
-                RenderEngine.testZBuffer(canvas.getGraphicsContext2D(), (int) width, (int) height);
+                RenderEngine.render(canvas.getGraphicsContext2D(), cameraManager.getActiveCamera(), mesh, (int) width, (int) height);
+//                RenderEngine.testZBuffer(canvas.getGraphicsContext2D(), (int) width, (int) height);
             }
         });
 
@@ -117,6 +120,7 @@ public class GuiController {
     @FXML
     public void handleCameraForward(ActionEvent actionEvent) {
         cameraManager.getActiveCamera().movePosition(new Vector3f(0, 0, -TRANSLATION));
+
     }
 
     @FXML
