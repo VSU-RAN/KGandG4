@@ -22,4 +22,13 @@ public class Vector2f {
     public int hashCode() {
         return Objects.hash(x, y);
     }
+
+    public float getX() {
+        return x;
+    }
+
+    public float getY() {
+        return y;
+    }
 }
+

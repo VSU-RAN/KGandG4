@@ -4,7 +4,6 @@ package vsu.org.ran.kgandg4;
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.layout.AnchorPane;
@@ -13,22 +12,24 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 import vsu.org.ran.kgandg4.model.Model;
+import vsu.org.ran.kgandg4.model.Polygon;
 import vsu.org.ran.kgandg4.normals.FaceNormalCalculator;
 import vsu.org.ran.kgandg4.normals.NormalCalculator;
+import vsu.org.ran.kgandg4.objReader.ObjReader;
 import vsu.org.ran.kgandg4.render_engine.CameraManager;
 import vsu.org.ran.kgandg4.render_engine.RenderEngine;
 import vsu.org.ran.kgandg4.triangulation.SimpleTriangulator;
 import vsu.org.ran.kgandg4.triangulation.Triangulator;
 
-import javax.vecmath.Vector3f;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
 public class GuiController {
-
-    final private float TRANSLATION = 0.5F;
+    private static final float PAN_SPEED = 0.5f;
+    private static final float ORBIT_SPEED = 0.05f;
+    private static final float DOLLY_SPEED = 0.5f;
 
     @FXML private BorderPane rootPane;
 
@@ -67,6 +68,11 @@ public class GuiController {
         normalCalculator = new FaceNormalCalculator();
 
         cameraPanelController.setCameraManager(cameraManager);
+        rootPane.sceneProperty().addListener((obs, oldScene, newScene) -> {
+            if (newScene != null) {
+                cameraPanelController.setScene(newScene);
+            }
+        });
 
         timeline = new Timeline();
         timeline.setCycleCount(Animation.INDEFINITE);
@@ -79,7 +85,11 @@ public class GuiController {
             cameraManager.getActiveCamera().setAspectRatio((float) (width / height));
 
             if (mesh != null) {
-                RenderEngine.render(canvas.getGraphicsContext2D(), cameraManager.getActiveCamera(), mesh, (int) width, (int) height);
+                try {
+                    RenderEngine.render(canvas.getGraphicsContext2D(), cameraManager.getActiveCamera(), mesh, (int) width, (int) height);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
 //                RenderEngine.testZBuffer(canvas.getGraphicsContext2D(), (int) width, (int) height);
             }
         });
@@ -108,43 +118,20 @@ public class GuiController {
         try {
             String fileContent = Files.readString(fileName);
             mesh = ObjReader.read(fileContent);
+            for (Polygon p: mesh.polygons) {
+                System.out.println("Original polygon vertices: " + p.getVertexIndices());
+                System.out.println("Original polygon textures: " + p.getTextureVertexIndices());
+            }
             triangulator.triangulateModel(mesh);
+            for (Polygon p : mesh.polygons) {
+                System.out.println("Triangle vertices: " + p.getVertexIndices());
+                System.out.println("Triangle textures: " + p.getTextureVertexIndices());
+            }
             normalCalculator.calculateNormals(mesh);
 
             // todo: обработка ошибок
         } catch (IOException exception) {
 
         }
-    }
-
-    @FXML
-    public void handleCameraForward(ActionEvent actionEvent) {
-        cameraManager.getActiveCamera().movePosition(new Vector3f(0, 0, -TRANSLATION));
-
-    }
-
-    @FXML
-    public void handleCameraBackward(ActionEvent actionEvent) {
-        cameraManager.getActiveCamera().movePosition(new Vector3f(0, 0, TRANSLATION));
-    }
-
-    @FXML
-    public void handleCameraLeft(ActionEvent actionEvent) {
-        cameraManager.getActiveCamera().movePosition(new Vector3f(TRANSLATION, 0, 0));
-    }
-
-    @FXML
-    public void handleCameraRight(ActionEvent actionEvent) {
-        cameraManager.getActiveCamera().movePosition(new Vector3f(-TRANSLATION, 0, 0));
-    }
-
-    @FXML
-    public void handleCameraUp(ActionEvent actionEvent) {
-        cameraManager.getActiveCamera().movePosition(new Vector3f(0, TRANSLATION, 0));
-    }
-
-    @FXML
-    public void handleCameraDown(ActionEvent actionEvent) {
-        cameraManager.getActiveCamera().movePosition(new Vector3f(0, -TRANSLATION, 0));
     }
 }

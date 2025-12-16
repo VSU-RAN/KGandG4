@@ -14,9 +14,9 @@ public class CameraManager {
     private final float aspectRatio;
     public CameraManager(double width, double height) {
         this.aspectRatio = (float) (width / height);
-        Camera initialCamera = new Camera(nextId ++,  new Vector3f(0, 0, 200),
-                new Vector3f(0, 50, 0),
-                1.0F, aspectRatio, 0.01F, 400);
+        Camera initialCamera = new Camera(nextId ++,  new Vector3f(0, 0, 20),
+                new Vector3f(0, 0, 0),
+                1.0F, aspectRatio, 0.01F, 800);
         this.activeCameraProperty.set(initialCamera);
         this.cameraList.add(initialCamera);
     }

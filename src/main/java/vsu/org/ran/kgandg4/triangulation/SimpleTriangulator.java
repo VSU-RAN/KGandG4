@@ -19,9 +19,9 @@ public class SimpleTriangulator implements Triangulator {
         Map<Integer, Integer> textureIndexesMap = new HashMap<>();
         Map<Integer, Integer> normalsIndexesMap = new HashMap<>();
         for (Integer vertexIndex : verticesIndexes) {
-            if (vertexIndex < polygon.getTextureVertexIndices().size())
+            if (indexOfVertexInPolygon < polygon.getTextureVertexIndices().size())
                 textureIndexesMap.put(vertexIndex, polygon.getTextureVertexIndices().get(indexOfVertexInPolygon));
-            if (vertexIndex < polygon.getNormalIndices().size())
+            if (indexOfVertexInPolygon < polygon.getNormalIndices().size())
                 normalsIndexesMap.put(vertexIndex, polygon.getNormalIndices().get(indexOfVertexInPolygon));
             indexOfVertexInPolygon++;
         }

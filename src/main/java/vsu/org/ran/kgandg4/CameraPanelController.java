@@ -2,7 +2,10 @@ package vsu.org.ran.kgandg4;
 
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import vsu.org.ran.kgandg4.render_engine.Camera;
 import vsu.org.ran.kgandg4.render_engine.CameraManager;
 
@@ -22,10 +25,136 @@ public class CameraPanelController implements Initializable {
 
     private boolean isUpdatingFields = false;
 
+    private static final float PAN_SPEED = 0.5f;
+    private static final float ORBIT_SPEED = 0.05f;
+    private static final float ZOOM_SPEED = 0.5f;
+    private boolean shiftPressed = false;
+
+    private Scene scene;
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         initListView();
         initSpinners();
+    }
+
+    public void setScene(Scene scene) {
+        this.scene = scene;
+        setupKeyboardListeners();
+    }
+
+    private void setupKeyboardListeners() {
+        if (scene != null) {
+            scene.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
+                KeyCode code = event.getCode();
+
+                if (code == KeyCode.SHIFT) {
+                    shiftPressed = true;
+                }
+
+                handleKeyPress(event);
+            });
+
+            scene.addEventFilter(KeyEvent.KEY_RELEASED, event -> {
+                KeyCode code = event.getCode();
+
+                if (code == KeyCode.SHIFT) {
+                    shiftPressed = false;
+                }
+            });
+        }
+    }
+
+    private void handleKeyPress(KeyEvent event) {
+        KeyCode code = event.getCode();
+        if (cameraManager == null || cameraManager.getActiveCamera() == null) {
+            return;
+        }
+
+        Camera activeCamera = cameraManager.getActiveCamera();
+
+        switch (code) {
+            case W:
+                if (shiftPressed) {
+                    // Shift + W = Pan вперед
+                    activeCamera.movePositionAndTarget(new Vector3f(0, 0, PAN_SPEED));
+                } else {
+                    // W = Orbit вверх
+                    activeCamera.orbit(0, ORBIT_SPEED);
+                }
+                break;
+
+            case S:
+                if (shiftPressed) {
+                    // Shift + S = Pan назад
+                    activeCamera.movePositionAndTarget(new Vector3f(0, 0, -PAN_SPEED));
+                } else {
+                    // S = Orbit вниз
+                    activeCamera.orbit(0, -ORBIT_SPEED);
+                }
+                break;
+
+            case A:
+                if (shiftPressed) {
+                    // Shift + A = Pan влево
+                    activeCamera.movePositionAndTarget(new Vector3f(-PAN_SPEED, 0, 0));
+                } else {
+                    // A = Orbit влево
+                    activeCamera.orbit(ORBIT_SPEED, 0);
+                }
+                break;
+
+            case D:
+                if (shiftPressed) {
+                    // Shift + D = Pan вправо
+                    activeCamera.movePositionAndTarget(new Vector3f(PAN_SPEED, 0, 0));
+                } else {
+                    // D = Orbit вправо
+                    activeCamera.orbit(-ORBIT_SPEED, 0);
+                }
+                break;
+
+            case UP:
+                // Стрелка вверх = Pan вперед
+                activeCamera.movePositionAndTarget(new Vector3f(0, 0, PAN_SPEED));
+                break;
+
+            case DOWN:
+                // Стрелка вниз = Pan назад
+                activeCamera.movePositionAndTarget(new Vector3f(0, 0, -PAN_SPEED));
+                break;
+
+            case LEFT:
+                // Стрелка влево = Pan влево
+                activeCamera.movePositionAndTarget(new Vector3f(-PAN_SPEED, 0, 0));
+                break;
+
+            case RIGHT:
+                // Стрелка вправо = Pan вправо
+                activeCamera.movePositionAndTarget(new Vector3f(PAN_SPEED, 0, 0));
+                break;
+
+            case Q:
+                // Q = Pan вверх
+                activeCamera.movePositionAndTarget(new Vector3f(0, PAN_SPEED, 0));
+                break;
+
+            case E:
+                // E = Pan вниз
+                activeCamera.movePositionAndTarget(new Vector3f(0, -PAN_SPEED, 0));
+                break;
+
+            case EQUALS:
+                // + = Zoom In
+                activeCamera.zoom(ZOOM_SPEED);
+                break;
+
+            case MINUS:
+                // - = Zoom Out
+                activeCamera.zoom(-ZOOM_SPEED);
+                break;
+        }
+
     }
 
     public void setCameraManager(CameraManager cameraManager) {

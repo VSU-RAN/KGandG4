@@ -7,6 +7,7 @@ import javax.vecmath.Matrix4f;
 import javax.vecmath.Vector3f;
 import java.util.Objects;
 
+
 public class Camera {
     private final int id;
     private final ObjectProperty<Vector3f> position = new SimpleObjectProperty<>();
@@ -74,6 +75,73 @@ public class Camera {
 
     public void moveTarget(final Vector3f translation) {
         this.target.get().add(translation);
+    }
+
+    /** Паномиривание */
+    public void movePositionAndTarget(Vector3f translation) {
+        Vector3f newPos = new Vector3f(this.position.get());
+        newPos.add(translation);
+        this.position.set(newPos);
+
+        Vector3f newTarget = new Vector3f(this.target.get());
+        newTarget.add(translation);
+        this.target.set(newTarget);
+    }
+
+    /**Орбитальное вращение вокруг target*/
+    public void orbit(float horizontalAngle, float verticalAngle) {
+        Vector3f center = this.target.get();
+        Vector3f cameraPos = this.position.get();
+
+        // Вектор от target к камере
+        Vector3f offset = new Vector3f();
+        offset.sub(cameraPos, center);
+
+        // Сохраняем расстояние
+        float distance = offset.length();
+
+        // Переводим в сферические координаты
+        float radius = distance;
+        float theta = (float) Math.atan2(offset.x, offset.z); // горизонтальный угол
+        float phi = (float) Math.acos(offset.y / radius);     // вертикальный угол
+
+        // Добавляем новые углы
+        theta += horizontalAngle;
+        phi += verticalAngle;
+
+        // Ограничиваем вертикальный угол
+        phi = Math.max(0.1f, Math.min((float)Math.PI - 0.1f, phi));
+
+        // Конвертируем обратно в декартовы координаты
+        float x = radius * (float)Math.sin(phi) * (float)Math.sin(theta);
+        float y = radius * (float)Math.cos(phi);
+        float z = radius * (float)Math.sin(phi) * (float)Math.cos(theta);
+
+        // Новая позиция камеры
+        Vector3f newPosition = new Vector3f(x, y, z);
+        newPosition.add(center);
+
+        this.position.set(newPosition);
+    }
+
+    /** Зум */
+    public void zoom(float amount) {
+        Vector3f direction = new Vector3f();
+        direction.sub(this.target.get(), this.position.get());
+
+        float distance = direction.length();
+        direction.normalize();
+
+        // Новое расстояние с ограничениями
+        float newDistance = distance + amount;
+        newDistance = Math.max(0.5f, Math.min(50.0f, newDistance));
+
+        // Новая позиция камеры
+        direction.scale(newDistance);
+        Vector3f newPosition = new Vector3f(this.target.get());
+        newPosition.sub(direction);
+
+        this.position.set(newPosition);
     }
 
     Matrix4f getViewMatrix() {
