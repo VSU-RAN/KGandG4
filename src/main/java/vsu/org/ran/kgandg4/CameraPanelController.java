@@ -145,13 +145,13 @@ public class CameraPanelController implements Initializable {
                 break;
 
             case EQUALS:
-                // + = Zoom In
-                activeCamera.zoom(ZOOM_SPEED);
+                // - = Zoom In
+                activeCamera.zoom(-ZOOM_SPEED);
                 break;
 
             case MINUS:
-                // - = Zoom Out
-                activeCamera.zoom(-ZOOM_SPEED);
+                // + = Zoom Out
+                activeCamera.zoom(ZOOM_SPEED);
                 break;
         }
 
