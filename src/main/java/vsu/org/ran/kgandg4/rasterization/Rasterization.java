@@ -2,14 +2,12 @@ package vsu.org.ran.kgandg4.rasterization;
 
 import javafx.scene.image.PixelWriter;
 import javafx.scene.paint.Color;
+import vsu.org.ran.kgandg4.math.Vector3f;
 import vsu.org.ran.kgandg4.render_engine.Texture;
 import vsu.org.ran.kgandg4.render_engine.TexturedVertex;
 import vsu.org.ran.kgandg4.render_engine.Zbuffer;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static java.lang.Math.*;
 
@@ -894,10 +892,10 @@ public class Rasterization {
     }
 
         public static void drawTriangleSimpleBox(
-                PixelWriter pw, Zbuffer zbuffer, Texture texture,
-                int x0, int y0, float z0, float u0, float v0,
-                int x1, int y1, float z1, float u1, float v1,
-                int x2, int y2, float z2, float u2, float v2) {
+                PixelWriter pw, Zbuffer zbuffer, Texture texture, javax.vecmath.Vector3f ray, float k,
+                int x0, int y0, float z0, float u0, float v0, Vector3f n0,
+                int x1, int y1, float z1, float u1, float v1, Vector3f n1,
+                int x2, int y2, float z2, float u2, float v2, Vector3f n2) {
 
             // Находим ограничивающий прямоугольник
             int minX = Math.max(0, Math.min(x0, Math.min(x1, x2)));
@@ -926,15 +924,32 @@ public class Rasterization {
                             float u = alpha * u0 + beta * u1 + gamma * u2;
                             float v = alpha * v0 + beta * v1 + gamma * v2;
 
+
+                            Vector3f n = new Vector3f(
+                                    alpha * n0.getX() + beta * n1.getX() + gamma * n2.getX(),
+                                    alpha * n0.getY() + beta * n1.getY() + gamma * n2.getY(),
+                                    alpha * n0.getZ() + beta * n1.getZ() + gamma * n2.getZ()
+                            );
+                            n.normalize();
+
+                            float l = Math.max(0, -dotProduct(n, ray));
+                            float factor = (1 - k) + (k * l);
+                            Color baseColor = texture.getColor(u, v);
+                            float r = (float)baseColor.getRed() * factor;
+                            float g = (float)baseColor.getGreen() * factor;
+                            float b = (float)baseColor.getBlue() * factor;
+                            Color colorLightning = new Color(r, g, b, baseColor.getOpacity());
 //                            float z_interpolated = 1.0f / oneOverZ;
 //                            float u = uOverZ * z_interpolated;
 //                            float v = vOverZ * z_interpolated;
-
-                            Color color = texture.getColor(u, v);
-                            pw.setColor(x, y, color);
+                            pw.setColor(x, y, colorLightning);
                         }
                     }
                 }
             }
         }
+
+    private static float dotProduct(Vector3f a, javax.vecmath.Vector3f b) {
+        return a.getX() * b.x + a.getY() * b.y + a.getZ() * b.z;
+    }
 }

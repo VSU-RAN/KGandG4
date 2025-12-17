@@ -6,6 +6,7 @@ import javafx.beans.property.SimpleObjectProperty;
 import javax.vecmath.Matrix4f;
 import javax.vecmath.Vector3f;
 import java.util.Objects;
+import java.util.Vector;
 
 
 public class Camera {
@@ -150,6 +151,12 @@ public class Camera {
 
     Matrix4f getProjectionMatrix() {
         return GraphicConveyor.perspective(fov, aspectRatio, nearPlane, farPlane);
+    }
+
+    Vector3f getDirection() {
+        Vector3f result =  this.target.get();
+       result.sub(this.position.get());
+        return result;
     }
 
     @Override

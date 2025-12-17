@@ -72,4 +72,16 @@ public class Vector3f {
         }
         return new Vector3f(this.x / length, this.y / length, this.z / length);
     }
+
+    public void normalize() {
+        float length = this.getLength();
+        if (length < 1e-8f) {
+            this.x = 0;
+            this.y = 0;
+            this.z = 1;
+        }
+        this.x /= length;
+        this.y /= length;
+        this.z /= length;
+    }
 }
