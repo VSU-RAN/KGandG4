@@ -3,10 +3,11 @@ package vsu.org.ran.kgandg4.render_engine;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 
-import javax.vecmath.Matrix4f;
-import javax.vecmath.Vector3f;
+//import javax.vecmath.Matrix4f;
+//import javax.vecmath.Vector3f;
 import java.util.Objects;
-import java.util.Vector;
+import math.vector.Vector3f;
+import math.matrix.Matrix4f;
 
 
 public class Camera {
@@ -95,16 +96,17 @@ public class Camera {
         Vector3f cameraPos = this.position.get();
 
         // Вектор от target к камере
-        Vector3f offset = new Vector3f();
-        offset.sub(cameraPos, center);
+//        Vector3f offset = new Vector3f();
+//        offset.sub(cameraPos, center);
+        Vector3f offset = cameraPos.subtract(center);
 
         // Сохраняем расстояние
         float distance = offset.length();
 
         // Переводим в сферические координаты
         float radius = distance;
-        float theta = (float) Math.atan2(offset.x, offset.z); // горизонтальный угол
-        float phi = (float) Math.acos(offset.y / radius);     // вертикальный угол
+        float theta = (float) Math.atan2(offset.getX(), offset.getZ()); // горизонтальный угол
+        float phi = (float) Math.acos(offset.getY() / radius);     // вертикальный угол
 
         // Добавляем новые углы
         theta += horizontalAngle;
@@ -127,8 +129,9 @@ public class Camera {
 
     /** Зум */
     public void zoom(float amount) {
-        Vector3f direction = new Vector3f();
-        direction.sub(this.target.get(), this.position.get());
+//        Vector3f direction = new Vector3f();
+//        direction.sub(this.target.get(), this.position.get());
+        Vector3f direction = Vector3f.subtract(this.target.get(), this.position.get());
 
         float distance = direction.length();
         direction.normalize();
@@ -138,9 +141,9 @@ public class Camera {
         newDistance = Math.max(0.5f, Math.min(50.0f, newDistance));
 
         // Новая позиция камеры
-        direction.scale(newDistance);
+        direction.multiplyV(newDistance);
         Vector3f newPosition = new Vector3f(this.target.get());
-        newPosition.sub(direction);
+        newPosition.subtractV(direction);
 
         this.position.set(newPosition);
     }
@@ -155,7 +158,7 @@ public class Camera {
 
     Vector3f getDirection() {
         Vector3f result =  this.target.get();
-       result.sub(this.position.get());
+        result.subtractV(this.position.get());
         return result;
     }
 
