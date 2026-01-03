@@ -11,7 +11,7 @@ import vsu.org.ran.kgandg4.model.Polygon;
 //import javax.vecmath.Matrix4f;
 import javax.vecmath.Point2f;
 
-import  math.vector.Vector2f;
+import math.vector.Vector2f;
 import math.vector.Vector3f;
 import math.matrix.Matrix4f;
 

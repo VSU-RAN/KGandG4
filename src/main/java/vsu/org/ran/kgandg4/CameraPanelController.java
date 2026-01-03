@@ -9,7 +9,9 @@ import javafx.scene.input.KeyEvent;
 import vsu.org.ran.kgandg4.render_engine.Camera;
 import vsu.org.ran.kgandg4.render_engine.CameraManager;
 
-import javax.vecmath.Vector3f;
+//import javax.vecmath.Vector3f;
+import math.vector.Vector3f;
+
 import java.net.URL;
 import java.util.ResourceBundle;
 
@@ -187,9 +189,9 @@ public class CameraPanelController implements Initializable {
         camera.positionProperty().addListener((obs, oldPos, newPos) -> {
             if (!isUpdatingFields && newPos != null) {
                 isUpdatingFields = true;
-                camPosX.getValueFactory().setValue((double) newPos.x);
-                camPosY.getValueFactory().setValue((double) newPos.y);
-                camPosZ.getValueFactory().setValue((double) newPos.z);
+                camPosX.getValueFactory().setValue((double) newPos.getX());
+                camPosY.getValueFactory().setValue((double) newPos.getY());
+                camPosZ.getValueFactory().setValue((double) newPos.getZ());
                 isUpdatingFields = false;
             }
         });
@@ -197,9 +199,9 @@ public class CameraPanelController implements Initializable {
         camera.targetProperty().addListener((obs, oldTarget, newTarget) -> {
             if (!isUpdatingFields && newTarget != null) {
                 isUpdatingFields = true;
-                camTargetX.getValueFactory().setValue((double) newTarget.x);
-                camTargetY.getValueFactory().setValue((double) newTarget.y);
-                camTargetZ.getValueFactory().setValue((double) newTarget.z);
+                camTargetX.getValueFactory().setValue((double) newTarget.getX());
+                camTargetY.getValueFactory().setValue((double) newTarget.getY());
+                camTargetZ.getValueFactory().setValue((double) newTarget.getZ());
                 isUpdatingFields = false;
             }
         });
@@ -265,13 +267,13 @@ public class CameraPanelController implements Initializable {
         if (camera == null || isUpdatingFields) return;
         isUpdatingFields = true;
 
-        camPosX.getValueFactory().setValue((double)camera.getPosition().x);
-        camPosY.getValueFactory().setValue((double)camera.getPosition().y);
-        camPosZ.getValueFactory().setValue((double)camera.getPosition().z);
+        camPosX.getValueFactory().setValue((double)camera.getPosition().getX());
+        camPosY.getValueFactory().setValue((double)camera.getPosition().getY());
+        camPosZ.getValueFactory().setValue((double)camera.getPosition().getZ());
 
-        camTargetX.getValueFactory().setValue((double)camera.getTarget().x);
-        camTargetY.getValueFactory().setValue((double)camera.getTarget().y);
-        camTargetZ.getValueFactory().setValue((double)camera.getTarget().z);
+        camTargetX.getValueFactory().setValue((double)camera.getTarget().getX());
+        camTargetY.getValueFactory().setValue((double)camera.getTarget().getY());
+        camTargetZ.getValueFactory().setValue((double)camera.getTarget().getZ());
 
         isUpdatingFields = false;
     }
@@ -286,9 +288,9 @@ public class CameraPanelController implements Initializable {
 
         Camera newCamera = cameraManager.addCamera(
             new Vector3f(
-                    active.getPosition().x + 50,
-                    active.getPosition().y,
-                    active.getPosition().z),
+                    active.getPosition().getX() + 50,
+                    active.getPosition().getY(),
+                    active.getPosition().getZ()),
             new Vector3f(active.getTarget()),
             active.getFov(),
             active.getAspectRatio(),
