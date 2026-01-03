@@ -3,18 +3,21 @@ package vsu.org.ran.kgandg4.render_engine;
 
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
-import vsu.org.ran.kgandg4.math.Vector2f;
-import vsu.org.ran.kgandg4.math.Vector3f;
+//import vsu.org.ran.kgandg4.math.Vector2f;
+//import vsu.org.ran.kgandg4.math.Vector3f;
 import vsu.org.ran.kgandg4.model.Model;
 import vsu.org.ran.kgandg4.model.Polygon;
 
-import javax.vecmath.Matrix4f;
+//import javax.vecmath.Matrix4f;
 import javax.vecmath.Point2f;
+
+import  math.vector.Vector2f;
+import math.vector.Vector3f;
+import math.matrix.Matrix4f;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Vector;
 
 import static vsu.org.ran.kgandg4.rasterization.Rasterization.*;
 import static vsu.org.ran.kgandg4.render_engine.GraphicConveyor.*;
@@ -36,9 +39,9 @@ public class RenderEngine {
             zbuffer.clear();
         }
         if (texture == null) {
-            texture = new Texture("C:\\Users\\Merkury\\Desktop\\KGandG4\\textures\\derevo.jpg");
+            texture = new Texture("/Users/andrejpaskevic/Documents/КГ_Компьютерная_геометрия_и_графика/KGandG4/3DModels/CaracalCube/caracal_texture.png");
         }
-        javax.vecmath.Vector3f ray = camera.getDirection();
+        Vector3f ray = camera.getDirection();
         ray.normalize();
         float k = 0.9f;
 
@@ -46,9 +49,9 @@ public class RenderEngine {
         Matrix4f viewMatrix = camera.getViewMatrix();
         Matrix4f projectionMatrix = camera.getProjectionMatrix();
 
-        Matrix4f projectionViewModelMatrixProjectionMatrix = new Matrix4f(projectionMatrix);
-        projectionViewModelMatrixProjectionMatrix.mul(viewMatrix);
-        projectionViewModelMatrixProjectionMatrix.mul(modelMatrix);
+        Matrix4f projectionViewModelMatrixProjectionMatrix = new Matrix4f(projectionMatrix.copy());
+        projectionViewModelMatrixProjectionMatrix.multiplyV(viewMatrix);
+        projectionViewModelMatrixProjectionMatrix.multiplyV(modelMatrix);
         //Как в методичке
 
         final int nPolygons = mesh.polygons.size();
@@ -76,13 +79,13 @@ public class RenderEngine {
                 textureVertex.add(mesh.textureVertices.get(textureIndices.get(i)));
                 normals.add(mesh.normals.get(normalsIndices.get(i)));
 
-                javax.vecmath.Vector3f vertexVecmath = new javax.vecmath.Vector3f(vertex.getX(), vertex.getY(), vertex.getZ());
+                Vector3f vertexVecmath = new Vector3f(vertex.getX(), vertex.getY(), vertex.getZ());
 
-                javax.vecmath.Vector3f vertexAfterMVPandNormalize = getVertexAfterMVPandNormalize(projectionViewModelMatrixProjectionMatrix, vertexVecmath);
+                Vector3f vertexAfterMVPandNormalize = getVertexAfterMVPandNormalize(projectionViewModelMatrixProjectionMatrix, vertexVecmath);
                 if (!GraphicConveyor.isValidVertex(vertexAfterMVPandNormalize)) {
                     break;
                 }
-                zValues[i] = vertexAfterMVPandNormalize.z;
+                zValues[i] = vertexAfterMVPandNormalize.getZ();
 
                 Point2f screenPoint = vertexToPoint(vertexAfterMVPandNormalize, width, height);
 
@@ -91,7 +94,7 @@ public class RenderEngine {
             if (screenPoints.size() != 3) {
                 continue;
             }
-            if(textureVertex.size() != 3) {
+            if (textureVertex.size() != 3) {
                 System.out.println("ХУЙНЯ");
                 continue;
             }
@@ -99,17 +102,10 @@ public class RenderEngine {
             Point2f p1 = screenPoints.get(1);
             Point2f p2 = screenPoints.get(2);
 
-            TexturedVertex v0 = new TexturedVertex(
-                    screenPoints.get(0), zValues[0], textureVertex.get(0));
-            TexturedVertex v1 = new TexturedVertex(
-                    screenPoints.get(1), zValues[1], textureVertex.get(1));
-            TexturedVertex v2 = new TexturedVertex(
-                    screenPoints.get(2), zValues[2], textureVertex.get(2));
-
-            drawTriangleSimpleBox(graphicsContext.getPixelWriter(), zbuffer, texture, ray, k,
-                    (int) p0.x, (int) p0.y, zValues[0], textureVertex.get(0).getX(), textureVertex.get(0).getY(), normals.get(0),
-                    (int) p1.x, (int) p1.y, zValues[1], textureVertex.get(1).getX(), textureVertex.get(1).getY(), normals.get(1),
-                    (int) p2.x, (int) p2.y, zValues[2], textureVertex.get(2).getX(), textureVertex.get(2).getY(), normals.get(2)
+            drawTriangleBresenhamByIterator(graphicsContext.getPixelWriter(), zbuffer, texture,
+                    (int) p0.x, (int) p0.y, zValues[0], textureVertex.get(0).getX(), textureVertex.get(0).getY(),
+                    (int) p1.x, (int) p1.y, zValues[1], textureVertex.get(1).getX(), textureVertex.get(1).getY(),
+                    (int) p2.x, (int) p2.y, zValues[2], textureVertex.get(2).getX(), textureVertex.get(2).getY()
 
             );
         }
