@@ -2,9 +2,9 @@ package vsu.org.ran.kgandg4.rasterization;
 
 import javafx.scene.image.PixelWriter;
 import javafx.scene.paint.Color;
-import vsu.org.ran.kgandg4.math.Vector3f;
+//import vsu.org.ran.kgandg4.math.Vector3f;
+import math.vector.Vector3f;
 import vsu.org.ran.kgandg4.render_engine.Texture;
-import vsu.org.ran.kgandg4.render_engine.TexturedVertex;
 import vsu.org.ran.kgandg4.render_engine.Zbuffer;
 
 import java.util.*;
@@ -576,7 +576,7 @@ public class Rasterization {
                             float uOverZ = (alpha * (u0 * w0) + beta * (u1 * w1) + gamma * (u2 * w2));
                             float vOverZ = (alpha * (v0 * w0) + beta * (v1 * w1) + gamma * (v2 * w2));
 
-                            float z_interpolated = 1.0f / oneOverZ;
+                            float z_interpolated = 1.0f;
                             float u = uOverZ * z_interpolated;
                             float v = vOverZ * z_interpolated;
 
