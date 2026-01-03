@@ -1,20 +1,27 @@
 package vsu.org.ran.kgandg4.render_engine;
 
 
-import javax.vecmath.Matrix4f;
+//import javax.vecmath.Matrix4f;
+//import javax.vecmath.Vector3f;
+//import javax.vecmath.Vector4f;
+
 import javax.vecmath.Point2f;
-import javax.vecmath.Vector3f;
-import javax.vecmath.Vector4f;
+
+import math.vector.Vector3f;
+import math.vector.Vector4f;
+import math.matrix.Matrix4f;
+
 
 public class GraphicConveyor {
 
     public static Matrix4f rotateScaleTranslate() {
-        float[] matrix = new float[]{
-                1, 0, 0, 0,
-                0, 1, 0, 0,
-                0, 0, 1, 0,
-                0, 0, 0, 1};
-        return new Matrix4f(matrix);
+//        float[] matrix = new float[]{
+//                1, 0, 0, 0,
+//                0, 1, 0, 0,
+//                0, 0, 1, 0,
+//                0, 0, 0, 1};
+//        return new Matrix4f(matrix);
+        return Matrix4f.identityMatrix();
     }
 
     public static Matrix4f lookAt(Vector3f eye, Vector3f target) {
@@ -22,23 +29,33 @@ public class GraphicConveyor {
     }
 
     public static Matrix4f lookAt(Vector3f eye, Vector3f target, Vector3f up) {
-        Vector3f resultX = new Vector3f();
-        Vector3f resultY = new Vector3f();
-        Vector3f resultZ = new Vector3f();
+        Vector3f resultX;
+        Vector3f resultY;
+        Vector3f resultZ;
 
-        resultZ.sub(target, eye);
-        resultX.cross(up, resultZ);
-        resultY.cross(resultZ, resultX);
+//        resultZ.sub(target, eye);
+//        resultX.cross(up, resultZ);
+//        resultY.cross(resultZ, resultX);
+
+        resultZ = Vector3f.subtract(target, eye);
+        resultX = Vector3f.crossProduct(up, resultZ);
+        resultY = Vector3f.crossProduct(resultZ, resultX);
 
         resultX.normalize();
         resultY.normalize();
         resultZ.normalize();
 
+//        return new Matrix4f(
+//                {resultX.x, resultX.y, resultX.z, -(resultX.dot(eye)),
+//                 resultY.x, resultY.y, resultY.z, -(resultY.dot(eye)),
+//                 resultZ.x, resultZ.y, resultZ.z, -(resultZ.dot(eye)),
+//                 0, 0, 0, 1}
+//        );
         return new Matrix4f(
-                resultX.x, resultX.y, resultX.z, -(resultX.dot(eye)),
-                resultY.x, resultY.y, resultY.z, -(resultY.dot(eye)),
-                resultZ.x, resultZ.y, resultZ.z, -(resultZ.dot(eye)),
-                0, 0, 0, 1
+                new float[]{resultX.getX(), resultX.getY(), resultX.getZ(), -(resultX.dotProduct(eye)),
+                 resultY.getX(), resultY.getY(), resultY.getZ(), -(resultY.dotProduct(eye)),
+                 resultZ.getX(), resultZ.getY(), resultZ.getZ(), -(resultZ.dotProduct(eye)),
+                 0, 0, 0, 1}
         );
         //Как в методичке
     }
@@ -52,35 +69,36 @@ public class GraphicConveyor {
         float tangensMinusOnDegreeFov = (float) (1.0F / (Math.tan(fov * 0.5F)));
 
         return new Matrix4f(
-                tangensMinusOnDegreeFov  /aspectRatio, 0, 0, 0,
+                new float[]{tangensMinusOnDegreeFov / aspectRatio, 0, 0, 0,
                 0, tangensMinusOnDegreeFov, 0, 0,
                 0, 0, (farPlane + nearPlane) / (farPlane - nearPlane), (2 * farPlane * nearPlane) / (nearPlane - farPlane),
-                0, 0, 1, 0
+                0, 0, 1, 0}
         );
         //Как в методичке
     }
 
     public static Vector3f getVertexAfterMVPandNormalize(final Matrix4f PVM, final Vector3f vertex) {
-        Vector4f vertexWithW = new Vector4f(vertex.x, vertex.y, vertex.z, 1.0F);
+        Vector4f vertexWithW = new Vector4f(vertex.getX(), vertex.getY(), vertex.getZ(), 1.0F);
 
-        Vector4f result4f = new Vector4f();
+        Vector4f result4f = PVM.transformed(vertexWithW); // v' = PVM * v;
 
-        PVM.transform(vertexWithW, result4f); // v' = PVM * v
+//        PVM.transform(vertexWithW, result4f); // v' = PVM * v
 
-        return new Vector3f(result4f.x / result4f.w, result4f.y / result4f.w, result4f.z / result4f.w);
+        return new Vector3f(result4f.getX() / result4f.getW(),
+                result4f.getY() / result4f.getW(), result4f.getZ() / result4f.getW());
     }
 
     public static Point2f vertexToPoint(final Vector3f vertex, final int width, final int height) {
-        return new Point2f((float) (width - 1) / 2 * vertex.x + (float) (width - 1) / 2, (float) (1 - height) / 2 * vertex.y + (float) (height - 1) / 2);
+        return new Point2f((float) (width - 1) / 2 * vertex.getX() + (float) (width - 1) / 2, (float) (1 - height) / 2 * vertex.getY() + (float) (height - 1) / 2);
         //Как в методичке
     }
 
     public static boolean isValidVertex(Vector3f vertex) {
-        if (vertex.x > 1.0F || vertex.x < -1.0F) return false;
+        if (vertex.getX() > 1.0F || vertex.getX() < -1.0F) return false;
 
-        if (vertex.y > 1.0F || vertex.y < -1.0F) return false;
+        if (vertex.getY() > 1.0F || vertex.getY() < -1.0F) return false;
 
-        if (vertex.z > 1.0F || vertex.z < -1.0F) return false;
+        if (vertex.getZ() > 1.0F || vertex.getZ() < -1.0F) return false;
 
         return true;
     }
