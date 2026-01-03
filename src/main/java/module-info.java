@@ -3,6 +3,7 @@ module vsu.org.ran.kgandg4 {
     requires javafx.fxml;
     requires java.desktop;
     requires vecmath;
+    requires MathLibrary;
 
 
     opens vsu.org.ran.kgandg4 to javafx.fxml;
