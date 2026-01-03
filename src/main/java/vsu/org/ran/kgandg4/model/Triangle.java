@@ -1,7 +1,10 @@
 package vsu.org.ran.kgandg4.model;
 
-import vsu.org.ran.kgandg4.math.MathUtil;
-import vsu.org.ran.kgandg4.math.Vector3f;
+//import vsu.org.ran.kgandg4.math.MathUtil;
+//import vsu.org.ran.kgandg4.math.Vector3f;
+
+import math.vector.Vector3f;
+import utils.MathUtil;
 
 import java.util.ArrayList;
 import java.util.Collections;
