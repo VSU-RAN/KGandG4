@@ -1,6 +1,6 @@
 package vsu.org.ran.kgandg4.normals;
 
-//import vsu.org.ran.kgandg4.math.MathUtil;
+import vsu.org.ran.kgandg4.math.MathUtil;
 //import vsu.org.ran.kgandg4.math.Vector3f;
 import math.vector.Vector3f;
 import vsu.org.ran.kgandg4.model.Model;
@@ -42,7 +42,6 @@ public class FaceNormalCalculator implements NormalCalculator{
         Vector3f u = v1.subtract(v0);
         Vector3f v = v2.subtract(v0);
 
-//        Vector3f n = MathUtil.cross(u, v).getNormalizedVector();
         Vector3f n = Vector3f.crossProduct(u, v);
         n.normalize();
 
