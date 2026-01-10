@@ -2,15 +2,11 @@ package vsu.org.ran.kgandg4.render_engine;
 
 
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.paint.Color;
-//import vsu.org.ran.kgandg4.math.Vector2f;
-//import vsu.org.ran.kgandg4.math.Vector3f;
+
 import vsu.org.ran.kgandg4.model.Model;
 import vsu.org.ran.kgandg4.model.Polygon;
 
-//import javax.vecmath.Matrix4f;
-import javax.vecmath.Point2f;
-
+import math.point.Point2f;
 import math.vector.Vector2f;
 import math.vector.Vector3f;
 import math.matrix.Matrix4f;
@@ -103,11 +99,17 @@ public class RenderEngine {
             Point2f p2 = screenPoints.get(2);
 
             drawTriangleBresenhamByIterator(graphicsContext.getPixelWriter(), zbuffer, texture,
-                    (int) p0.x, (int) p0.y, zValues[0], textureVertex.get(0).getX(), textureVertex.get(0).getY(),
-                    (int) p1.x, (int) p1.y, zValues[1], textureVertex.get(1).getX(), textureVertex.get(1).getY(),
-                    (int) p2.x, (int) p2.y, zValues[2], textureVertex.get(2).getX(), textureVertex.get(2).getY()
+                    (int) p0.getX(), (int) p0.getY(), zValues[0], textureVertex.get(0).getX(), textureVertex.get(0).getY(),
+                    (int) p1.getX(), (int) p1.getY(), zValues[1], textureVertex.get(1).getX(), textureVertex.get(1).getY(),
+                    (int) p2.getX(), (int) p2.getY(), zValues[2], textureVertex.get(2).getX(), textureVertex.get(2).getY()
 
             );
+//            drawTriangleBresenhamByIterator(graphicsContext.getPixelWriter(), zbuffer, texture,
+//                    (int) p0.x, (int) p0.y, zValues[0], textureVertex.get(0).getX(), textureVertex.get(0).getY(),
+//                    (int) p1.x, (int) p1.y, zValues[1], textureVertex.get(1).getX(), textureVertex.get(1).getY(),
+//                    (int) p2.x, (int) p2.y, zValues[2], textureVertex.get(2).getX(), textureVertex.get(2).getY()
+//
+//            );
         }
     }
 
