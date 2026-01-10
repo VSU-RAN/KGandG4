@@ -1,12 +1,7 @@
 package vsu.org.ran.kgandg4.render_engine;
 
 
-//import javax.vecmath.Matrix4f;
-//import javax.vecmath.Vector3f;
-//import javax.vecmath.Vector4f;
-
-import javax.vecmath.Point2f;
-
+import math.point.Point2f;
 import math.vector.Vector3f;
 import math.vector.Vector4f;
 import math.matrix.Matrix4f;
