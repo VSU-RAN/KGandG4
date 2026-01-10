@@ -2,8 +2,9 @@ package vsu.org.ran.kgandg4.rasterization;
 
 import javafx.scene.image.PixelWriter;
 import javafx.scene.paint.Color;
-//import vsu.org.ran.kgandg4.math.Vector3f;
+
 import math.vector.Vector3f;
+
 import vsu.org.ran.kgandg4.render_engine.Texture;
 import vsu.org.ran.kgandg4.render_engine.Zbuffer;
 
@@ -892,7 +893,7 @@ public class Rasterization {
     }
 
         public static void drawTriangleSimpleBox(
-                PixelWriter pw, Zbuffer zbuffer, Texture texture, javax.vecmath.Vector3f ray, float k,
+                PixelWriter pw, Zbuffer zbuffer, Texture texture, Vector3f ray, float k,
                 int x0, int y0, float z0, float u0, float v0, Vector3f n0,
                 int x1, int y1, float z1, float u1, float v1, Vector3f n1,
                 int x2, int y2, float z2, float u2, float v2, Vector3f n2) {
@@ -949,7 +950,8 @@ public class Rasterization {
             }
         }
 
-    private static float dotProduct(Vector3f a, javax.vecmath.Vector3f b) {
-        return a.getX() * b.x + a.getY() * b.y + a.getZ() * b.z;
+    private static float dotProduct(Vector3f a, Vector3f b) {
+        return a.getX() * b.getX() + a.getY() * b.getY() + a.getZ() * b.getZ();
     }
+
 }
