@@ -1,8 +1,6 @@
 package vsu.org.ran.kgandg4.model;
 
 
-//import vsu.org.ran.kgandg4.math.Vector2f;
-//import vsu.org.ran.kgandg4.math.Vector3f;
 import math.vector.Vector2f;
 import math.vector.Vector3f;
 
