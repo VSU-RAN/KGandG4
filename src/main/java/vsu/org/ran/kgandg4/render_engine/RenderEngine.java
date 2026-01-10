@@ -106,7 +106,7 @@ public class RenderEngine {
             TexturedVertex v2 = new TexturedVertex(
                     screenPoints.get(2), zValues[2], textureVertex.get(2));
 
-            drawTriangleSimpleBox(graphicsContext.getPixelWriter(), zbuffer, texture, ray, k,
+            drawTriangleBresenhamByIterator(graphicsContext.getPixelWriter(), zbuffer, texture, ray, k,
                     (int) p0.x, (int) p0.y, zValues[0], textureVertex.get(0).getX(), textureVertex.get(0).getY(), normals.get(0),
                     (int) p1.x, (int) p1.y, zValues[1], textureVertex.get(1).getX(), textureVertex.get(1).getY(), normals.get(1),
                     (int) p2.x, (int) p2.y, zValues[2], textureVertex.get(2).getX(), textureVertex.get(2).getY(), normals.get(2)

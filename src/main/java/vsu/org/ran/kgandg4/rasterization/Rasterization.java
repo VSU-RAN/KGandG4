@@ -463,10 +463,10 @@ public class Rasterization {
         }
     }
 
-    public static void drawTriangleBresenhamByIterator(PixelWriter pw, Zbuffer zbuffer, Texture texture,
-                                                       int x0, int y0, float z0, float u0, float v0,
-                                                       int x1, int y1, float z1, float u1, float v1,
-                                                       int x2, int y2, float z2, float u2, float v2) {
+    public static void drawTriangleBresenhamByIterator(PixelWriter pw, Zbuffer zbuffer, Texture texture, javax.vecmath.Vector3f ray, float k,
+                                                       int x0, int y0, float z0, float u0, float v0, Vector3f n0,
+                                                       int x1, int y1, float z1, float u1, float v1, Vector3f n1,
+                                                       int x2, int y2, float z2, float u2, float v2, Vector3f n2) {
         float w0 = 1.0f / z0;
         float w1 = 1.0f / z1;
         float w2 = 1.0f / z2;
@@ -572,16 +572,32 @@ public class Rasterization {
                     if (alpha >= -0.0001f && beta >= -0.0001f && gamma >= -0.0001f) {
                         float z = (alpha * z0 + beta * z1 + gamma * z2);
                         if (zbuffer.testPointAndSet(x, y, z)) {
-                            float oneOverZ =(alpha * w0 + beta * w1 + gamma * w2);
+                            float oneOverZ = (alpha * w0 + beta * w1 + gamma * w2);
                             float uOverZ = (alpha * (u0 * w0) + beta * (u1 * w1) + gamma * (u2 * w2));
                             float vOverZ = (alpha * (v0 * w0) + beta * (v1 * w1) + gamma * (v2 * w2));
+//                            float u = alpha * u0 + beta * u1 + gamma * u2;
+//                            float v = alpha * v0 + beta * v1 + gamma * v2;
 
                             float z_interpolated = 1.0f / oneOverZ;
                             float u = uOverZ * z_interpolated;
                             float v = vOverZ * z_interpolated;
+                            Color baseColor = texture.getColor(u, v);
 
-                            Color color = texture.getColor(u, v);
-                            pw.setColor(x, y, color);
+
+                            Vector3f n = new Vector3f(
+                                    alpha * n0.getX() + beta * n1.getX() + gamma * n2.getX(),
+                                    alpha * n0.getY() + beta * n1.getY() + gamma * n2.getY(),
+                                    alpha * n0.getZ() + beta * n1.getZ() + gamma * n2.getZ()
+                            );
+                            n.normalize();
+
+                            float l = Math.max(0, -dotProduct(n, ray));
+                            float factor = (1 - k) + (k * l);
+                            float r = (float) baseColor.getRed() * factor;
+                            float g = (float) baseColor.getGreen() * factor;
+                            float b = (float) baseColor.getBlue() * factor;
+                            Color colorLightning = new Color(r, g, b, baseColor.getOpacity());
+                            pw.setColor(x, y, colorLightning);
                         }
                     }
                 }
@@ -606,14 +622,30 @@ public class Rasterization {
                         if (zbuffer.testPointAndSet(x, y, z)) {
                             float oneOverZ = (alpha * w0 + beta * w1 + gamma * w2);
                             float uOverZ = (alpha * (u0 * w0) + beta * (u1 * w1) + gamma * (u2 * w2));
-                            float vOverZ =(alpha * (v0 * w0) + beta * (v1 * w1) + gamma * (v2 * w2));
+                            float vOverZ = (alpha * (v0 * w0) + beta * (v1 * w1) + gamma * (v2 * w2));
+//                            float u = alpha * u0 + beta * u1 + gamma * u2;
+//                            float v = alpha * v0 + beta * v1 + gamma * v2;
 
                             float z_interpolated = 1.0f / oneOverZ;
                             float u = uOverZ * z_interpolated;
                             float v = vOverZ * z_interpolated;
+                            Color baseColor = texture.getColor(u, v);
 
-                            Color color = texture.getColor(u, v);
-                            pw.setColor(x, y, color);
+
+                            Vector3f n = new Vector3f(
+                                    alpha * n0.getX() + beta * n1.getX() + gamma * n2.getX(),
+                                    alpha * n0.getY() + beta * n1.getY() + gamma * n2.getY(),
+                                    alpha * n0.getZ() + beta * n1.getZ() + gamma * n2.getZ()
+                            );
+                            n.normalize();
+
+                            float l = Math.max(0, -dotProduct(n, ray));
+                            float factor = (1 - k) + (k * l);
+                            float r = (float) baseColor.getRed() * factor;
+                            float g = (float) baseColor.getGreen() * factor;
+                            float b = (float) baseColor.getBlue() * factor;
+                            Color colorLightning = new Color(r, g, b, baseColor.getOpacity());
+                            pw.setColor(x, y, colorLightning);
                         }
                     }
                 }
@@ -632,18 +664,34 @@ public class Rasterization {
                         x2 + 0.5f, y2 + 0.5f);
                 float alpha = barycentric[0], beta = barycentric[1], gamma = barycentric[2];
                 if (alpha >= -0.0001f && beta >= -0.0001f && gamma >= -0.0001f) {
-                    float z =  (alpha * z0 + beta * z1 + gamma * z2);
+                    float z = (alpha * z0 + beta * z1 + gamma * z2);
                     if (zbuffer.testPointAndSet(x, y, z)) {
-                        float oneOverZ =(alpha * w0 + beta * w1 + gamma * w2);
+                        float oneOverZ = (alpha * w0 + beta * w1 + gamma * w2);
                         float uOverZ = (alpha * (u0 * w0) + beta * (u1 * w1) + gamma * (u2 * w2));
-                        float vOverZ =(alpha * (v0 * w0) + beta * (v1 * w1) + gamma * (v2 * w2));
+                        float vOverZ = (alpha * (v0 * w0) + beta * (v1 * w1) + gamma * (v2 * w2));
+//                            float u = alpha * u0 + beta * u1 + gamma * u2;
+//                            float v = alpha * v0 + beta * v1 + gamma * v2;
 
                         float z_interpolated = 1.0f / oneOverZ;
                         float u = uOverZ * z_interpolated;
                         float v = vOverZ * z_interpolated;
+                        Color baseColor = texture.getColor(u, v);
 
-                        Color color = texture.getColor(u, v);
-                        pw.setColor(x, y, color);
+
+                        Vector3f n = new Vector3f(
+                                alpha * n0.getX() + beta * n1.getX() + gamma * n2.getX(),
+                                alpha * n0.getY() + beta * n1.getY() + gamma * n2.getY(),
+                                alpha * n0.getZ() + beta * n1.getZ() + gamma * n2.getZ()
+                        );
+                        n.normalize();
+
+                        float l = Math.max(0, -dotProduct(n, ray));
+                        float factor = (1 - k) + (k * l);
+                        float r = (float) baseColor.getRed() * factor;
+                        float g = (float) baseColor.getGreen() * factor;
+                        float b = (float) baseColor.getBlue() * factor;
+                        Color colorLightning = new Color(r, g, b, baseColor.getOpacity());
+                        pw.setColor(x, y, colorLightning);
                     }
                 }
             }
@@ -737,21 +785,41 @@ public class Rasterization {
                 int yLineEnd = borderIterator2.getY();
                 it_2_out.put(x, yLineEnd);
                 for (int y = min(yLineStart, yLineEnd); y <= max(yLineStart, yLineEnd); y++) {
-                    float[] barycentric = findBarycentricCords(x, y, x0, y0, x1, y1, x2, y2);
+                    float[] barycentric = findBarycentricCords(
+                            x + 0.5f, y + 0.5f,
+                            x0 + 0.5f, y0 + 0.5f,
+                            x1 + 0.5f, y1 + 0.5f,
+                            x2 + 0.5f, y2 + 0.5f);
                     float alpha = barycentric[0], beta = barycentric[1], gamma = barycentric[2];
                     if (alpha >= -0.0001f && beta >= -0.0001f && gamma >= -0.0001f) {
-                        float z =  (alpha * z0 + beta * z1 + gamma * z2);
+                        float z = (alpha * z0 + beta * z1 + gamma * z2);
                         if (zbuffer.testPointAndSet(x, y, z)) {
                             float oneOverZ = (alpha * w0 + beta * w1 + gamma * w2);
                             float uOverZ = (alpha * (u0 * w0) + beta * (u1 * w1) + gamma * (u2 * w2));
                             float vOverZ = (alpha * (v0 * w0) + beta * (v1 * w1) + gamma * (v2 * w2));
+//                            float u = alpha * u0 + beta * u1 + gamma * u2;
+//                            float v = alpha * v0 + beta * v1 + gamma * v2;
 
                             float z_interpolated = 1.0f / oneOverZ;
                             float u = uOverZ * z_interpolated;
                             float v = vOverZ * z_interpolated;
+                            Color baseColor = texture.getColor(u, v);
 
-                            Color color = texture.getColor(u, v);
-                            pw.setColor(x, y, color);
+
+                            Vector3f n = new Vector3f(
+                                    alpha * n0.getX() + beta * n1.getX() + gamma * n2.getX(),
+                                    alpha * n0.getY() + beta * n1.getY() + gamma * n2.getY(),
+                                    alpha * n0.getZ() + beta * n1.getZ() + gamma * n2.getZ()
+                            );
+                            n.normalize();
+
+                            float l = Math.max(0, -dotProduct(n, ray));
+                            float factor = (1 - k) + (k * l);
+                            float r = (float) baseColor.getRed() * factor;
+                            float g = (float) baseColor.getGreen() * factor;
+                            float b = (float) baseColor.getBlue() * factor;
+                            Color colorLightning = new Color(r, g, b, baseColor.getOpacity());
+                            pw.setColor(x, y, colorLightning);
                         }
                     }
                 }
@@ -765,21 +833,41 @@ public class Rasterization {
                 int yLineEnd = borderIterator3.getY();
                 it_2_out.put(x, yLineStart);
                 for (int y = min(yLineStart, yLineEnd); y <= max(yLineStart, yLineEnd); y++) {
-                    float[] barycentric = findBarycentricCords(x, y, x0, y0, x1, y1, x2, y2);
+                    float[] barycentric = findBarycentricCords(
+                            x + 0.5f, y + 0.5f,
+                            x0 + 0.5f, y0 + 0.5f,
+                            x1 + 0.5f, y1 + 0.5f,
+                            x2 + 0.5f, y2 + 0.5f);
                     float alpha = barycentric[0], beta = barycentric[1], gamma = barycentric[2];
                     if (alpha >= -0.0001f && beta >= -0.0001f && gamma >= -0.0001f) {
-                        float z =  (alpha * z0 + beta * z1 + gamma * z2);
+                        float z = (alpha * z0 + beta * z1 + gamma * z2);
                         if (zbuffer.testPointAndSet(x, y, z)) {
                             float oneOverZ = (alpha * w0 + beta * w1 + gamma * w2);
                             float uOverZ = (alpha * (u0 * w0) + beta * (u1 * w1) + gamma * (u2 * w2));
                             float vOverZ = (alpha * (v0 * w0) + beta * (v1 * w1) + gamma * (v2 * w2));
+//                            float u = alpha * u0 + beta * u1 + gamma * u2;
+//                            float v = alpha * v0 + beta * v1 + gamma * v2;
 
                             float z_interpolated = 1.0f / oneOverZ;
                             float u = uOverZ * z_interpolated;
                             float v = vOverZ * z_interpolated;
+                            Color baseColor = texture.getColor(u, v);
 
-                            Color color = texture.getColor(u, v);
-                            pw.setColor(x, y, color);
+
+                            Vector3f n = new Vector3f(
+                                    alpha * n0.getX() + beta * n1.getX() + gamma * n2.getX(),
+                                    alpha * n0.getY() + beta * n1.getY() + gamma * n2.getY(),
+                                    alpha * n0.getZ() + beta * n1.getZ() + gamma * n2.getZ()
+                            );
+                            n.normalize();
+
+                            float l = Math.max(0, -dotProduct(n, ray));
+                            float factor = (1 - k) + (k * l);
+                            float r = (float) baseColor.getRed() * factor;
+                            float g = (float) baseColor.getGreen() * factor;
+                            float b = (float) baseColor.getBlue() * factor;
+                            Color colorLightning = new Color(r, g, b, baseColor.getOpacity());
+                            pw.setColor(x, y, colorLightning);
                         }
                     }
                 }
@@ -792,21 +880,41 @@ public class Rasterization {
             int yLineEnd = borderIterator3.getY();
             it_2_out.put(x, yLineStart);
             for (int y = min(yLineStart, yLineEnd); y <= max(yLineStart, yLineEnd); y++) {
-                float[] barycentric = findBarycentricCords(x, y, x0, y0, x1, y1, x2, y2);
+                float[] barycentric = findBarycentricCords(
+                        x + 0.5f, y + 0.5f,
+                        x0 + 0.5f, y0 + 0.5f,
+                        x1 + 0.5f, y1 + 0.5f,
+                        x2 + 0.5f, y2 + 0.5f);
                 float alpha = barycentric[0], beta = barycentric[1], gamma = barycentric[2];
                 if (alpha >= -0.0001f && beta >= -0.0001f && gamma >= -0.0001f) {
                     float z = (alpha * z0 + beta * z1 + gamma * z2);
                     if (zbuffer.testPointAndSet(x, y, z)) {
                         float oneOverZ = (alpha * w0 + beta * w1 + gamma * w2);
                         float uOverZ = (alpha * (u0 * w0) + beta * (u1 * w1) + gamma * (u2 * w2));
-                        float vOverZ =(alpha * (v0 * w0) + beta * (v1 * w1) + gamma * (v2 * w2));
+                        float vOverZ = (alpha * (v0 * w0) + beta * (v1 * w1) + gamma * (v2 * w2));
+//                            float u = alpha * u0 + beta * u1 + gamma * u2;
+//                            float v = alpha * v0 + beta * v1 + gamma * v2;
 
                         float z_interpolated = 1.0f / oneOverZ;
                         float u = uOverZ * z_interpolated;
                         float v = vOverZ * z_interpolated;
+                        Color baseColor = texture.getColor(u, v);
 
-                        Color color = texture.getColor(u, v);
-                        pw.setColor(x, y, color);
+
+                        Vector3f n = new Vector3f(
+                                alpha * n0.getX() + beta * n1.getX() + gamma * n2.getX(),
+                                alpha * n0.getY() + beta * n1.getY() + gamma * n2.getY(),
+                                alpha * n0.getZ() + beta * n1.getZ() + gamma * n2.getZ()
+                        );
+                        n.normalize();
+
+                        float l = Math.max(0, -dotProduct(n, ray));
+                        float factor = (1 - k) + (k * l);
+                        float r = (float) baseColor.getRed() * factor;
+                        float g = (float) baseColor.getGreen() * factor;
+                        float b = (float) baseColor.getBlue() * factor;
+                        Color colorLightning = new Color(r, g, b, baseColor.getOpacity());
+                        pw.setColor(x, y, colorLightning);
                     }
                 }
             }
@@ -903,9 +1011,9 @@ public class Rasterization {
             int minY = Math.max(0, Math.min(y0, Math.min(y1, y2)));
             int maxY = Math.min(zbuffer.getHeight() - 1, Math.max(y0, Math.max(y1, y2)));
 
-//            float w0 = (Math.abs(z0) > 0.000001f) ? 1.0f / z0 : Float.MAX_VALUE;
-//            float w1 = (Math.abs(z1) > 0.000001f) ? 1.0f / z1 : Float.MAX_VALUE;
-//            float w2 = (Math.abs(z2) > 0.000001f) ? 1.0f / z2 : Float.MAX_VALUE;
+            float w0 = (Math.abs(z0) > 0.000001f) ? 1.0f / z0 : Float.MAX_VALUE;
+            float w1 = (Math.abs(z1) > 0.000001f) ? 1.0f / z1 : Float.MAX_VALUE;
+            float w2 = (Math.abs(z2) > 0.000001f) ? 1.0f / z2 : Float.MAX_VALUE;
 
             for (int y = minY; y <= maxY; y++) {
                 for (int x = minX; x <= maxX; x++) {
@@ -918,11 +1026,17 @@ public class Rasterization {
                     if (alpha >= -0.0001f && beta >= -0.0001f && gamma >= -0.0001f) {
                         float z = (alpha * z0 + beta * z1 + gamma * z2);
                         if (zbuffer.testPointAndSet(x, y, z)) {
-//                            float oneOverZ =(alpha * w0 + beta * w1 + gamma * w2);
-//                            float uOverZ = (alpha * (u0 * w0) + beta * (u1 * w1) + gamma * (u2 * w2));
-//                            float vOverZ =(alpha * (v0 * w0) + beta * (v1 * w1) + gamma * (v2 * w2));
-                            float u = alpha * u0 + beta * u1 + gamma * u2;
-                            float v = alpha * v0 + beta * v1 + gamma * v2;
+                            float oneOverZ =(alpha * w0 + beta * w1 + gamma * w2);
+                            float uOverZ = (alpha * (u0 * w0) + beta * (u1 * w1) + gamma * (u2 * w2));
+                            float vOverZ =(alpha * (v0 * w0) + beta * (v1 * w1) + gamma * (v2 * w2));
+//                            float u = alpha * u0 + beta * u1 + gamma * u2;
+//                            float v = alpha * v0 + beta * v1 + gamma * v2;
+
+                            float z_interpolated = 1.0f / oneOverZ;
+                            float u = uOverZ * z_interpolated;
+                            float v = vOverZ * z_interpolated;
+                            Color baseColor = texture.getColor(u, v);
+
 
 
                             Vector3f n = new Vector3f(
@@ -934,14 +1048,10 @@ public class Rasterization {
 
                             float l = Math.max(0, -dotProduct(n, ray));
                             float factor = (1 - k) + (k * l);
-                            Color baseColor = texture.getColor(u, v);
                             float r = (float)baseColor.getRed() * factor;
                             float g = (float)baseColor.getGreen() * factor;
                             float b = (float)baseColor.getBlue() * factor;
                             Color colorLightning = new Color(r, g, b, baseColor.getOpacity());
-//                            float z_interpolated = 1.0f / oneOverZ;
-//                            float u = uOverZ * z_interpolated;
-//                            float v = vOverZ * z_interpolated;
                             pw.setColor(x, y, colorLightning);
                         }
                     }

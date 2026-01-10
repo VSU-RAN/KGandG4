@@ -118,15 +118,7 @@ public class GuiController {
         try {
             String fileContent = Files.readString(fileName);
             mesh = ObjReader.read(fileContent);
-            for (Polygon p: mesh.polygons) {
-                System.out.println("Original polygon vertices: " + p.getVertexIndices());
-                System.out.println("Original polygon textures: " + p.getTextureVertexIndices());
-            }
             triangulator.triangulateModel(mesh);
-            for (Polygon p : mesh.polygons) {
-                System.out.println("Triangle vertices: " + p.getVertexIndices());
-                System.out.println("Triangle textures: " + p.getTextureVertexIndices());
-            }
             normalCalculator.calculateNormals(mesh);
 
             // todo: обработка ошибок
