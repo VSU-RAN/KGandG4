@@ -2,7 +2,7 @@ module vsu.org.ran.kgandg4 {
     requires javafx.controls;
     requires javafx.fxml;
     requires java.desktop;
-    requires vecmath;
+//    requires vecmath;
     requires MathLibrary;
 
 
