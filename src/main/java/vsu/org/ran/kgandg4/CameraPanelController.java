@@ -9,7 +9,6 @@ import javafx.scene.input.KeyEvent;
 import vsu.org.ran.kgandg4.render_engine.Camera;
 import vsu.org.ran.kgandg4.render_engine.CameraManager;
 
-//import javax.vecmath.Vector3f;
 import math.vector.Vector3f;
 
 import java.net.URL;
