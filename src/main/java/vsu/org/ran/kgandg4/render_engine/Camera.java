@@ -3,12 +3,10 @@ package vsu.org.ran.kgandg4.render_engine;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 
-//import javax.vecmath.Matrix4f;
-//import javax.vecmath.Vector3f;
-import java.util.Objects;
 import math.vector.Vector3f;
 import math.matrix.Matrix4f;
 
+import java.util.Objects;
 
 public class Camera {
     private final int id;
@@ -70,23 +68,23 @@ public class Camera {
 
     public void movePosition(final Vector3f translation) {
         Vector3f newPos = new Vector3f(this.position.get());
-        newPos.add(translation);
+        newPos.addV(translation);
         this.position.set(newPos);
 
     }
 
     public void moveTarget(final Vector3f translation) {
-        this.target.get().add(translation);
+        this.target.get().addV(translation);
     }
 
     /** Паномиривание */
     public void movePositionAndTarget(Vector3f translation) {
         Vector3f newPos = new Vector3f(this.position.get());
-        newPos.add(translation);
+        newPos.addV(translation);
         this.position.set(newPos);
 
         Vector3f newTarget = new Vector3f(this.target.get());
-        newTarget.add(translation);
+        newTarget.addV(translation);
         this.target.set(newTarget);
     }
 
@@ -122,7 +120,7 @@ public class Camera {
 
         // Новая позиция камеры
         Vector3f newPosition = new Vector3f(x, y, z);
-        newPosition.add(center);
+        newPosition.addV(center);
 
         this.position.set(newPosition);
     }
@@ -157,7 +155,7 @@ public class Camera {
     }
 
     Vector3f getDirection() {
-        Vector3f result =  this.target.get();
+        Vector3f result = this.target.get();
         result.subtractV(this.position.get());
         return result;
     }
