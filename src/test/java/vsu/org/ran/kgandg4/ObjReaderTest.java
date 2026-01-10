@@ -2,9 +2,11 @@ package vsu.org.ran.kgandg4;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import vsu.org.ran.kgandg4.math.Vector3f;
+//import vsu.org.ran.kgandg4.math.Vector3f;
 import vsu.org.ran.kgandg4.objReader.ObjReader;
 import vsu.org.ran.kgandg4.objReader.ObjReaderException;
+
+import math.vector.Vector3f; // вместо // import vsu.org.ran.kgandg4.math.Vector3f;
 
 import java.util.ArrayList;
 import java.util.Arrays;
