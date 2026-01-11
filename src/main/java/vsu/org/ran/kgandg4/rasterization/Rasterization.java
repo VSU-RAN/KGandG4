@@ -11,6 +11,7 @@ import vsu.org.ran.kgandg4.render_engine.Zbuffer;
 import java.util.*;
 
 import static java.lang.Math.*;
+import static math.vector.Vector3f.dotProduct;
 
 public class Rasterization {
     public static Map<Integer, List<Integer>> myBresenhamOneY(int x0, int y0, int x1, int y1) {
@@ -464,7 +465,7 @@ public class Rasterization {
         }
     }
 
-    public static void drawTriangleBresenhamByIterator(PixelWriter pw, Zbuffer zbuffer, Texture texture, javax.vecmath.Vector3f ray, float k,
+    public static void drawTriangleBresenhamByIterator(PixelWriter pw, Zbuffer zbuffer, Texture texture, Vector3f ray, float k,
                                                        int x0, int y0, float z0, float u0, float v0, Vector3f n0,
                                                        int x1, int y1, float z1, float u1, float v1, Vector3f n1,
                                                        int x2, int y2, float z2, float u2, float v2, Vector3f n2) {
@@ -1059,9 +1060,5 @@ public class Rasterization {
                 }
             }
         }
-
-    private static float dotProduct(Vector3f a, Vector3f b) {
-        return a.getX() * b.getX() + a.getY() * b.getY() + a.getZ() * b.getZ();
-    }
 
 }

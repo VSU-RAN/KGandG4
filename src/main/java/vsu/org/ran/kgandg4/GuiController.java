@@ -27,10 +27,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 public class GuiController {
-    private static final float PAN_SPEED = 0.5f;
-    private static final float ORBIT_SPEED = 0.05f;
-    private static final float DOLLY_SPEED = 0.5f;
-
     @FXML private BorderPane rootPane;
 
     @FXML
@@ -105,9 +101,9 @@ public class GuiController {
         fileChooser.setTitle("Load Model");
 
         //Для более удобной работы, сразу папка с моделями
-        String home = System.getProperty("user.home");
-        File desktopDir = new File(home, "/Documents/KGandG4/3DModels");
-        fileChooser.setInitialDirectory(desktopDir);
+        File projectDir = new File(System.getProperty("user.dir"));
+        File modelsDir = new File(projectDir, "3DModels");
+        fileChooser.setInitialDirectory(modelsDir);
 
 
         File file = fileChooser.showOpenDialog((Stage) canvas.getScene().getWindow());

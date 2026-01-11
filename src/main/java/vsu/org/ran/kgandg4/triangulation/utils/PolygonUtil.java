@@ -1,11 +1,10 @@
 package vsu.org.ran.kgandg4.triangulation.utils;
 
 
-//import vsu.org.ran.kgandg4.math.Vector3f;
 import vsu.org.ran.kgandg4.model.Model;
 import vsu.org.ran.kgandg4.model.Polygon;
 
-import math.vector.Vector3f; // вместо  // import vsu.org.ran.kgandg4.math.Vector3f;
+import math.vector.Vector3f;
 
 import java.util.ArrayList;
 import java.util.List;

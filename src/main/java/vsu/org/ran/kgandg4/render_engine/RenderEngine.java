@@ -14,7 +14,6 @@ import math.matrix.Matrix4f;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Vector;
 
 import static vsu.org.ran.kgandg4.rasterization.Rasterization.*;
 import static vsu.org.ran.kgandg4.render_engine.GraphicConveyor.*;
@@ -99,18 +98,12 @@ public class RenderEngine {
             Point2f p1 = screenPoints.get(1);
             Point2f p2 = screenPoints.get(2);
 
-            drawTriangleBresenhamByIterator(graphicsContext.getPixelWriter(), zbuffer, texture,
-                    (int) p0.getX(), (int) p0.getY(), zValues[0], textureVertex.get(0).getX(), textureVertex.get(0).getY(),
-                    (int) p1.getX(), (int) p1.getY(), zValues[1], textureVertex.get(1).getX(), textureVertex.get(1).getY(),
-                    (int) p2.getX(), (int) p2.getY(), zValues[2], textureVertex.get(2).getX(), textureVertex.get(2).getY()
+            drawTriangleBresenhamByIterator(graphicsContext.getPixelWriter(), zbuffer, texture, ray, k,
+                    (int) p0.getX(), (int) p0.getY(), zValues[0], textureVertex.get(0).getX(), textureVertex.get(0).getY(), normals.get(0),
+                    (int) p1.getX(), (int) p1.getY(), zValues[1], textureVertex.get(1).getX(), textureVertex.get(1).getY(), normals.get(1),
+                    (int) p2.getX(), (int) p2.getY(), zValues[2], textureVertex.get(2).getX(), textureVertex.get(2).getY(), normals.get(2)
 
             );
-//            drawTriangleBresenhamByIterator(graphicsContext.getPixelWriter(), zbuffer, texture,
-//                    (int) p0.x, (int) p0.y, zValues[0], textureVertex.get(0).getX(), textureVertex.get(0).getY(),
-//                    (int) p1.x, (int) p1.y, zValues[1], textureVertex.get(1).getX(), textureVertex.get(1).getY(),
-//                    (int) p2.x, (int) p2.y, zValues[2], textureVertex.get(2).getX(), textureVertex.get(2).getY()
-//
-//            );
         }
     }
 

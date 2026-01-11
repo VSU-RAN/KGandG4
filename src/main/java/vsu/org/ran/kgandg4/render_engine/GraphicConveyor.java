@@ -10,12 +10,6 @@ import math.matrix.Matrix4f;
 public class GraphicConveyor {
 
     public static Matrix4f rotateScaleTranslate() {
-//        float[] matrix = new float[]{
-//                1, 0, 0, 0,
-//                0, 1, 0, 0,
-//                0, 0, 1, 0,
-//                0, 0, 0, 1};
-//        return new Matrix4f(matrix);
         return Matrix4f.identityMatrix();
     }
 
@@ -28,10 +22,6 @@ public class GraphicConveyor {
         Vector3f resultY;
         Vector3f resultZ;
 
-//        resultZ.sub(target, eye);
-//        resultX.cross(up, resultZ);
-//        resultY.cross(resultZ, resultX);
-
         resultZ = Vector3f.subtract(target, eye);
         resultX = Vector3f.crossProduct(up, resultZ);
         resultY = Vector3f.crossProduct(resultZ, resultX);
@@ -40,12 +30,6 @@ public class GraphicConveyor {
         resultY.normalize();
         resultZ.normalize();
 
-//        return new Matrix4f(
-//                {resultX.x, resultX.y, resultX.z, -(resultX.dot(eye)),
-//                 resultY.x, resultY.y, resultY.z, -(resultY.dot(eye)),
-//                 resultZ.x, resultZ.y, resultZ.z, -(resultZ.dot(eye)),
-//                 0, 0, 0, 1}
-//        );
         return new Matrix4f(
                 new float[]{resultX.getX(), resultX.getY(), resultX.getZ(), -(resultX.dotProduct(eye)),
                  resultY.getX(), resultY.getY(), resultY.getZ(), -(resultY.dotProduct(eye)),
@@ -76,8 +60,6 @@ public class GraphicConveyor {
         Vector4f vertexWithW = new Vector4f(vertex.getX(), vertex.getY(), vertex.getZ(), 1.0F);
 
         Vector4f result4f = PVM.transformed(vertexWithW); // v' = PVM * v;
-
-//        PVM.transform(vertexWithW, result4f); // v' = PVM * v
 
         return new Vector3f(result4f.getX() / result4f.getW(),
                 result4f.getY() / result4f.getW(), result4f.getZ() / result4f.getW());

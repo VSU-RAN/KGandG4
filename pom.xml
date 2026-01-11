@@ -38,9 +38,11 @@
 
         <!-- 3D math library -->
         <dependency>
-            <groupId>java3d</groupId>
-            <artifactId>vecmath</artifactId>
-            <version>1.3.1</version>
+            <groupId>local</groupId>
+            <artifactId>MathLibrary</artifactId>
+            <version>1.0</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/lib/MathLibrary.jar</systemPath>
         </dependency>
 
         <!-- JUnit 5 -->
