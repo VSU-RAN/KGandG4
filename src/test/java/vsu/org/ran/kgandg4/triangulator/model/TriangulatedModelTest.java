@@ -3,10 +3,12 @@ package vsu.org.ran.kgandg4.triangulator.model;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import vsu.org.ran.kgandg4.math.Vector3f;
+//import vsu.org.ran.kgandg4.math.Vector3f;
 import vsu.org.ran.kgandg4.model.Polygon;
 import vsu.org.ran.kgandg4.model.Triangle;
 import vsu.org.ran.kgandg4.model.TriangulatedModel;
+
+import math.vector.Vector3f; // вместо // import vsu.org.ran.kgandg4.math.Vector3f;
 
 import java.util.Arrays;
 import java.util.List;

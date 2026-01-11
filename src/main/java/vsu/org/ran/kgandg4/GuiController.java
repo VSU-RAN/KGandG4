@@ -63,7 +63,7 @@ public class GuiController {
         cameraManager = new CameraManager(canvas.getWidth(), canvas.getHeight());
 
         triangulator = new SimpleTriangulator();
-        //triangulator = new EarCuttingTriangulator();
+//        triangulator = new EarCuttingTriangulator();
 
         normalCalculator = new FaceNormalCalculator();
 
@@ -105,7 +105,9 @@ public class GuiController {
         fileChooser.setTitle("Load Model");
 
         //Для более удобной работы, сразу папка с моделями
-        fileChooser.setInitialDirectory(new File("C:\\Users\\Merkury\\Desktop\\KGandG4\\3DModels"));
+        String home = System.getProperty("user.home");
+        File desktopDir = new File(home, "/Documents/KGandG4/3DModels");
+        fileChooser.setInitialDirectory(desktopDir);
 
 
         File file = fileChooser.showOpenDialog((Stage) canvas.getScene().getWindow());

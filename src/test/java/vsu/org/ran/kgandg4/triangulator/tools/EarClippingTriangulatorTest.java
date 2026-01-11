@@ -4,14 +4,15 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import vsu.org.ran.kgandg4.objReader.ObjReader;
-import vsu.org.ran.kgandg4.math.Vector2f;
-import vsu.org.ran.kgandg4.math.Vector3f;
 import vsu.org.ran.kgandg4.model.Model;
 import vsu.org.ran.kgandg4.model.Polygon;
 import vsu.org.ran.kgandg4.triangulation.EarCuttingTriangulator;
 import vsu.org.ran.kgandg4.triangulation.Triangulator;
 import vsu.org.ran.kgandg4.triangulation.utils.Constants;
 import vsu.org.ran.kgandg4.triangulation.utils.PolygonUtil;
+
+import math.vector.Vector2f;  // вместо  //import vsu.org.ran.kgandg4.math.Vector2f;
+import math.vector.Vector3f;  // вместо  //import vsu.org.ran.kgandg4.math.Vector3f;
 
 import java.io.IOException;
 import java.nio.file.Files;

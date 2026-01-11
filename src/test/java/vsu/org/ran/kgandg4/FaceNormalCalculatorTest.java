@@ -2,10 +2,12 @@ package vsu.org.ran.kgandg4;
 
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
-import vsu.org.ran.kgandg4.math.Vector3f;
+//import vsu.org.ran.kgandg4.math.Vector3f;
 import vsu.org.ran.kgandg4.model.Model;
 import vsu.org.ran.kgandg4.model.Polygon;
 import vsu.org.ran.kgandg4.normals.FaceNormalCalculator;
+
+import math.vector.Vector3f; // вместо // import vsu.org.ran.kgandg4.math.Vector3f;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -23,7 +25,7 @@ class FaceNormalCalculatorTest {
 
         Vector3f normal = calculator.calculateTriangleNormal(v0, v1, v2);
 
-        assertEquals(1.0f, normal.getLength(), 0.001f, "Нормаль должна быть единичной длины");
+        assertEquals(1.0f, normal.length(), 0.001f, "Нормаль должна быть единичной длины");
         assertEquals(0.0f, normal.getX(), 0.001f, "X компонента должна быть 0");
         assertEquals(0.0f, normal.getY(), 0.001f, "Y компонента должна быть 0");
 
@@ -40,7 +42,7 @@ class FaceNormalCalculatorTest {
         FaceNormalCalculator calculator = new FaceNormalCalculator();
         Vector3f normal = calculator.calculateTriangleNormal(v0, v1, v2);
 
-        assertEquals(1.0f, normal.getLength(), 0.001f);
+        assertEquals(1.0f, normal.length(), 0.001f);
         assertEquals(0.0f, normal.getX(), 0.001f);
         assertEquals(0.0f, normal.getZ(), 0.001f);
 
@@ -57,7 +59,7 @@ class FaceNormalCalculatorTest {
         FaceNormalCalculator calculator = new FaceNormalCalculator();
         Vector3f normal = calculator.calculateTriangleNormal(v0, v1, v2);
 
-        assertEquals(1.0f, normal.getLength(), 0.001f);
+        assertEquals(1.0f, normal.length(), 0.001f);
         assertEquals(0.0f, normal.getY(), 0.001f);
         assertEquals(0.0f, normal.getZ(), 0.001f);
 
@@ -108,8 +110,8 @@ class FaceNormalCalculatorTest {
 
         for (int i = 0; i < model.normals.size(); i++) {
             Vector3f normal = model.normals.get(i);
-            assertEquals(1.0f, normal.getLength(), 0.001f,
-                    "Нормаль #" + i + " должна быть единичной. Длина: " + normal.getLength());
+            assertEquals(1.0f, normal.length(), 0.001f,
+                    "Нормаль #" + i + " должна быть единичной. Длина: " + normal.length());
         }
 
         for (Polygon polygon : model.polygons) {

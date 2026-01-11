@@ -1,9 +1,10 @@
 package vsu.org.ran.kgandg4.objReader;
 
 
-
-import vsu.org.ran.kgandg4.math.Vector2f;
-import vsu.org.ran.kgandg4.math.Vector3f;
+//import vsu.org.ran.kgandg4.math.Vector2f;
+//import vsu.org.ran.kgandg4.math.Vector3f;
+import math.vector.Vector2f;
+import math.vector.Vector3f;
 import vsu.org.ran.kgandg4.model.Model;
 import vsu.org.ran.kgandg4.model.Polygon;
 
@@ -76,7 +77,7 @@ public class ObjReader {
 		try {
 			return new Vector2f(
 					Float.parseFloat(wordsInLineWithoutToken.get(0)),
-					Float.parseFloat(wordsInLineWithoutToken.get(1)));
+					1 - Float.parseFloat(wordsInLineWithoutToken.get(1)));
 
 		} catch(NumberFormatException e) {
 			throw new ObjReaderException("Failed to parse float value.", lineInd);

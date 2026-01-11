@@ -3,11 +3,10 @@ package vsu.org.ran.kgandg4.render_engine;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 
-import javax.vecmath.Matrix4f;
-import javax.vecmath.Vector3f;
-import java.util.Objects;
-import java.util.Vector;
+import math.vector.Vector3f;
+import math.matrix.Matrix4f;
 
+import java.util.Objects;
 
 public class Camera {
     private final int id;
@@ -69,23 +68,23 @@ public class Camera {
 
     public void movePosition(final Vector3f translation) {
         Vector3f newPos = new Vector3f(this.position.get());
-        newPos.add(translation);
+        newPos.addV(translation);
         this.position.set(newPos);
 
     }
 
     public void moveTarget(final Vector3f translation) {
-        this.target.get().add(translation);
+        this.target.get().addV(translation);
     }
 
     /** Паномиривание */
     public void movePositionAndTarget(Vector3f translation) {
         Vector3f newPos = new Vector3f(this.position.get());
-        newPos.add(translation);
+        newPos.addV(translation);
         this.position.set(newPos);
 
         Vector3f newTarget = new Vector3f(this.target.get());
-        newTarget.add(translation);
+        newTarget.addV(translation);
         this.target.set(newTarget);
     }
 
@@ -95,16 +94,17 @@ public class Camera {
         Vector3f cameraPos = this.position.get();
 
         // Вектор от target к камере
-        Vector3f offset = new Vector3f();
-        offset.sub(cameraPos, center);
+//        Vector3f offset = new Vector3f();
+//        offset.sub(cameraPos, center);
+        Vector3f offset = cameraPos.subtract(center);
 
         // Сохраняем расстояние
         float distance = offset.length();
 
         // Переводим в сферические координаты
         float radius = distance;
-        float theta = (float) Math.atan2(offset.x, offset.z); // горизонтальный угол
-        float phi = (float) Math.acos(offset.y / radius);     // вертикальный угол
+        float theta = (float) Math.atan2(offset.getX(), offset.getZ()); // горизонтальный угол
+        float phi = (float) Math.acos(offset.getY() / radius);     // вертикальный угол
 
         // Добавляем новые углы
         theta += horizontalAngle;
@@ -120,15 +120,16 @@ public class Camera {
 
         // Новая позиция камеры
         Vector3f newPosition = new Vector3f(x, y, z);
-        newPosition.add(center);
+        newPosition.addV(center);
 
         this.position.set(newPosition);
     }
 
     /** Зум */
     public void zoom(float amount) {
-        Vector3f direction = new Vector3f();
-        direction.sub(this.target.get(), this.position.get());
+//        Vector3f direction = new Vector3f();
+//        direction.sub(this.target.get(), this.position.get());
+        Vector3f direction = Vector3f.subtract(this.target.get(), this.position.get());
 
         float distance = direction.length();
         direction.normalize();
@@ -138,9 +139,9 @@ public class Camera {
         newDistance = Math.max(0.5f, Math.min(50.0f, newDistance));
 
         // Новая позиция камеры
-        direction.scale(newDistance);
+        direction.multiplyV(newDistance);
         Vector3f newPosition = new Vector3f(this.target.get());
-        newPosition.sub(direction);
+        newPosition.subtractV(direction);
 
         this.position.set(newPosition);
     }
@@ -154,8 +155,8 @@ public class Camera {
     }
 
     Vector3f getDirection() {
-        Vector3f result =  this.target.get();
-       result.sub(this.position.get());
+        Vector3f result = this.target.get();
+        result.subtractV(this.position.get());
         return result;
     }
 

@@ -3,10 +3,13 @@ package vsu.org.ran.kgandg4.triangulator.math;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import vsu.org.ran.kgandg4.math.MathUtil;
-import vsu.org.ran.kgandg4.math.Vector3f;
+//import vsu.org.ran.kgandg4.math.MathUtil;
+//import vsu.org.ran.kgandg4.math.Vector3f;
 import vsu.org.ran.kgandg4.model.Triangle;
 import vsu.org.ran.kgandg4.triangulation.utils.Constants;
+
+import utils.MathUtil;
+import math.vector.Vector3f;
 
 public class MathUtilTest {
     private Triangle triangle = new Triangle(

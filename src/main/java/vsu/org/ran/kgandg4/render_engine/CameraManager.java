@@ -5,7 +5,7 @@ import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
-import javax.vecmath.Vector3f;
+import math.vector.Vector3f;
 
 public class CameraManager {
     private ObservableList<Camera> cameraList = FXCollections.observableArrayList();

@@ -1,13 +1,16 @@
 package vsu.org.ran.kgandg4.triangulation;
 
-import vsu.org.ran.kgandg4.math.MathUtil;
-import vsu.org.ran.kgandg4.math.Vector3f;
+//import vsu.org.ran.kgandg4.math.MathUtil;
+//import vsu.org.ran.kgandg4.math.Vector3f;
 import vsu.org.ran.kgandg4.model.Model;
 import vsu.org.ran.kgandg4.model.Polygon;
 import vsu.org.ran.kgandg4.model.Triangle;
 import vsu.org.ran.kgandg4.triangulation.utils.ByPassDirection;
 import vsu.org.ran.kgandg4.triangulation.utils.Constants;
 import vsu.org.ran.kgandg4.triangulation.utils.PolygonUtil;
+
+import utils.MathUtil;
+import math.vector.Vector3f;
 
 import java.util.*;
 import java.util.function.Function;
