@@ -32,6 +32,9 @@ public class Simple3DViewer extends Application {
         stage.setTitle("Simple3DViewer");
         stage.setScene(scene);
         stage.show();
+
+        // Установить фокус на главный контейнер для обработки клавиатуры
+        viewport.requestFocus();
     }
 
     public static void main(String[] args) {

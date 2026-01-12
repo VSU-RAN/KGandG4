@@ -2,12 +2,13 @@ package vsu.org.ran.kgandg4.controllers;
 
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;  // Импорт добавлен
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.VBox;
-import vsu.org.ran.kgandg4.GuiController;
 import vsu.org.ran.kgandg4.model.Model;
 
 import java.net.URL;
@@ -15,6 +16,7 @@ import java.util.ResourceBundle;
 
 public class ModelPanelController implements Initializable {
 
+    @FXML private ScrollPane scrollPane;  // Добавлено
     @FXML private VBox modelPanel;
     @FXML private Label modelInfoLabel;
     @FXML private Button loadModelButton;
@@ -132,7 +134,7 @@ public class ModelPanelController implements Initializable {
         }
     }
 
-    public VBox getModelPanel() {
-        return modelPanel;
+    public Parent getModelPanel() {
+        return scrollPane;
     }
 }

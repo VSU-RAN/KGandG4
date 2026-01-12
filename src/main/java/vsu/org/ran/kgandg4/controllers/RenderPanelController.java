@@ -2,12 +2,10 @@ package vsu.org.ran.kgandg4.controllers;
 
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.Parent;
 import javafx.scene.control.*;
-import javafx.scene.image.ImageView;
 import javafx.scene.layout.VBox;
-import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
-import vsu.org.ran.kgandg4.GuiController;
 import vsu.org.ran.kgandg4.components.ColorPalette;
 import vsu.org.ran.kgandg4.components.HueSlider;
 
@@ -16,6 +14,7 @@ import java.util.ResourceBundle;
 
 public class RenderPanelController implements Initializable {
 
+    @FXML private ScrollPane scrollPane;
     @FXML private VBox renderPanel;
 
     @FXML private RadioButton solidModeRadio;
@@ -27,13 +26,7 @@ public class RenderPanelController implements Initializable {
     @FXML private Slider blueSlider;
     @FXML private Label rgbLabel;
 
-    @FXML private ImageView colorPreview;
-
     @FXML private VBox paletteContainer;
-    @FXML private Label hexLabel;
-    @FXML private Label rgbValuesLabel;
-    @FXML private Label hsvLabel;
-
     @FXML private Label redValue;
     @FXML private Label greenValue;
     @FXML private Label blueValue;
@@ -67,19 +60,29 @@ public class RenderPanelController implements Initializable {
         // Настраиваем слайдеры RGB
         setupRGBSliders();
 
-        updateColorPreview();
-        updateColorInfo();
+        // Обновляем RGB label
+        updateRGBLabel(
+                (int)redSlider.getValue(),
+                (int)greenSlider.getValue(),
+                (int)blueSlider.getValue()
+        );
 
         System.out.println("✓ RenderPanelController инициализирован");
     }
 
     private void initCustomPalette() {
-        // Создаем палитру цветов
-        colorPalette = new ColorPalette(200, 150);
+        System.out.println("Инициализация пользовательской палитры...");
+
+        // Получаем размеры контейнера
+        double containerWidth = paletteContainer.getWidth() - 16; // минус padding
+        if (containerWidth <= 0) containerWidth = 280; // дефолтное значение
+
+        // Создаем палитру цветов с правильными размерами
+        colorPalette = new ColorPalette(containerWidth, 140);
         colorPalette.setSelectedColor(Color.web("#4a90e2"));
 
-        // Создаем слайдер оттенка
-        hueSlider = new HueSlider(200, 20);
+        // Создаем слайдер оттенка с правильными размерами
+        hueSlider = new HueSlider(containerWidth, 20);
         hueSlider.setHue(Color.web("#4a90e2").getHue());
 
         // Связываем палитру и слайдер оттенка
@@ -92,8 +95,6 @@ public class RenderPanelController implements Initializable {
                 // Обновляем ColorPicker и слайдеры
                 faceColorPicker.setValue(newVal);
                 updateRGBFromColor(newVal);
-                updateColorPreview();
-                updateColorInfo();
 
                 // Отправляем в GuiController
                 if (guiController != null) {
@@ -102,33 +103,21 @@ public class RenderPanelController implements Initializable {
             }
         });
 
-        // Добавляем компоненты в контейнер
-        paletteContainer.getChildren().addAll(hueSlider, colorPalette);
-    }
+        // Очищаем контейнер и добавляем компоненты в правильном порядке
+        paletteContainer.getChildren().clear();
 
-    private void updateColorInfo() {
-        Color color = faceColorPicker.getValue();
-        if (color == null) return;
+        // Сначала добавляем лейбл
+        Label label = new Label("Выберите цвет кликом");
+        label.setStyle("-fx-font-size: 12px; -fx-text-fill: #6c757d; -fx-padding: 0 0 4 0;");
+        paletteContainer.getChildren().add(label);
 
-        // HEX
-        String hex = String.format("#%02X%02X%02X",
-                (int)(color.getRed() * 255),
-                (int)(color.getGreen() * 255),
-                (int)(color.getBlue() * 255)
-        );
-        hexLabel.setText("HEX: " + hex);
+        // Затем слайдер
+        paletteContainer.getChildren().add(hueSlider);
 
-        // RGB
-        int r = (int)(color.getRed() * 255);
-        int g = (int)(color.getGreen() * 255);
-        int b = (int)(color.getBlue() * 255);
-        rgbValuesLabel.setText(String.format("RGB: %d, %d, %d", r, g, b));
+        // Затем палитру
+        paletteContainer.getChildren().add(colorPalette);
 
-        // HSV
-        int h = (int)color.getHue();
-        int s = (int)(color.getSaturation() * 100);
-        int v = (int)(color.getBrightness() * 100);
-        hsvLabel.setText(String.format("HSV: %d°, %d%%, %d%%", h, s, v));
+        System.out.println("✓ Пользовательская палитра инициализирована, ширина: " + containerWidth);
     }
 
     public void setGuiController(GuiController guiController) {
@@ -150,8 +139,6 @@ public class RenderPanelController implements Initializable {
         if (faceColor != null) {
             faceColorPicker.setValue(faceColor);
             updateRGBFromColor(faceColor);
-            updateColorPreview();
-            updateColorInfo();
 
             // Обновляем пользовательскую палитру
             if (colorPalette != null) {
@@ -244,8 +231,6 @@ public class RenderPanelController implements Initializable {
     private void onColorPickerChanged() {
         Color color = faceColorPicker.getValue();
         updateRGBFromColor(color);
-        updateColorPreview();
-        updateColorInfo();
 
         // Обновляем пользовательскую палитру
         if (colorPalette != null) {
@@ -267,9 +252,7 @@ public class RenderPanelController implements Initializable {
 
         Color color = Color.rgb(r, g, b);
         faceColorPicker.setValue(color);
-        updateColorPreview();
         updateRGBLabel(r, g, b);
-        updateColorInfo();
 
         // Обновляем пользовательскую палитру
         if (colorPalette != null) {
@@ -300,25 +283,7 @@ public class RenderPanelController implements Initializable {
         rgbLabel.setText(String.format("RGB: %d, %d, %d", r, g, b));
     }
 
-    private void updateColorPreview() {
-        Color color = faceColorPicker.getValue();
-        if (color == null) {
-            color = Color.web("#4a90e2");
-        }
-
-        String hex = String.format("#%02X%02X%02X",
-                (int)(color.getRed() * 255),
-                (int)(color.getGreen() * 255),
-                (int)(color.getBlue() * 255)
-        );
-
-        colorPreview.setStyle(String.format(
-                "-fx-background-color: %s; -fx-border-color: #000000; -fx-border-width: 1;",
-                hex
-        ));
-    }
-
-    public VBox getRenderPanel() {
-        return renderPanel;
+    public Parent getRenderPanel() {
+        return scrollPane;
     }
 }

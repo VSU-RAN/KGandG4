@@ -14,7 +14,7 @@
 <?import javafx.scene.layout.VBox?>
 
 <VBox xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
-      fx:controller="vsu.org.ran.kgandg4.GuiController"
+      fx:controller="vsu.org.ran.kgandg4.controllers.GuiController"
       fx:id="mainContainer"
       style="-fx-background-color: #f0f0f0;">
 
@@ -53,6 +53,15 @@
                           style="-fx-font-size: 13px; -fx-padding: 6 20 6 20;"
                           text="Панель моделей" />
 
+                <MenuItem fx:id="menuRenderSettings" mnemonicParsing="false"
+                          style="-fx-font-size: 13px; -fx-padding: 6 20 6 20;"
+                          text="Настройки рендера" />
+
+                <!-- ДОБАВЛЯЕМ НОВЫЙ ПУНКТ МЕНЮ -->
+                <MenuItem fx:id="menuEditPanel" mnemonicParsing="false"
+                          style="-fx-font-size: 13px; -fx-padding: 6 20 6 20;"
+                          text="Редактирование модели" />
+
                 <SeparatorMenuItem />
 
                 <MenuItem fx:id="menuCameraTools" mnemonicParsing="false"
@@ -62,10 +71,6 @@
                 <MenuItem fx:id="menuModelTools" mnemonicParsing="false"
                           style="-fx-font-size: 13px; -fx-padding: 6 20 6 20;"
                           text="Инструменты моделей" />
-
-                <MenuItem fx:id="menuRenderSettings" mnemonicParsing="false"
-                          style="-fx-font-size: 13px; -fx-padding: 6 20 6 20;"
-                          text="Настройки рендера" />
 
                 <SeparatorMenuItem />
 
@@ -108,6 +113,18 @@
                            -fx-border-color: transparent;" />
 
             <Button fx:id="renderButton" text="Рендеринг" onAction="#onRenderPanelButtonClick"
+                    style="-fx-background-color: transparent;
+                           -fx-text-fill: #495057;
+                           -fx-font-size: 13px;
+                           -fx-font-weight: 500;
+                           -fx-padding: 6 14 6 14;
+                           -fx-border-radius: 4;
+                           -fx-background-radius: 4;
+                           -fx-cursor: hand;
+                           -fx-border-color: transparent;" />
+
+            <!-- ДОБАВЛЯЕМ КНОПКУ РЕДАКТИРОВАНИЯ -->
+            <Button fx:id="editButton" text="Редактировать" onAction="#onEditPanelButtonClick"
                     style="-fx-background-color: transparent;
                            -fx-text-fill: #495057;
                            -fx-font-size: 13px;

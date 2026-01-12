@@ -21,6 +21,7 @@ public class HueSlider extends Pane {
         canvas.setHeight(height);
 
         setPrefSize(width, height);
+        setMaxSize(width, height);
         getChildren().add(canvas);
 
         // Нарисовать слайдер

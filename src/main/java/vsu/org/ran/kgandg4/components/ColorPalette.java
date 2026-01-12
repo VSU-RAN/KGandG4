@@ -22,6 +22,7 @@ public class ColorPalette extends Pane {
         canvas.setHeight(height);
 
         setPrefSize(width, height);
+        setMaxSize(width, height);
         getChildren().add(canvas);
 
         // Нарисовать палитру при изменении размера

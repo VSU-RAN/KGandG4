@@ -1,4 +1,4 @@
-package vsu.org.ran.kgandg4;
+package vsu.org.ran.kgandg4.controllers;
 
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
@@ -12,16 +12,15 @@ import javafx.scene.control.Button;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.SplitPane;
 import javafx.scene.image.Image;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.util.Duration;
-import vsu.org.ran.kgandg4.controllers.ModelPanelController;
-import vsu.org.ran.kgandg4.controllers.RenderPanelController;
 import vsu.org.ran.kgandg4.model.Model;
 import vsu.org.ran.kgandg4.math.Vector3f;
 import vsu.org.ran.kgandg4.normals.FaceNormalCalculator;
@@ -47,6 +46,7 @@ public class GuiController {
     @FXML private Button modelButton;
     @FXML private Button cameraButton;
     @FXML private Button renderButton;
+    @FXML private Button editButton;
     @FXML private Button resetButton;
 
     @FXML private MenuItem menuOpen;
@@ -55,15 +55,19 @@ public class GuiController {
     @FXML private MenuItem menuCameraTools;
     @FXML private MenuItem menuModelTools;
     @FXML private MenuItem menuRenderSettings;
+    @FXML private MenuItem menuEditPanel;
     @FXML private MenuItem menuResetView;
     @FXML private MenuItem menuExit;
 
     private Parent cameraPanelContainer;
     private Parent modelPanelContainer;
     private Parent renderPanelContainer;
+    private Parent editPanelContainer;
+
     private CameraPanelController cameraPanelController;
     private ModelPanelController modelPanelController;
     private RenderPanelController renderPanelController;
+    private EditPanelController editPanelController;
 
     private Model mesh = null;
     private CameraManager cameraManager;
@@ -74,6 +78,7 @@ public class GuiController {
     private boolean isCameraPanelOpen = false;
     private boolean isModelPanelOpen = false;
     private boolean isRenderPanelOpen = false;
+    private boolean isEditPanelOpen = false;
 
     // Настройки отображения
     private boolean showWireframe = false;
@@ -85,6 +90,12 @@ public class GuiController {
     private String renderMode = "solid"; // "solid", "texture"
     private Color faceColor = Color.web("#4a90e2");
     private Color wireframeColor = Color.BLACK;
+
+    // Управление камерой с клавиатуры
+    private boolean shiftPressed = false;
+    private static final float PAN_SPEED = 0.5f;
+    private static final float ORBIT_SPEED = 0.05f;
+    private static final float ZOOM_SPEED = 0.5f;
 
     private final String BUTTON_ACTIVE_STYLE =
             "-fx-background-color: #007bff;" +
@@ -119,6 +130,7 @@ public class GuiController {
         menuCameraTools.setOnAction(event -> onCameraToolsClick());
         menuModelTools.setOnAction(event -> onModelToolsClick());
         menuRenderSettings.setOnAction(event -> onToggleRenderPanelClick());
+        menuEditPanel.setOnAction(event -> onToggleEditPanelClick());
         menuResetView.setOnAction(event -> onResetViewClick());
         menuExit.setOnAction(event -> onExitClick());
 
@@ -128,6 +140,12 @@ public class GuiController {
             canvas.heightProperty().bind(canvasContainer.heightProperty());
             System.out.println("Canvas привязан к контейнеру: " + canvasContainer);
         }
+
+        // Настраиваем обработку кликов по канвасу
+        setupCanvasClickHandler();
+
+        // Настраиваем обработку клавиатуры для камеры
+        setupKeyboardHandlers();
 
         cameraManager = new CameraManager(canvas.getWidth(), canvas.getHeight());
         triangulator = new SimpleTriangulator();
@@ -147,13 +165,6 @@ public class GuiController {
 
             if (mesh != null) {
                 try {
-                    // TODO: Передать настройки отображения в RenderEngine
-                    // RenderEngine.render(canvas.getGraphicsContext2D(),
-                    //     cameraManager.getActiveCamera(), mesh,
-                    //     (int) width, (int) height,
-                    //     showWireframe, showFaces, showNormals, showTexture,
-                    //     renderMode, faceColor, wireframeColor);
-
                     RenderEngine.render(canvas.getGraphicsContext2D(),
                             cameraManager.getActiveCamera(), mesh,
                             (int) width, (int) height);
@@ -169,32 +180,209 @@ public class GuiController {
         timeline.play();
     }
 
+    private void setupCanvasClickHandler() {
+        canvas.setOnMouseClicked(event -> {
+            if (mesh != null && editPanelController != null && isEditPanelOpen) {
+                // Преобразуем координаты клика в нормализованные координаты модели
+                double x = (event.getX() / canvas.getWidth()) * 2 - 1;
+                double y = -((event.getY() / canvas.getHeight()) * 2 - 1);
+                double z = 0; // Для простоты пока используем 0
+
+                System.out.println("Клик по канвасу: " + x + ", " + y);
+                editPanelController.handleModelClick(x, y, z);
+            }
+        });
+    }
+
+    private void setupKeyboardHandlers() {
+        // Обработка клавиш в самой сцене
+        mainContainer.sceneProperty().addListener((obs, oldScene, newScene) -> {
+            if (newScene != null) {
+                newScene.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
+                    KeyCode code = event.getCode();
+
+                    if (code == KeyCode.SHIFT) {
+                        shiftPressed = true;
+                    }
+
+                    handleCameraKeyPress(code, event.isShiftDown());
+                });
+
+                newScene.addEventFilter(KeyEvent.KEY_RELEASED, event -> {
+                    KeyCode code = event.getCode();
+
+                    if (code == KeyCode.SHIFT) {
+                        shiftPressed = false;
+                    }
+                });
+
+                // Фокус на Canvas для гарантии получения событий
+                canvas.setFocusTraversable(true);
+                canvas.requestFocus();
+            }
+        });
+
+        // Также обрабатываем клик по канвасу для возврата фокуса
+        canvas.setOnMouseClicked(event -> {
+            canvas.requestFocus();
+
+            // Обработка клика для редактирования (остается как было)
+            if (mesh != null && editPanelController != null && isEditPanelOpen) {
+                double x = (event.getX() / canvas.getWidth()) * 2 - 1;
+                double y = -((event.getY() / canvas.getHeight()) * 2 - 1);
+                double z = 0;
+                System.out.println("Клик по канвасу: " + x + ", " + y);
+                editPanelController.handleModelClick(x, y, z);
+            }
+        });
+    }
+
+    private void handleCameraKeyPress(KeyCode code, boolean shiftDown) {
+        if (cameraManager == null || cameraManager.getActiveCamera() == null) {
+            return;
+        }
+
+        vsu.org.ran.kgandg4.render_engine.Camera activeCamera = cameraManager.getActiveCamera();
+
+        switch (code) {
+            case W:
+                if (shiftPressed) {
+                    // Shift + W = Pan вперед
+                    activeCamera.movePositionAndTarget(new javax.vecmath.Vector3f(0, 0, PAN_SPEED));
+                } else {
+                    // W = Orbit вверх
+                    activeCamera.orbit(0, ORBIT_SPEED);
+                }
+                break;
+
+            case S:
+                if (shiftPressed) {
+                    // Shift + S = Pan назад
+                    activeCamera.movePositionAndTarget(new javax.vecmath.Vector3f(0, 0, -PAN_SPEED));
+                } else {
+                    // S = Orbit вниз
+                    activeCamera.orbit(0, -ORBIT_SPEED);
+                }
+                break;
+
+            case A:
+                if (shiftPressed) {
+                    // Shift + A = Pan влево
+                    activeCamera.movePositionAndTarget(new javax.vecmath.Vector3f(-PAN_SPEED, 0, 0));
+                } else {
+                    // A = Orbit влево
+                    activeCamera.orbit(ORBIT_SPEED, 0);
+                }
+                break;
+
+            case D:
+                if (shiftPressed) {
+                    // Shift + D = Pan вправо
+                    activeCamera.movePositionAndTarget(new javax.vecmath.Vector3f(PAN_SPEED, 0, 0));
+                } else {
+                    // D = Orbit вправо
+                    activeCamera.orbit(-ORBIT_SPEED, 0);
+                }
+                break;
+
+            case UP:
+                // Стрелка вверх = Pan вперед
+                activeCamera.movePositionAndTarget(new javax.vecmath.Vector3f(0, 0, PAN_SPEED));
+                break;
+
+            case DOWN:
+                // Стрелка вниз = Pan назад
+                activeCamera.movePositionAndTarget(new javax.vecmath.Vector3f(0, 0, -PAN_SPEED));
+                break;
+
+            case LEFT:
+                // Стрелка влево = Pan влево
+                activeCamera.movePositionAndTarget(new javax.vecmath.Vector3f(-PAN_SPEED, 0, 0));
+                break;
+
+            case RIGHT:
+                // Стрелка вправо = Pan вправо
+                activeCamera.movePositionAndTarget(new javax.vecmath.Vector3f(PAN_SPEED, 0, 0));
+                break;
+
+            case Q:
+                // Q = Pan вверх
+                activeCamera.movePositionAndTarget(new javax.vecmath.Vector3f(0, PAN_SPEED, 0));
+                break;
+
+            case E:
+                // E = Pan вниз
+                activeCamera.movePositionAndTarget(new javax.vecmath.Vector3f(0, -PAN_SPEED, 0));
+                break;
+
+            case EQUALS:
+            case ADD:
+                // + или = = Zoom In
+                activeCamera.zoom(-ZOOM_SPEED);
+                break;
+
+            case MINUS:
+            case SUBTRACT:
+                // - = Zoom Out
+                activeCamera.zoom(ZOOM_SPEED);
+                break;
+
+            case DIGIT1:
+            case NUMPAD1:
+                // Переключение на камеру 1
+                if (cameraManager.getCameras().size() > 0) {
+                    cameraManager.switchToCameraById(0);
+                }
+                break;
+
+            case DIGIT2:
+            case NUMPAD2:
+                // Переключение на камеру 2
+                if (cameraManager.getCameras().size() > 1) {
+                    cameraManager.switchToCameraById(1);
+                }
+                break;
+
+            case C:
+                // Переключение на следующую камеру
+                if (!shiftDown) { // Только если не зажат Shift
+                    cameraManager.switchToNextCamera();
+                }
+                break;
+        }
+    }
+
     private void loadCameraPanel() {
         System.out.println("=== Загрузка панели камер из FXML ===");
 
         try {
-            java.net.URL resourceUrl = getClass().getResource("camera-panel.fxml");
+            // Пробуем разные пути к ресурсу
+            java.net.URL resourceUrl = getClass().getResource("/camera-panel.fxml");
+            if (resourceUrl == null) {
+                resourceUrl = getClass().getResource("camera-panel.fxml");
+            }
+            if (resourceUrl == null) {
+                resourceUrl = getClass().getResource("/vsu/org/ran/kgandg4/camera-panel.fxml");
+            }
+            if (resourceUrl == null) {
+                resourceUrl = getClass().getResource("/vsu/org/ran/kgandg4/controllers/camera-panel.fxml");
+            }
+
             System.out.println("URL ресурса: " + resourceUrl);
 
             if (resourceUrl == null) {
-                resourceUrl = getClass().getResource("/vsu/org/ran/kgandg4/camera-panel.fxml");
-                System.out.println("URL ресурса (второй попыткой): " + resourceUrl);
-            }
-
-            if (resourceUrl == null) {
-                throw new IOException("Не найден файл camera-panel.fxml");
+                throw new IOException("Не найден файл camera-panel.fxml. Проверьте путь в проекте.");
             }
 
             FXMLLoader loader = new FXMLLoader(resourceUrl);
             cameraPanelContainer = loader.load();
-            System.out.println("FXML загружен успешно!");
+            System.out.println("FXML загружен успешно! Тип: " + cameraPanelContainer.getClass());
 
             cameraPanelController = loader.getController();
             System.out.println("Контроллер получен: " + (cameraPanelController != null));
 
             if (cameraPanelController != null) {
                 cameraPanelController.setCameraManager(cameraManager);
-                cameraPanelController.setScene(mainContainer.getScene());
                 System.out.println("✓ Панель камер успешно загружена из FXML!");
             }
 
@@ -275,6 +463,41 @@ public class GuiController {
         }
     }
 
+    private void loadEditPanel() {
+        System.out.println("=== Загрузка панели редактирования из FXML ===");
+
+        try {
+            java.net.URL resourceUrl = getClass().getResource("edit-panel.fxml");
+            System.out.println("URL ресурса: " + resourceUrl);
+
+            if (resourceUrl == null) {
+                resourceUrl = getClass().getResource("/vsu/org/ran/kgandg4/edit-panel.fxml");
+                System.out.println("URL ресурса (второй попыткой): " + resourceUrl);
+            }
+
+            if (resourceUrl == null) {
+                throw new IOException("Не найден файл edit-panel.fxml");
+            }
+
+            FXMLLoader loader = new FXMLLoader(resourceUrl);
+            editPanelContainer = loader.load();
+            System.out.println("FXML панели редактирования загружен успешно!");
+
+            editPanelController = loader.getController();
+            System.out.println("Контроллер панели редактирования получен: " + (editPanelController != null));
+
+            if (editPanelController != null) {
+                editPanelController.setGuiController(this);
+                System.out.println("✓ Панель редактирования успешно загружена из FXML!");
+            }
+
+        } catch (Exception e) {
+            System.err.println("✗ Ошибка загрузки панели редактирования:");
+            e.printStackTrace();
+            showErrorDialog("Ошибка", "Не удалось загрузить панель редактирования: " + e.getMessage());
+        }
+    }
+
     @FXML
     private void onToggleCameraPanelClick() {
         System.out.println("=== Нажато: Панель камер ===");
@@ -282,6 +505,7 @@ public class GuiController {
         // Закрываем другие панели
         if (isModelPanelOpen) closeModelPanel();
         if (isRenderPanelOpen) closeRenderPanel();
+        if (isEditPanelOpen) closeEditPanel();
 
         togglePanel(cameraPanelContainer, "camera", "камер");
     }
@@ -293,6 +517,7 @@ public class GuiController {
         // Закрываем другие панели
         if (isCameraPanelOpen) closeCameraPanel();
         if (isRenderPanelOpen) closeRenderPanel();
+        if (isEditPanelOpen) closeEditPanel();
 
         togglePanel(modelPanelContainer, "model", "моделей");
     }
@@ -304,8 +529,21 @@ public class GuiController {
         // Закрываем другие панели
         if (isCameraPanelOpen) closeCameraPanel();
         if (isModelPanelOpen) closeModelPanel();
+        if (isEditPanelOpen) closeEditPanel();
 
         togglePanel(renderPanelContainer, "render", "рендеринга");
+    }
+
+    @FXML
+    private void onToggleEditPanelClick() {
+        System.out.println("=== Нажато: Панель редактирования ===");
+
+        // Закрываем другие панели
+        if (isCameraPanelOpen) closeCameraPanel();
+        if (isModelPanelOpen) closeModelPanel();
+        if (isRenderPanelOpen) closeRenderPanel();
+
+        togglePanel(editPanelContainer, "edit", "редактирования");
     }
 
     private void togglePanel(Parent panelContainer, String panelType, String panelName) {
@@ -336,6 +574,9 @@ public class GuiController {
             } else if (panelType.equals("render")) {
                 loadRenderPanel();
                 panelContainer = renderPanelContainer;
+            } else if (panelType.equals("edit")) {
+                loadEditPanel();
+                panelContainer = editPanelContainer;
             }
 
             if (panelContainer == null) {
@@ -372,6 +613,9 @@ public class GuiController {
         // Устанавливаем разделитель
         mainSplitPane.setDividerPositions(0.75);
 
+        // Возвращаем фокус на Canvas для обработки клавиатуры
+        canvas.requestFocus();
+
         // Устанавливаем флаг и обновляем кнопки
         if (panelType.equals("camera")) {
             isCameraPanelOpen = true;
@@ -379,6 +623,8 @@ public class GuiController {
             isModelPanelOpen = true;
         } else if (panelType.equals("render")) {
             isRenderPanelOpen = true;
+        } else if (panelType.equals("edit")) {
+            isEditPanelOpen = true;
         }
         updateButtonStyles();
 
@@ -416,6 +662,9 @@ public class GuiController {
         mainSplitPane.setDividerPositions(1.0);
         System.out.println("✓ SplitPane установлен на полную ширину Canvas");
 
+        // Возвращаем фокус на Canvas
+        canvas.requestFocus();
+
         // Сбрасываем флаг и обновляем кнопки
         if (panelType.equals("camera")) {
             isCameraPanelOpen = false;
@@ -423,6 +672,8 @@ public class GuiController {
             isModelPanelOpen = false;
         } else if (panelType.equals("render")) {
             isRenderPanelOpen = false;
+        } else if (panelType.equals("edit")) {
+            isEditPanelOpen = false;
         }
         updateButtonStyles();
     }
@@ -445,6 +696,12 @@ public class GuiController {
         }
     }
 
+    private void closeEditPanel() {
+        if (editPanelContainer != null && rightPanelContainer.getChildren().contains(editPanelContainer)) {
+            closePanel(editPanelContainer, "edit", "редактирования");
+        }
+    }
+
     private void updateButtonStyles() {
         if (modelButton != null) {
             modelButton.setStyle(isModelPanelOpen ? BUTTON_ACTIVE_STYLE : BUTTON_NORMAL_STYLE);
@@ -455,9 +712,13 @@ public class GuiController {
         if (renderButton != null) {
             renderButton.setStyle(isRenderPanelOpen ? BUTTON_ACTIVE_STYLE : BUTTON_NORMAL_STYLE);
         }
+        if (editButton != null) {
+            editButton.setStyle(isEditPanelOpen ? BUTTON_ACTIVE_STYLE : BUTTON_NORMAL_STYLE);
+        }
         System.out.println("✓ Стили кнопок обновлены: Модель=" + isModelPanelOpen +
                 ", Камеры=" + isCameraPanelOpen +
-                ", Рендеринг=" + isRenderPanelOpen);
+                ", Рендеринг=" + isRenderPanelOpen +
+                ", Редактирование=" + isEditPanelOpen);
     }
 
     @FXML
@@ -476,6 +737,12 @@ public class GuiController {
     private void onRenderPanelButtonClick() {
         System.out.println("Нажато: Кнопка Рендеринг");
         onToggleRenderPanelClick();
+    }
+
+    @FXML
+    private void onEditPanelButtonClick() {
+        System.out.println("Нажато: Кнопка Редактировать");
+        onToggleEditPanelClick();
     }
 
     @FXML
@@ -531,6 +798,11 @@ public class GuiController {
             // Обновляем информацию в панели моделей, если она открыта
             if (modelPanelController != null) {
                 modelPanelController.updateModelInfo();
+            }
+
+            // Обновляем информацию в панели редактирования, если она открыта
+            if (editPanelController != null) {
+                editPanelController.updateModelStats();
             }
 
         } catch (IOException exception) {
@@ -722,7 +994,27 @@ public class GuiController {
         alert.showAndWait();
     }
 
-    // Геттер для модели (для ModelPanelController)
+    // Метод для обновления отображения модели
+    public void refreshModel() {
+        if (mesh != null) {
+            System.out.println("Обновление отображения модели...");
+
+            // Обновляем информацию в панели моделей
+            if (modelPanelController != null) {
+                modelPanelController.updateModelInfo();
+            }
+
+            // Обновляем информацию в панели редактирования
+            if (editPanelController != null) {
+                editPanelController.updateModelStats();
+            }
+
+            // Здесь можно добавить перерасчет нормалей и т.д.
+            System.out.println("Модель обновлена");
+        }
+    }
+
+    // Геттер для модели (для ModelPanelController и EditPanelController)
     public Model getMesh() {
         return mesh;
     }
@@ -730,6 +1022,16 @@ public class GuiController {
     // Сеттер для модели (для ModelPanelController)
     public void setMesh(Model mesh) {
         this.mesh = mesh;
+    }
+
+    // Геттер для ModelPanelController (для EditPanelController)
+    public ModelPanelController getModelPanelController() {
+        return modelPanelController;
+    }
+
+    // Геттер для CameraManager
+    public CameraManager getCameraManager() {
+        return cameraManager;
     }
 
     // Геттеры для настроек отображения
