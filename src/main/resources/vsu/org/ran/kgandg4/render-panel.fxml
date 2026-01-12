@@ -5,7 +5,7 @@
 <?import javafx.scene.layout.*?>
 
 <VBox fx:id="renderPanel" spacing="12"
-      minWidth="280" prefWidth="300" maxWidth="320"
+      minWidth="320" prefWidth="340" maxWidth="360"
       style="-fx-padding: 16;
              -fx-background-color: #ffffff;
              -fx-border-color: #ced4da;
@@ -32,15 +32,33 @@
 
     <Separator style="-fx-padding: 8 0 8 0;" />
 
-    <!-- Настройки цвета -->
+    <!-- Палитра цветов -->
     <VBox spacing="8">
         <Label style="-fx-font-weight: 600; -fx-font-size: 13px; -fx-text-fill: #495057;"
-               text="Цвет заливки:"/>
+               text="Палитра цветов:"/>
+
+        <!-- Контейнер для пользовательской палитры -->
+        <VBox fx:id="paletteContainer" spacing="4" style="-fx-padding: 8; -fx-background-color: #f8f9fa;"/>
+
+        <!-- Информация о цвете -->
+        <VBox spacing="2" style="-fx-padding: 6; -fx-background-color: #f1f3f4;">
+            <Label fx:id="hexLabel" text="HEX: #4A90E2" style="-fx-font-size: 12px; -fx-text-fill: #333;"/>
+            <Label fx:id="rgbValuesLabel" text="RGB: 74, 144, 226" style="-fx-font-size: 12px; -fx-text-fill: #333;"/>
+            <Label fx:id="hsvLabel" text="HSV: 212°, 67%, 89%" style="-fx-font-size: 12px; -fx-text-fill: #333;"/>
+        </VBox>
+    </VBox>
+
+    <Separator style="-fx-padding: 8 0 8 0;" />
+
+    <!-- Стандартный ColorPicker -->
+    <VBox spacing="8">
+        <Label style="-fx-font-weight: 600; -fx-font-size: 13px; -fx-text-fill: #495057;"
+               text="Быстрый выбор цвета:"/>
 
         <!-- ColorPicker -->
         <HBox spacing="10" alignment="CENTER_LEFT">
-            <Label text="Выбор цвета:" style="-fx-min-width: 80;"/>
-            <ColorPicker fx:id="faceColorPicker" value="#4a90e2"/>
+            <Label text="Цвет:" style="-fx-min-width: 80;"/>
+            <ColorPicker fx:id="faceColorPicker"/>
         </HBox>
 
         <!-- Превью цвета -->
@@ -51,33 +69,38 @@
                               -fx-border-color: #000000;
                               -fx-border-width: 1;"/>
         </HBox>
+    </VBox>
 
-        <!-- RGB слайдеры -->
-        <VBox spacing="6">
-            <Label fx:id="rgbLabel" text="RGB: 74, 144, 226"
-                   style="-fx-font-size: 12px; -fx-text-fill: #6c757d;"/>
+    <Separator style="-fx-padding: 8 0 8 0;" />
 
-            <!-- Красный -->
-            <HBox spacing="10" alignment="CENTER_LEFT">
-                <Label text="R:" style="-fx-min-width: 20; -fx-text-fill: #dc3545; -fx-font-weight: bold;"/>
-                <Slider fx:id="redSlider" prefWidth="200"/>
-                <Label fx:id="redValue" text="74" style="-fx-min-width: 30; -fx-font-size: 12px;"/>
-            </HBox>
+    <!-- RGB слайдеры -->
+    <VBox spacing="8">
+        <Label style="-fx-font-weight: 600; -fx-font-size: 13px; -fx-text-fill: #495057;"
+               text="Ручная настройка RGB:"/>
 
-            <!-- Зеленый -->
-            <HBox spacing="10" alignment="CENTER_LEFT">
-                <Label text="G:" style="-fx-min-width: 20; -fx-text-fill: #28a745; -fx-font-weight: bold;"/>
-                <Slider fx:id="greenSlider" prefWidth="200"/>
-                <Label fx:id="greenValue" text="144" style="-fx-min-width: 30; -fx-font-size: 12px;"/>
-            </HBox>
+        <Label fx:id="rgbLabel" text="RGB: 74, 144, 226"
+               style="-fx-font-size: 12px; -fx-text-fill: #6c757d;"/>
 
-            <!-- Синий -->
-            <HBox spacing="10" alignment="CENTER_LEFT">
-                <Label text="B:" style="-fx-min-width: 20; -fx-text-fill: #007bff; -fx-font-weight: bold;"/>
-                <Slider fx:id="blueSlider" prefWidth="200"/>
-                <Label fx:id="blueValue" text="226" style="-fx-min-width: 30; -fx-font-size: 12px;"/>
-            </HBox>
-        </VBox>
+        <!-- Красный -->
+        <HBox spacing="10" alignment="CENTER_LEFT">
+            <Label text="R:" style="-fx-min-width: 20; -fx-text-fill: #dc3545; -fx-font-weight: bold;"/>
+            <Slider fx:id="redSlider" prefWidth="200"/>
+            <Label fx:id="redValue" text="74" style="-fx-min-width: 30; -fx-font-size: 12px;"/>
+        </HBox>
+
+        <!-- Зеленый -->
+        <HBox spacing="10" alignment="CENTER_LEFT">
+            <Label text="G:" style="-fx-min-width: 20; -fx-text-fill: #28a745; -fx-font-weight: bold;"/>
+            <Slider fx:id="greenSlider" prefWidth="200"/>
+            <Label fx:id="greenValue" text="144" style="-fx-min-width: 30; -fx-font-size: 12px;"/>
+        </HBox>
+
+        <!-- Синий -->
+        <HBox spacing="10" alignment="CENTER_LEFT">
+            <Label text="B:" style="-fx-min-width: 20; -fx-text-fill: #007bff; -fx-font-weight: bold;"/>
+            <Slider fx:id="blueSlider" prefWidth="200"/>
+            <Label fx:id="blueValue" text="226" style="-fx-min-width: 30; -fx-font-size: 12px;"/>
+        </HBox>
     </VBox>
 
 </VBox>
