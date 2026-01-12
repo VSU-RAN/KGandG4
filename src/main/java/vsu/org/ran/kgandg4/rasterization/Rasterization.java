@@ -4,7 +4,6 @@ import javafx.scene.image.PixelWriter;
 import javafx.scene.paint.Color;
 import vsu.org.ran.kgandg4.math.Vector3f;
 import vsu.org.ran.kgandg4.render_engine.Texture;
-import vsu.org.ran.kgandg4.render_engine.TexturedVertex;
 import vsu.org.ran.kgandg4.render_engine.Zbuffer;
 
 import java.util.*;

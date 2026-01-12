@@ -6,6 +6,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.layout.VBox;
 import vsu.org.ran.kgandg4.render_engine.Camera;
 import vsu.org.ran.kgandg4.render_engine.CameraManager;
 
@@ -15,11 +16,12 @@ import java.util.ResourceBundle;
 
 public class CameraPanelController implements Initializable {
 
+    @FXML private VBox cameraPanel;
     @FXML private ListView<Camera> cameraListView;
     @FXML private Label activeCameraLabel;
     @FXML private Spinner<Double> camPosX, camPosY, camPosZ;
     @FXML private Spinner<Double> camTargetX, camTargetY, camTargetZ;
-    @FXML private Button removeButton, switchButton;
+    @FXML private Button removeButton, switchButton, addButton, nextButton;
 
     private CameraManager cameraManager;
 
@@ -183,6 +185,10 @@ public class CameraPanelController implements Initializable {
         }
     }
 
+    public VBox getCameraPanel() {
+        return cameraPanel;
+    }
+
     private void setupCameraListeners(Camera camera) {
         camera.positionProperty().addListener((obs, oldPos, newPos) -> {
             if (!isUpdatingFields && newPos != null) {
@@ -246,7 +252,8 @@ public class CameraPanelController implements Initializable {
         });
     }
 
-    private void updateButtonsState() {
+    // Изменено с private на public
+    public void updateButtonsState() {
         Camera selected = cameraListView.getSelectionModel().getSelectedItem();
 
         if (selected == null || cameraManager == null) {
@@ -285,15 +292,15 @@ public class CameraPanelController implements Initializable {
         Camera active = cameraManager.getActiveCamera();
 
         Camera newCamera = cameraManager.addCamera(
-            new Vector3f(
-                    active.getPosition().x + 50,
-                    active.getPosition().y,
-                    active.getPosition().z),
-            new Vector3f(active.getTarget()),
-            active.getFov(),
-            active.getAspectRatio(),
-            active.getNearPlane(),
-            active.getFarPlane()
+                new Vector3f(
+                        active.getPosition().x + 50,
+                        active.getPosition().y,
+                        active.getPosition().z),
+                new Vector3f(active.getTarget()),
+                active.getFov(),
+                active.getAspectRatio(),
+                active.getNearPlane(),
+                active.getFarPlane()
         );
         cameraListView.getSelectionModel().select(newCamera);
     }

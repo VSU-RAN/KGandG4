@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.*?>
+
+<VBox fx:id="modelPanel" spacing="12"
+      minWidth="280" prefWidth="300" maxWidth="320"
+      style="-fx-padding: 16;
+             -fx-background-color: #ffffff;
+             -fx-border-color: #ced4da;
+             -fx-border-width: 0 0 0 1;"
+      xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="vsu.org.ran.kgandg4.controllers.ModelPanelController">
+
+    <!-- Заголовок -->
+    <Label text="Управление моделью"
+           style="-fx-font-size: 16px;
+                  -fx-font-weight: 600;
+                  -fx-text-fill: #343a40;" />
+
+    <!-- Информация о модели -->
+    <VBox spacing="8" style="-fx-padding: 12;
+                             -fx-background-color: #f8f9fa;
+                             -fx-border-color: #e9ecef;
+                             -fx-border-width: 1;
+                             -fx-border-radius: 4;
+                             -fx-background-radius: 4;">
+        <Label style="-fx-font-weight: 600; -fx-font-size: 14px; -fx-text-fill: #495057;"
+               text="Информация о модели:" />
+        <Label fx:id="modelInfoLabel"
+               style="-fx-font-size: 13px;
+                      -fx-text-fill: #6c757d;
+                      -fx-padding: 2 0 6 0;"
+               text="Модель не загружена" />
+    </VBox>
+
+    <!-- Превью текстуры -->
+    <VBox spacing="8" style="-fx-padding: 12;
+                             -fx-background-color: #f8f9fa;
+                             -fx-border-color: #e9ecef;
+                             -fx-border-width: 1;
+                             -fx-border-radius: 4;
+                             -fx-background-radius: 4;">
+        <Label style="-fx-font-weight: 600; -fx-font-size: 14px; -fx-text-fill: #495057;"
+               text="Превью текстуры:" />
+        <ImageView fx:id="texturePreview" fitWidth="280" fitHeight="140"
+                   style="-fx-background-color: #e9ecef;
+                          -fx-border-color: #ced4da;
+                          -fx-border-width: 1;"
+                   preserveRatio="true" />
+        <Label fx:id="textureInfoLabel"
+               style="-fx-font-size: 13px;
+                      -fx-text-fill: #6c757d;"
+               text="Текстура не загружена" />
+    </VBox>
+
+    <Separator style="-fx-padding: 8 0 8 0;" />
+
+    <!-- Основные действия -->
+    <VBox spacing="10">
+        <Label style="-fx-font-weight: 600; -fx-font-size: 13px; -fx-text-fill: #495057;"
+               text="Загрузка и сохранение:"/>
+        <HBox spacing="8" alignment="CENTER">
+            <Button fx:id="loadModelButton" onAction="#onLoadModelClick"
+                    prefWidth="120" prefHeight="36"
+                    style="-fx-font-size: 13px;
+                           -fx-font-weight: 500;
+                           -fx-background-color: #28a745;
+                           -fx-text-fill: white;
+                           -fx-border-radius: 4;
+                           -fx-background-radius: 4;
+                           -fx-cursor: hand;"
+                    text="Модель" />
+            <Button fx:id="loadTextureButton" onAction="#onLoadTextureClick"
+                    prefWidth="120" prefHeight="36"
+                    style="-fx-font-size: 13px;
+                           -fx-font-weight: 500;
+                           -fx-background-color: #17a2b8;
+                           -fx-text-fill: white;
+                           -fx-border-radius: 4;
+                           -fx-background-radius: 4;
+                           -fx-cursor: hand;"
+                    text="Текстура" />
+        </HBox>
+        <Button fx:id="saveModelButton" onAction="#onSaveModelClick"
+                prefWidth="280" prefHeight="36"
+                style="-fx-font-size: 13px;
+                       -fx-font-weight: 500;
+                       -fx-background-color: #6c757d;
+                       -fx-text-fill: white;
+                       -fx-border-radius: 4;
+                       -fx-background-radius: 4;
+                       -fx-cursor: hand;"
+                text="Сохранить модель" />
+    </VBox>
+
+    <Separator style="-fx-padding: 8 0 8 0;" />
+
+    <!-- Настройки отображения -->
+    <VBox spacing="8">
+        <Label style="-fx-font-weight: 600; -fx-font-size: 13px; -fx-text-fill: #495057;"
+               text="Отображение элементов:"/>
+        <GridPane hgap="10" vgap="8">
+            <columnConstraints>
+                <ColumnConstraints prefWidth="140"/>
+                <ColumnConstraints prefWidth="140"/>
+            </columnConstraints>
+
+            <CheckBox fx:id="showWireframeCheck" text="Каркас" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+            <CheckBox fx:id="showFacesCheck" text="Грани" selected="true" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+            <CheckBox fx:id="showNormalsCheck" text="Нормали" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+            <CheckBox fx:id="showTextureCheck" text="Текстура" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+        </GridPane>
+    </VBox>
+
+</VBox>
