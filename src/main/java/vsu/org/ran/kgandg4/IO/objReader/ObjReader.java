@@ -1,4 +1,4 @@
-package vsu.org.ran.kgandg4.objReader;
+package vsu.org.ran.kgandg4.IO.objReader;
 
 
 import math.vector.Vector2f;

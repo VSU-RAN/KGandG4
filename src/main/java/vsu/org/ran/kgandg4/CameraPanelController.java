@@ -6,6 +6,8 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
+import vsu.org.ran.kgandg4.dependecyIndjection.Autowired;
+import vsu.org.ran.kgandg4.dependecyIndjection.Component;
 import vsu.org.ran.kgandg4.render_engine.Camera;
 import vsu.org.ran.kgandg4.render_engine.CameraManager;
 
@@ -14,6 +16,7 @@ import math.vector.Vector3f;
 import java.net.URL;
 import java.util.ResourceBundle;
 
+@Component
 public class CameraPanelController implements Initializable {
 
     @FXML private ListView<Camera> cameraListView;
@@ -22,6 +25,7 @@ public class CameraPanelController implements Initializable {
     @FXML private Spinner<Double> camTargetX, camTargetY, camTargetZ;
     @FXML private Button removeButton, switchButton;
 
+    @Autowired
     private CameraManager cameraManager;
 
     private boolean isUpdatingFields = false;
@@ -37,6 +41,10 @@ public class CameraPanelController implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {
         initListView();
         initSpinners();
+
+        if (cameraManager != null) {
+            initCameraManager();
+        }
     }
 
     public void setScene(Scene scene) {
@@ -158,9 +166,7 @@ public class CameraPanelController implements Initializable {
 
     }
 
-    public void setCameraManager(CameraManager cameraManager) {
-        this.cameraManager = cameraManager;
-
+    public void initCameraManager() {
         cameraListView.setItems(cameraManager.getCameras());
 
         cameraManager.activeCameraProperty().addListener((obs, oldCam, newCam) -> {

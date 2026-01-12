@@ -6,12 +6,24 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
 import math.vector.Vector3f;
+import vsu.org.ran.kgandg4.dependecyIndjection.Component;
 
+@Component
 public class CameraManager {
     private ObservableList<Camera> cameraList = FXCollections.observableArrayList();
     private int nextId = 0;
     private final ReadOnlyObjectWrapper<Camera> activeCameraProperty = new ReadOnlyObjectWrapper<>();
     private final float aspectRatio;
+
+    public CameraManager() {
+        this.aspectRatio = 1.3333f;
+        Camera initialCamera = new Camera(nextId ++, new Vector3f(0, 0, 20),
+                new Vector3f(0, 0, 0),
+                1.0F, aspectRatio, 0.01F, 800);
+        this.activeCameraProperty.set(initialCamera);
+        this.cameraList.add(initialCamera);
+    }
+
     public CameraManager(double width, double height) {
         this.aspectRatio = (float) (width / height);
         Camera initialCamera = new Camera(nextId ++,  new Vector3f(0, 0, 20),

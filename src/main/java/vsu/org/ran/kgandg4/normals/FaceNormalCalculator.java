@@ -1,12 +1,14 @@
 package vsu.org.ran.kgandg4.normals;
 
 import math.vector.Vector3f;
+import vsu.org.ran.kgandg4.dependecyIndjection.Component;
 import vsu.org.ran.kgandg4.model.Model;
 import vsu.org.ran.kgandg4.model.Polygon;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@Component
 public class FaceNormalCalculator implements NormalCalculator{
     @Override
     public void calculateNormals(Model model) {
