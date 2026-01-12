@@ -5,8 +5,8 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import vsu.org.ran.kgandg4.IO.FileDialogService;
-import vsu.org.ran.kgandg4.dependecyIndjection.Autowired;
-import vsu.org.ran.kgandg4.dependecyIndjection.Component;
+import vsu.org.ran.kgandg4.dependecyIndjection.annotations.Autowired;
+import vsu.org.ran.kgandg4.dependecyIndjection.annotations.Component;
 import vsu.org.ran.kgandg4.model.ModelManager;
 import vsu.org.ran.kgandg4.render_engine.CameraManager;
 import vsu.org.ran.kgandg4.render_engine.RenderEngine;
@@ -73,7 +73,6 @@ public class GuiController {
                 double height = canvas.getHeight();
 
                 cameraManager.getActiveCamera().setAspectRatio((float) (width / height));
-
                 canvas.getGraphicsContext2D().clearRect(0, 0, width, height);
 
                 RenderEngine.render(

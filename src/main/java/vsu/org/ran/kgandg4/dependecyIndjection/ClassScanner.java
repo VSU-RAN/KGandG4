@@ -1,5 +1,7 @@
 package vsu.org.ran.kgandg4.dependecyIndjection;
 
+import vsu.org.ran.kgandg4.dependecyIndjection.annotations.Component;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;

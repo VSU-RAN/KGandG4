@@ -12,9 +12,13 @@ public class Camera {
     private final int id;
     private final ObjectProperty<Vector3f> position = new SimpleObjectProperty<>();
     private final ObjectProperty<Vector3f> target = new SimpleObjectProperty<>();
+
     private float fov;
+
     private float aspectRatio;
+
     private float nearPlane;
+
     private float farPlane;
 
     public Camera(

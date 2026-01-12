@@ -6,8 +6,9 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
-import vsu.org.ran.kgandg4.dependecyIndjection.Autowired;
-import vsu.org.ran.kgandg4.dependecyIndjection.Component;
+import vsu.org.ran.kgandg4.dependecyIndjection.annotations.Autowired;
+import vsu.org.ran.kgandg4.dependecyIndjection.annotations.Component;
+import vsu.org.ran.kgandg4.dependecyIndjection.annotations.Value;
 import vsu.org.ran.kgandg4.render_engine.Camera;
 import vsu.org.ran.kgandg4.render_engine.CameraManager;
 
@@ -30,9 +31,15 @@ public class CameraPanelController implements Initializable {
 
     private boolean isUpdatingFields = false;
 
-    private static final float PAN_SPEED = 0.5f;
-    private static final float ORBIT_SPEED = 0.05f;
-    private static final float ZOOM_SPEED = 0.5f;
+    @Value("${camera.pan_speed}")
+    private static float PAN_SPEED;
+
+    @Value("${camera.orbit_speed}")
+    private static float ORBIT_SPEED;
+
+    @Value("${camera.zoom_speed}")
+    private static float ZOOM_SPEED;
+
     private boolean shiftPressed = false;
 
     private Scene scene;

@@ -4,13 +4,16 @@ import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.util.Duration;
-import vsu.org.ran.kgandg4.dependecyIndjection.Component;
+import vsu.org.ran.kgandg4.dependecyIndjection.annotations.Component;
+import vsu.org.ran.kgandg4.dependecyIndjection.annotations.Value;
 
 @Component
 public class RenderLoopService {
     private Timeline timeline;
     private Runnable renderTask;
-    private final int fps = 20;
+
+    @Value("${render.fps}")
+    private int fps;
 
     public void startRenderLoop(Runnable renderTask) {
         this.renderTask = renderTask;

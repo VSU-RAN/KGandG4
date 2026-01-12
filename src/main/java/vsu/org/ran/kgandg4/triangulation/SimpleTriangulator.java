@@ -1,7 +1,7 @@
 package vsu.org.ran.kgandg4.triangulation;
 
 
-import vsu.org.ran.kgandg4.dependecyIndjection.Component;
+import vsu.org.ran.kgandg4.dependecyIndjection.annotations.Component;
 import vsu.org.ran.kgandg4.model.Model;
 import vsu.org.ran.kgandg4.model.Polygon;
 import vsu.org.ran.kgandg4.triangulation.utils.PolygonUtil;

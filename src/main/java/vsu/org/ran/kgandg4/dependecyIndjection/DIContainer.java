@@ -1,23 +1,31 @@
 package vsu.org.ran.kgandg4.dependecyIndjection;
 
+import vsu.org.ran.kgandg4.config.PropertyResolver;
+import vsu.org.ran.kgandg4.dependecyIndjection.annotations.Autowired;
+import vsu.org.ran.kgandg4.dependecyIndjection.annotations.PostConstruct;
+import vsu.org.ran.kgandg4.dependecyIndjection.annotations.Value;
+
+import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class DIContainer {
     private final Map<Class<?>, Object> beans = new HashMap<>();
-    private final String basePackage = "vsu.org.ran.kgandg4";
+    private final String basePackage;
+    private PropertyResolver propertyResolver;
 
+    public DIContainer() {
+        this.basePackage = loadBasePackage();
+    }
 
     public void initialize() {
+        propertyResolver = new PropertyResolver();
+        beans.put(PropertyResolver.class, propertyResolver);
+
         List<Class<?>> componentClasses = ClassScanner.findComponentClasses(basePackage);
-        if (componentClasses.isEmpty()) {
-            return;
-        }
         createAllBeans(componentClasses);
         injectAllDependicies();
     }
@@ -52,18 +60,10 @@ public class DIContainer {
         while (clazz != null) {
             for (Field field: clazz.getDeclaredFields()) {
                 if (field.isAnnotationPresent(Autowired.class)) {
-                    field.setAccessible(true);
-
-                    Object dependency = findCompatibleBean(field.getType());
-                    if (dependency != null) {
-
-                        try {
-                            field.set(bean, dependency);
-
-                        } catch (IllegalAccessException e) {
-                            System.err.println("Ошибка внедрения в " + bean.getClass().getSimpleName() + ": " + e.getMessage());
-                        }
-                    }
+                    injectAutoWired(field, bean);
+                }
+                else if (field.isAnnotationPresent(Value.class)) {
+                    injectValue(field, bean);
                 }
             }
             clazz = clazz.getSuperclass();
@@ -84,6 +84,39 @@ public class DIContainer {
         }
     }
 
+    private void injectAutoWired(Field field, Object bean) {
+        field.setAccessible(true);
+
+        Object dependency = findCompatibleBean(field.getType());
+        if (dependency != null) {
+
+            try {
+                field.set(bean, dependency);
+
+            } catch (IllegalAccessException e) {
+                System.err.println("Ошибка внедрения в " + bean.getClass().getSimpleName() + ": " + e.getMessage());
+            }
+        }
+    }
+
+    private void injectValue(Field field, Object bean) {
+        field.setAccessible(true);
+        try {
+            Value valueAnnotation = field.getAnnotation(Value.class);
+            String expression = valueAnnotation.value();
+            String resolvedValue =  propertyResolver.resolveValue(expression);
+
+            if (resolvedValue == null || resolvedValue.isEmpty()) {
+                resolvedValue = valueAnnotation.defaultValue();
+            }
+
+            Object value = convertValue(field.getType(), resolvedValue);
+            field.set(bean, value);
+
+        } catch (IllegalAccessException e) {
+            System.err.println("Ошибка внедрения @Value: " + e.getMessage());
+        }
+    }
     private Object findCompatibleBean(Class<?> type) {
         if (beans.containsKey(type)) {
             return beans.get(type);
@@ -119,6 +152,46 @@ public class DIContainer {
         }
 
         return null;
+    }
+
+    private Object convertValue(Class<?> targetType, String stringValue) {
+        if (stringValue == null) return null;
+
+        if (targetType == String.class) {
+            return stringValue;
+        } else if (targetType == int.class || targetType == Integer.class) {
+            return Integer.parseInt(stringValue);
+        } else if (targetType == long.class || targetType == Long.class) {
+            return Long.parseLong(stringValue);
+        } else if (targetType == double.class || targetType == Double.class) {
+            return Double.parseDouble(stringValue);
+        } else if (targetType == float.class || targetType == Float.class) {
+            return Float.parseFloat(stringValue);
+        } else if (targetType == boolean.class || targetType == Boolean.class) {
+            return Boolean.parseBoolean(stringValue);
+        } else if (targetType == javafx.scene.paint.Color.class) {
+            return javafx.scene.paint.Color.web(stringValue);
+        } else {
+            throw new IllegalArgumentException("Unsupported type: " + targetType);
+        }
+    }
+
+    private String loadBasePackage() {
+        try (InputStream input = getClass().getClassLoader()
+                .getResourceAsStream("app.properties")) {
+
+            if (input != null) {
+                Properties props = new Properties();
+                props.load(input);
+                String packageFromProps = props.getProperty("base.package");
+                if (packageFromProps != null && !packageFromProps.isEmpty()) {
+                    return packageFromProps;
+                }
+            }
+
+        } catch (IOException e) {
+        }
+        return "vsu.org.ran.kgandg4";
     }
 
 

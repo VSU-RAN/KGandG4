@@ -2,7 +2,8 @@ package vsu.org.ran.kgandg4.IO;
 
 import javafx.stage.FileChooser;
 import javafx.stage.Window;
-import vsu.org.ran.kgandg4.dependecyIndjection.Component;
+import vsu.org.ran.kgandg4.dependecyIndjection.annotations.Component;
+import vsu.org.ran.kgandg4.dependecyIndjection.annotations.Value;
 
 import java.io.File;
 import java.util.Optional;
@@ -10,44 +11,92 @@ import java.util.Optional;
 @Component
 public class FileDialogService {
 
+    @Value("${filechooser.paths.models:3DModels}")
+    private String modelsPath;
+
+    @Value("${filechooser.paths.textures:textures}")
+    private String texturesPath;
+
+    @Value("${filechooser.paths.saves:saves}")
+    private String savesPath;
+
+    // Системные пути (опционально)
+    @Value("${base.package}")
+    private String userDir;
+
     public Optional<File> showOpenModelDialog(Window ownerWindow) {
-        FileChooser fileChooser = createFileChooser("Load Model", "*.obj");
-        return Optional.ofNullable(fileChooser.showOpenDialog(ownerWindow));
+        return showDialog(DialogType.LOAD_MODEL, ownerWindow);
     }
 
     public Optional<File> showSaveModelDialog(Window ownerWindow) {
-        FileChooser fileChooser = createFileChooser("Save Model", "*.obj");
-        return Optional.ofNullable(fileChooser.showSaveDialog(ownerWindow));
+        return showDialog(DialogType.SAVE_MODEL, ownerWindow);
     }
 
     public Optional<File> showOpenTextureDialog(Window ownerWindow) {
-        FileChooser fileChooser = createFileChooser("Load Texture",
-                "*.png", "*.jpg", "*.jpeg", "*.bmp");
-        return Optional.ofNullable(fileChooser.showOpenDialog(ownerWindow));
+        return showDialog(DialogType.LOAD_TEXTURE, ownerWindow);
     }
 
-    private FileChooser createFileChooser(String title, String... extensions) {
-        FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle(title);
+    private Optional<File> showDialog(DialogType type, Window ownerWindow) {
+        FileChooser fileChooser = createFileChooser(type);
 
-        StringBuilder filterDescription = new StringBuilder();
-        for (int i = 0; i < extensions.length; i++) {
-            if (i > 0) filterDescription.append(", ");
-            filterDescription.append(extensions[i]);
+        File initialDir = getInitialDirectory(type);
+        fileChooser.setInitialDirectory(initialDir);
+
+
+        if (type.isSaveDialog()) {
+            fileChooser.setInitialFileName(type.getDefaultFileName());
+        }
+
+        // Показываем диалог
+        File selectedFile = type.isSaveDialog()
+                ? fileChooser.showSaveDialog(ownerWindow)
+                : fileChooser.showOpenDialog(ownerWindow);
+
+        return Optional.ofNullable(selectedFile);
+    }
+
+    private FileChooser createFileChooser(DialogType type) {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle(type.getTitle());
+
+        for (FileChooser.ExtensionFilter filter : type.getFilters()) {
+            fileChooser.getExtensionFilters().add(filter);
         }
 
         fileChooser.getExtensionFilters().add(
-                new FileChooser.ExtensionFilter("Files (" + filterDescription + ")", extensions)
+                new FileChooser.ExtensionFilter("All files", "*.*")
         );
 
-        File projectDir = new File(System.getProperty("user.dir"));
-        File modelsDir = new File(projectDir, "3DModels");
-        if (modelsDir.exists()) {
-            fileChooser.setInitialDirectory(modelsDir);
-        } else {
-            fileChooser.setInitialDirectory(projectDir);
+        return fileChooser;
+    }
+
+    private File getInitialDirectory(DialogType type) {
+        String configPath = getConfigPathForType(type);
+        File dir = resolvePath(configPath);
+
+        // Если директория не существует, используем user.dir
+        return dir.exists() ? dir : new File(System.getProperty("user.dir"));
+    }
+
+    private String getConfigPathForType(DialogType type) {
+        return switch (type) {
+            case LOAD_MODEL, SAVE_MODEL -> modelsPath;
+            case LOAD_TEXTURE -> texturesPath;
+            default -> savesPath;
+        };
+    }
+
+    private File resolvePath(String configPath) {
+        String resolved = configPath
+                .replace("${user.dir}", System.getProperty("user.dir"))
+                .replace("${user.home}", System.getProperty("user.home"))
+                .replace("//", "/")
+                .replace("\\", File.separator);
+
+        if (!new File(resolved).isAbsolute()) {
+            resolved = System.getProperty("user.dir") + File.separator + resolved;
         }
 
-        return fileChooser;
+        return new File(resolved);
     }
 }
