@@ -3,8 +3,8 @@ package vsu.org.ran.kgandg4.IO.objReader;
 
 import math.vector.Vector2f;
 import math.vector.Vector3f;
-import vsu.org.ran.kgandg4.model.Model;
-import vsu.org.ran.kgandg4.model.Polygon;
+import vsu.org.ran.kgandg4.model.models.Model;
+import vsu.org.ran.kgandg4.model.models.Polygon;
 
 import java.util.ArrayList;
 import java.util.Arrays;

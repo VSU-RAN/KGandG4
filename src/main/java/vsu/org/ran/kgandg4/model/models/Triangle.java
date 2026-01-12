@@ -1,4 +1,4 @@
-package vsu.org.ran.kgandg4.model;
+package vsu.org.ran.kgandg4.model.models;
 
 
 import math.vector.Vector3f;

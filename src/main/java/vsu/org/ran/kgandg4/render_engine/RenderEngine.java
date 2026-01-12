@@ -3,8 +3,8 @@ package vsu.org.ran.kgandg4.render_engine;
 
 import javafx.scene.canvas.GraphicsContext;
 
-import vsu.org.ran.kgandg4.model.Model;
-import vsu.org.ran.kgandg4.model.Polygon;
+import vsu.org.ran.kgandg4.model.models.Model;
+import vsu.org.ran.kgandg4.model.models.Polygon;
 
 import math.point.Point2f;
 import math.vector.Vector2f;

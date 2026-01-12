@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 //import vsu.org.ran.kgandg4.math.MathUtil;
 //import vsu.org.ran.kgandg4.math.Vector3f;
-import vsu.org.ran.kgandg4.model.Triangle;
+import vsu.org.ran.kgandg4.model.models.Triangle;
 import vsu.org.ran.kgandg4.triangulation.utils.Constants;
 
 import utils.MathUtil;

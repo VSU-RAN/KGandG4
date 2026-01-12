@@ -2,8 +2,8 @@ package vsu.org.ran.kgandg4.normals;
 
 import math.vector.Vector3f;
 import vsu.org.ran.kgandg4.dependecyIndjection.annotations.Component;
-import vsu.org.ran.kgandg4.model.Model;
-import vsu.org.ran.kgandg4.model.Polygon;
+import vsu.org.ran.kgandg4.model.models.Model;
+import vsu.org.ran.kgandg4.model.models.Polygon;
 
 import java.util.ArrayList;
 import java.util.List;

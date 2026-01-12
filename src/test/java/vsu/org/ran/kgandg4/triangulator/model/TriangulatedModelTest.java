@@ -4,9 +4,9 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 //import vsu.org.ran.kgandg4.math.Vector3f;
-import vsu.org.ran.kgandg4.model.Polygon;
-import vsu.org.ran.kgandg4.model.Triangle;
-import vsu.org.ran.kgandg4.model.TriangulatedModel;
+import vsu.org.ran.kgandg4.model.models.Polygon;
+import vsu.org.ran.kgandg4.model.models.Triangle;
+import vsu.org.ran.kgandg4.model.models.TriangulatedModel;
 
 import math.vector.Vector3f; // вместо // import vsu.org.ran.kgandg4.math.Vector3f;
 

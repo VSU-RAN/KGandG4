@@ -3,7 +3,7 @@ package vsu.org.ran.kgandg4.triangulator.util;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import vsu.org.ran.kgandg4.model.Polygon;
+import vsu.org.ran.kgandg4.model.models.Polygon;
 import vsu.org.ran.kgandg4.triangulation.utils.PolygonUtil;
 
 import java.util.Arrays;

@@ -3,8 +3,8 @@ package vsu.org.ran.kgandg4;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 //import vsu.org.ran.kgandg4.math.Vector3f;
-import vsu.org.ran.kgandg4.model.Model;
-import vsu.org.ran.kgandg4.model.Polygon;
+import vsu.org.ran.kgandg4.model.models.Model;
+import vsu.org.ran.kgandg4.model.models.Polygon;
 import vsu.org.ran.kgandg4.normals.FaceNormalCalculator;
 
 import math.vector.Vector3f; // вместо // import vsu.org.ran.kgandg4.math.Vector3f;

@@ -32,13 +32,13 @@ public class CameraPanelController implements Initializable {
     private boolean isUpdatingFields = false;
 
     @Value("${camera.pan_speed}")
-    private static float PAN_SPEED;
+    private float PAN_SPEED;
 
     @Value("${camera.orbit_speed}")
-    private static float ORBIT_SPEED;
+    private float ORBIT_SPEED;
 
     @Value("${camera.zoom_speed}")
-    private static float ZOOM_SPEED;
+    private float ZOOM_SPEED;
 
     private boolean shiftPressed = false;
 

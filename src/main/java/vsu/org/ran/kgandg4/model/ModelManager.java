@@ -2,6 +2,8 @@ package vsu.org.ran.kgandg4.model;
 
 import vsu.org.ran.kgandg4.dependecyIndjection.annotations.Autowired;
 import vsu.org.ran.kgandg4.dependecyIndjection.annotations.Component;
+import vsu.org.ran.kgandg4.model.models.Model;
+import vsu.org.ran.kgandg4.model.models.TriangulatedModel;
 import vsu.org.ran.kgandg4.normals.NormalCalculator;
 import vsu.org.ran.kgandg4.IO.objReader.ObjReader;
 import vsu.org.ran.kgandg4.triangulation.Triangulator;
@@ -18,13 +20,13 @@ public class ModelManager {
     @Autowired
     private NormalCalculator normalCalculator;
 
-    private Model currentModel;
+    private TriangulatedModel currentModel;
 
     public void loadModel(File file) throws IOException {
         String content = Files.readString(file.toPath());
-        this.currentModel = ObjReader.read(content);
+        Model loadModel = ObjReader.read(content);
 
-        triangulator.triangulateModel(this.currentModel);
+        this.currentModel = triangulator.createTriangulatedModel(loadModel);
         normalCalculator.calculateNormals(currentModel);
     }
 

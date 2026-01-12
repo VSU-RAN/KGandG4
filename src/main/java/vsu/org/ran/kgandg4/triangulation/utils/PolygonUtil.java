@@ -1,8 +1,8 @@
 package vsu.org.ran.kgandg4.triangulation.utils;
 
 
-import vsu.org.ran.kgandg4.model.Model;
-import vsu.org.ran.kgandg4.model.Polygon;
+import vsu.org.ran.kgandg4.model.models.Model;
+import vsu.org.ran.kgandg4.model.models.Polygon;
 
 import math.vector.Vector3f;
 

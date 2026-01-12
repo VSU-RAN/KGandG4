@@ -2,8 +2,8 @@ package vsu.org.ran.kgandg4.triangulation;
 
 
 import vsu.org.ran.kgandg4.dependecyIndjection.annotations.Component;
-import vsu.org.ran.kgandg4.model.Model;
-import vsu.org.ran.kgandg4.model.Polygon;
+import vsu.org.ran.kgandg4.model.models.Model;
+import vsu.org.ran.kgandg4.model.models.Polygon;
 import vsu.org.ran.kgandg4.triangulation.utils.PolygonUtil;
 
 import java.util.ArrayList;
