@@ -15,12 +15,17 @@ import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.util.Duration;
+import vsu.org.ran.kgandg4.controllers.ModelPanelController;
+import vsu.org.ran.kgandg4.controllers.RenderPanelController;
+import vsu.org.ran.kgandg4.controllers.EditPanelController;
+import vsu.org.ran.kgandg4.controllers.TransformPanelController;
 import vsu.org.ran.kgandg4.model.Model;
 import vsu.org.ran.kgandg4.math.Vector3f;
 import vsu.org.ran.kgandg4.normals.FaceNormalCalculator;
@@ -47,6 +52,7 @@ public class GuiController {
     @FXML private Button cameraButton;
     @FXML private Button renderButton;
     @FXML private Button editButton;
+    @FXML private Button transformButton;  // ДОБАВЛЕНО
     @FXML private Button resetButton;
 
     @FXML private MenuItem menuOpen;
@@ -56,6 +62,7 @@ public class GuiController {
     @FXML private MenuItem menuModelTools;
     @FXML private MenuItem menuRenderSettings;
     @FXML private MenuItem menuEditPanel;
+    @FXML private MenuItem menuTransformPanel;  // ДОБАВЛЕНО
     @FXML private MenuItem menuResetView;
     @FXML private MenuItem menuExit;
 
@@ -63,11 +70,13 @@ public class GuiController {
     private Parent modelPanelContainer;
     private Parent renderPanelContainer;
     private Parent editPanelContainer;
+    private Parent transformPanelContainer;  // ДОБАВЛЕНО
 
     private CameraPanelController cameraPanelController;
     private ModelPanelController modelPanelController;
     private RenderPanelController renderPanelController;
     private EditPanelController editPanelController;
+    private TransformPanelController transformPanelController;  // ДОБАВЛЕНО
 
     private Model mesh = null;
     private CameraManager cameraManager;
@@ -79,6 +88,7 @@ public class GuiController {
     private boolean isModelPanelOpen = false;
     private boolean isRenderPanelOpen = false;
     private boolean isEditPanelOpen = false;
+    private boolean isTransformPanelOpen = false;  // ДОБАВЛЕНО
 
     // Настройки отображения
     private boolean showWireframe = false;
@@ -131,6 +141,7 @@ public class GuiController {
         menuModelTools.setOnAction(event -> onModelToolsClick());
         menuRenderSettings.setOnAction(event -> onToggleRenderPanelClick());
         menuEditPanel.setOnAction(event -> onToggleEditPanelClick());
+        menuTransformPanel.setOnAction(event -> onToggleTransformPanelClick());  // ДОБАВЛЕНО
         menuResetView.setOnAction(event -> onResetViewClick());
         menuExit.setOnAction(event -> onExitClick());
 
@@ -356,7 +367,6 @@ public class GuiController {
         System.out.println("=== Загрузка панели камер из FXML ===");
 
         try {
-            // Пробуем разные пути к ресурсу
             java.net.URL resourceUrl = getClass().getResource("/camera-panel.fxml");
             if (resourceUrl == null) {
                 resourceUrl = getClass().getResource("camera-panel.fxml");
@@ -498,6 +508,41 @@ public class GuiController {
         }
     }
 
+    private void loadTransformPanel() {  // ДОБАВЛЕНО
+        System.out.println("=== Загрузка панели трансформаций из FXML ===");
+
+        try {
+            java.net.URL resourceUrl = getClass().getResource("transform-panel.fxml");
+            System.out.println("URL ресурса: " + resourceUrl);
+
+            if (resourceUrl == null) {
+                resourceUrl = getClass().getResource("/vsu/org/ran/kgandg4/transform-panel.fxml");
+                System.out.println("URL ресурса (второй попыткой): " + resourceUrl);
+            }
+
+            if (resourceUrl == null) {
+                throw new IOException("Не найден файл transform-panel.fxml");
+            }
+
+            FXMLLoader loader = new FXMLLoader(resourceUrl);
+            transformPanelContainer = loader.load();
+            System.out.println("FXML панели трансформаций загружен успешно!");
+
+            transformPanelController = loader.getController();
+            System.out.println("Контроллер панели трансформаций получен: " + (transformPanelController != null));
+
+            if (transformPanelController != null) {
+                transformPanelController.setGuiController(this);
+                System.out.println("✓ Панель трансформаций успешно загружена из FXML!");
+            }
+
+        } catch (Exception e) {
+            System.err.println("✗ Ошибка загрузки панели трансформаций:");
+            e.printStackTrace();
+            showErrorDialog("Ошибка", "Не удалось загрузить панель трансформаций: " + e.getMessage());
+        }
+    }
+
     @FXML
     private void onToggleCameraPanelClick() {
         System.out.println("=== Нажато: Панель камер ===");
@@ -506,6 +551,7 @@ public class GuiController {
         if (isModelPanelOpen) closeModelPanel();
         if (isRenderPanelOpen) closeRenderPanel();
         if (isEditPanelOpen) closeEditPanel();
+        if (isTransformPanelOpen) closeTransformPanel();  // ДОБАВЛЕНО
 
         togglePanel(cameraPanelContainer, "camera", "камер");
     }
@@ -518,6 +564,7 @@ public class GuiController {
         if (isCameraPanelOpen) closeCameraPanel();
         if (isRenderPanelOpen) closeRenderPanel();
         if (isEditPanelOpen) closeEditPanel();
+        if (isTransformPanelOpen) closeTransformPanel();  // ДОБАВЛЕНО
 
         togglePanel(modelPanelContainer, "model", "моделей");
     }
@@ -530,6 +577,7 @@ public class GuiController {
         if (isCameraPanelOpen) closeCameraPanel();
         if (isModelPanelOpen) closeModelPanel();
         if (isEditPanelOpen) closeEditPanel();
+        if (isTransformPanelOpen) closeTransformPanel();  // ДОБАВЛЕНО
 
         togglePanel(renderPanelContainer, "render", "рендеринга");
     }
@@ -542,8 +590,22 @@ public class GuiController {
         if (isCameraPanelOpen) closeCameraPanel();
         if (isModelPanelOpen) closeModelPanel();
         if (isRenderPanelOpen) closeRenderPanel();
+        if (isTransformPanelOpen) closeTransformPanel();  // ДОБАВЛЕНО
 
         togglePanel(editPanelContainer, "edit", "редактирования");
+    }
+
+    @FXML
+    private void onToggleTransformPanelClick() {  // ДОБАВЛЕНО
+        System.out.println("=== Нажато: Трансформации модели ===");
+
+        // Закрываем другие панели
+        if (isCameraPanelOpen) closeCameraPanel();
+        if (isModelPanelOpen) closeModelPanel();
+        if (isRenderPanelOpen) closeRenderPanel();
+        if (isEditPanelOpen) closeEditPanel();
+
+        togglePanel(transformPanelContainer, "transform", "трансформаций");
     }
 
     private void togglePanel(Parent panelContainer, String panelType, String panelName) {
@@ -577,6 +639,9 @@ public class GuiController {
             } else if (panelType.equals("edit")) {
                 loadEditPanel();
                 panelContainer = editPanelContainer;
+            } else if (panelType.equals("transform")) {  // ДОБАВЛЕНО
+                loadTransformPanel();
+                panelContainer = transformPanelContainer;
             }
 
             if (panelContainer == null) {
@@ -625,6 +690,8 @@ public class GuiController {
             isRenderPanelOpen = true;
         } else if (panelType.equals("edit")) {
             isEditPanelOpen = true;
+        } else if (panelType.equals("transform")) {  // ДОБАВЛЕНО
+            isTransformPanelOpen = true;
         }
         updateButtonStyles();
 
@@ -674,6 +741,8 @@ public class GuiController {
             isRenderPanelOpen = false;
         } else if (panelType.equals("edit")) {
             isEditPanelOpen = false;
+        } else if (panelType.equals("transform")) {  // ДОБАВЛЕНО
+            isTransformPanelOpen = false;
         }
         updateButtonStyles();
     }
@@ -702,6 +771,12 @@ public class GuiController {
         }
     }
 
+    private void closeTransformPanel() {  // ДОБАВЛЕНО
+        if (transformPanelContainer != null && rightPanelContainer.getChildren().contains(transformPanelContainer)) {
+            closePanel(transformPanelContainer, "transform", "трансформаций");
+        }
+    }
+
     private void updateButtonStyles() {
         if (modelButton != null) {
             modelButton.setStyle(isModelPanelOpen ? BUTTON_ACTIVE_STYLE : BUTTON_NORMAL_STYLE);
@@ -715,10 +790,14 @@ public class GuiController {
         if (editButton != null) {
             editButton.setStyle(isEditPanelOpen ? BUTTON_ACTIVE_STYLE : BUTTON_NORMAL_STYLE);
         }
+        if (transformButton != null) {  // ДОБАВЛЕНО
+            transformButton.setStyle(isTransformPanelOpen ? BUTTON_ACTIVE_STYLE : BUTTON_NORMAL_STYLE);
+        }
         System.out.println("✓ Стили кнопок обновлены: Модель=" + isModelPanelOpen +
                 ", Камеры=" + isCameraPanelOpen +
                 ", Рендеринг=" + isRenderPanelOpen +
-                ", Редактирование=" + isEditPanelOpen);
+                ", Редактирование=" + isEditPanelOpen +
+                ", Трансформации=" + isTransformPanelOpen);  // ДОБАВЛЕНО
     }
 
     @FXML
@@ -743,6 +822,12 @@ public class GuiController {
     private void onEditPanelButtonClick() {
         System.out.println("Нажато: Кнопка Редактировать");
         onToggleEditPanelClick();
+    }
+
+    @FXML
+    private void onTransformPanelButtonClick() {  // ДОБАВЛЕНО
+        System.out.println("Нажато: Кнопка Трансформации");
+        onToggleTransformPanelClick();
     }
 
     @FXML

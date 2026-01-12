@@ -57,10 +57,15 @@
                           style="-fx-font-size: 13px; -fx-padding: 6 20 6 20;"
                           text="Настройки рендера" />
 
-                <!-- ДОБАВЛЯЕМ НОВЫЙ ПУНКТ МЕНЮ -->
+                <!-- Пункт меню для редактирования -->
                 <MenuItem fx:id="menuEditPanel" mnemonicParsing="false"
                           style="-fx-font-size: 13px; -fx-padding: 6 20 6 20;"
                           text="Редактирование модели" />
+
+                <!-- Пункт меню для трансформаций -->
+                <MenuItem fx:id="menuTransformPanel" mnemonicParsing="false"
+                          style="-fx-font-size: 13px; -fx-padding: 6 20 6 20;"
+                          text="Трансформации модели" />
 
                 <SeparatorMenuItem />
 
@@ -92,73 +97,85 @@
 
             <Button fx:id="modelButton" text="Модель" onAction="#onModelPanelButtonClick"
                     style="-fx-background-color: transparent;
-                           -fx-text-fill: #495057;
-                           -fx-font-size: 13px;
-                           -fx-font-weight: 500;
-                           -fx-padding: 6 14 6 14;
-                           -fx-border-radius: 4;
-                           -fx-background-radius: 4;
-                           -fx-cursor: hand;
-                           -fx-border-color: transparent;" />
+                   -fx-text-fill: #495057;
+                   -fx-font-size: 13px;
+                   -fx-font-weight: 500;
+                   -fx-padding: 6 14 6 14;
+                   -fx-border-radius: 4;
+                   -fx-background-radius: 4;
+                   -fx-cursor: hand;
+                   -fx-border-color: transparent;" />
 
             <Button fx:id="cameraButton" text="Камеры" onAction="#onCameraPanelButtonClick"
                     style="-fx-background-color: transparent;
-                           -fx-text-fill: #495057;
-                           -fx-font-size: 13px;
-                           -fx-font-weight: 500;
-                           -fx-padding: 6 14 6 14;
-                           -fx-border-radius: 4;
-                           -fx-background-radius: 4;
-                           -fx-cursor: hand;
-                           -fx-border-color: transparent;" />
+                   -fx-text-fill: #495057;
+                   -fx-font-size: 13px;
+                   -fx-font-weight: 500;
+                   -fx-padding: 6 14 6 14;
+                   -fx-border-radius: 4;
+                   -fx-background-radius: 4;
+                   -fx-cursor: hand;
+                   -fx-border-color: transparent;" />
+
+            <!-- Кнопка трансформаций ПЕРЕНОСИМ сюда -->
+            <Button fx:id="transformButton" text="Трансформации" onAction="#onTransformPanelButtonClick"
+                    style="-fx-background-color: transparent;
+                   -fx-text-fill: #495057;
+                   -fx-font-size: 13px;
+                   -fx-font-weight: 500;
+                   -fx-padding: 6 14 6 14;
+                   -fx-border-radius: 4;
+                   -fx-background-radius: 4;
+                   -fx-cursor: hand;
+                   -fx-border-color: transparent;" />
 
             <Button fx:id="renderButton" text="Рендеринг" onAction="#onRenderPanelButtonClick"
                     style="-fx-background-color: transparent;
-                           -fx-text-fill: #495057;
-                           -fx-font-size: 13px;
-                           -fx-font-weight: 500;
-                           -fx-padding: 6 14 6 14;
-                           -fx-border-radius: 4;
-                           -fx-background-radius: 4;
-                           -fx-cursor: hand;
-                           -fx-border-color: transparent;" />
+                   -fx-text-fill: #495057;
+                   -fx-font-size: 13px;
+                   -fx-font-weight: 500;
+                   -fx-padding: 6 14 6 14;
+                   -fx-border-radius: 4;
+                   -fx-background-radius: 4;
+                   -fx-cursor: hand;
+                   -fx-border-color: transparent;" />
 
-            <!-- ДОБАВЛЯЕМ КНОПКУ РЕДАКТИРОВАНИЯ -->
+            <!-- Кнопка редактирования -->
             <Button fx:id="editButton" text="Редактировать" onAction="#onEditPanelButtonClick"
                     style="-fx-background-color: transparent;
-                           -fx-text-fill: #495057;
-                           -fx-font-size: 13px;
-                           -fx-font-weight: 500;
-                           -fx-padding: 6 14 6 14;
-                           -fx-border-radius: 4;
-                           -fx-background-radius: 4;
-                           -fx-cursor: hand;
-                           -fx-border-color: transparent;" />
+                   -fx-text-fill: #495057;
+                   -fx-font-size: 13px;
+                   -fx-font-weight: 500;
+                   -fx-padding: 6 14 6 14;
+                   -fx-border-radius: 4;
+                   -fx-background-radius: 4;
+                   -fx-cursor: hand;
+                   -fx-border-color: transparent;" />
 
             <Button fx:id="resetButton" text="Сбросить" onAction="#onResetViewButtonClick"
                     style="-fx-background-color: transparent;
-                           -fx-text-fill: #495057;
-                           -fx-font-size: 13px;
-                           -fx-font-weight: 500;
-                           -fx-padding: 6 14 6 14;
-                           -fx-border-radius: 4;
-                           -fx-background-radius: 4;
-                           -fx-cursor: hand;
-                           -fx-border-color: transparent;" />
+                   -fx-text-fill: #495057;
+                   -fx-font-size: 13px;
+                   -fx-font-weight: 500;
+                   -fx-padding: 6 14 6 14;
+                   -fx-border-radius: 4;
+                   -fx-background-radius: 4;
+                   -fx-cursor: hand;
+                   -fx-border-color: transparent;" />
 
             <!-- Отступ -->
             <HBox HBox.hgrow="ALWAYS" />
 
             <Button text="Выход" onAction="#onExitClick"
                     style="-fx-background-color: transparent;
-                           -fx-text-fill: #dc3545;
-                           -fx-font-size: 13px;
-                           -fx-font-weight: 500;
-                           -fx-padding: 6 18 6 18;
-                           -fx-border-radius: 4;
-                           -fx-background-radius: 4;
-                           -fx-cursor: hand;
-                           -fx-border-color: #dc3545;" />
+                   -fx-text-fill: #dc3545;
+                   -fx-font-size: 13px;
+                   -fx-font-weight: 500;
+                   -fx-padding: 6 18 6 18;
+                   -fx-border-radius: 4;
+                   -fx-background-radius: 4;
+                   -fx-cursor: hand;
+                   -fx-border-color: #dc3545;" />
         </HBox>
     </HBox>
 
