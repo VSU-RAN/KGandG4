@@ -3,7 +3,7 @@ package vsu.org.ran.kgandg4.triangulator.tools;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import vsu.org.ran.kgandg4.objReader.ObjReader;
+import vsu.org.ran.kgandg4.objTools.ObjReader;
 import vsu.org.ran.kgandg4.math.Vector2f;
 import vsu.org.ran.kgandg4.math.Vector3f;
 import vsu.org.ran.kgandg4.model.Model;

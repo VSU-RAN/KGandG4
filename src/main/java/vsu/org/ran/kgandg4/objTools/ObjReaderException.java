@@ -1,4 +1,4 @@
-package vsu.org.ran.kgandg4.objReader;
+package vsu.org.ran.kgandg4.objTools;
 
 public class ObjReaderException extends RuntimeException {
     public ObjReaderException(String errorMessage, int lineInd) {

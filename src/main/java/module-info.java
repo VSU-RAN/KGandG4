@@ -10,6 +10,6 @@ module vsu.org.ran.kgandg4 {
     opens vsu.org.ran.kgandg4.model to org.junit.jupiter, org.junit.platform.commons;
     exports vsu.org.ran.kgandg4;
     exports vsu.org.ran.kgandg4.controllers;
-    exports vsu.org.ran.kgandg4.objReader;
-    opens vsu.org.ran.kgandg4.objReader to javafx.fxml;
+    exports vsu.org.ran.kgandg4.objTools;
+    opens vsu.org.ran.kgandg4.objTools to javafx.fxml;
 }

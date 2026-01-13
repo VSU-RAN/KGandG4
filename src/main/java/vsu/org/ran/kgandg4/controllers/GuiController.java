@@ -16,22 +16,18 @@ import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.util.Duration;
-import vsu.org.ran.kgandg4.controllers.ModelPanelController;
-import vsu.org.ran.kgandg4.controllers.RenderPanelController;
-import vsu.org.ran.kgandg4.controllers.EditPanelController;
-import vsu.org.ran.kgandg4.controllers.TransformPanelController;
 import vsu.org.ran.kgandg4.model.Model;
 import vsu.org.ran.kgandg4.math.Vector3f;
 import vsu.org.ran.kgandg4.normals.FaceNormalCalculator;
 import vsu.org.ran.kgandg4.normals.NormalCalculator;
-import vsu.org.ran.kgandg4.objReader.ObjReader;
+import vsu.org.ran.kgandg4.objTools.ObjReader;
+import vsu.org.ran.kgandg4.objTools.ObjWriter;
 import vsu.org.ran.kgandg4.render_engine.CameraManager;
 import vsu.org.ran.kgandg4.render_engine.RenderEngine;
 import vsu.org.ran.kgandg4.triangulation.SimpleTriangulator;
@@ -862,6 +858,7 @@ public class GuiController {
         FileChooser fileChooser = new FileChooser();
         fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Модель (*.obj)", "*.obj"));
         fileChooser.setTitle("Сохранить модель");
+        fileChooser.setInitialFileName("model.obj");
 
         File file = fileChooser.showSaveDialog((Stage) mainContainer.getScene().getWindow());
         if (file == null) {
@@ -869,11 +866,66 @@ public class GuiController {
         }
 
         try {
-            // TODO: Реализовать сохранение модели в OBJ формат
-            showInfoDialog("Успех", "Модель сохранена: " + file.getName());
+            // Проверяем, нужно ли сохранять с трансформациями
+            Model modelToSave = mesh;
+
+            if (transformPanelController != null && !transformPanelController.isSaveOriginal()) {
+                // Если выбран режим "С трансформациями", применяем трансформации
+                modelToSave = getTransformedModel();
+            }
+
+            // Используем ObjWriter для сохранения
+            ObjWriter.write(modelToSave, file.toPath());
+
+            showInfoDialog("Успех", "Модель успешно сохранена: " + file.getName());
+        } catch (IOException e) {
+            showErrorDialog("Ошибка сохранения", "Не удалось сохранить файл: " + e.getMessage());
+            e.printStackTrace();
         } catch (Exception e) {
-            showErrorDialog("Ошибка сохранения", e.getMessage());
+            showErrorDialog("Ошибка", "Произошла ошибка при сохранении: " + e.getMessage());
+            e.printStackTrace();
         }
+    }
+
+    public Model getTransformedModel() {
+        if (mesh == null) return null;
+
+        // Создаем копию модели
+        Model transformed = new Model();
+
+        // Получаем параметры трансформаций из TransformPanelController
+        float tx = 0, ty = 0, tz = 0;
+        float rx = 0, ry = 0, rz = 0;
+        float sx = 1, sy = 1, sz = 1;
+
+        if (transformPanelController != null) {
+            // Здесь нужно получить значения из слайдеров TransformPanelController
+        }
+
+        // Применяем трансформации к каждой вершине
+        for (Vector3f vertex : mesh.vertices) {
+            // Сначала масштабирование
+            float x = vertex.getX() * sx;
+            float y = vertex.getY() * sy;
+            float z = vertex.getZ() * sz;
+
+            // Затем поворот
+            // TODO: Реализовать поворот
+
+            // Затем перемещение
+            x += tx;
+            y += ty;
+            z += tz;
+
+            transformed.vertices.add(new Vector3f(x, y, z));
+        }
+
+        // Копируем остальные данные без изменений
+        transformed.textureVertices.addAll(mesh.textureVertices);
+        transformed.normals.addAll(mesh.normals);
+        transformed.polygons.addAll(mesh.polygons);
+
+        return transformed;
     }
 
     // Методы для управления настройками отображения (обновлены)

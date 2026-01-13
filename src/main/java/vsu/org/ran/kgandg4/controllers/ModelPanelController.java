@@ -72,7 +72,6 @@ public class ModelPanelController implements Initializable {
             }
         } else {
             modelInfoLabel.setText("Модель не загружена");
-
             // Показываем текущую текстуру (если есть)
             if (currentTexture != null) {
                 updateTexturePreview(currentTexture);
