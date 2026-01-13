@@ -3,6 +3,7 @@ package vsu.org.ran.kgandg4.controllers;
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -79,6 +80,7 @@ public class GuiController {
     private TransformPanelController transformPanelController;
 
     private Model mesh = null;
+    private Image loadedTexture = null;
     private CameraManager cameraManager;
     private Triangulator triangulator;
     private NormalCalculator normalCalculator;
@@ -692,7 +694,7 @@ public class GuiController {
         System.out.println("✓ Панель " + panelName + " добавлена в правую панель");
         System.out.println("✓ SplitPane установлен на 75%/25%");
 
-        javafx.application.Platform.runLater(() -> {
+        Platform.runLater(() -> {
             System.out.println("После добавления:");
             System.out.println("  Размер SplitPane: " + mainSplitPane.getWidth() + "x" + mainSplitPane.getHeight());
             System.out.println("  Размер правой панели: " + rightPanelContainer.getWidth() + "x" + rightPanelContainer.getHeight());
@@ -883,28 +885,57 @@ public class GuiController {
 
         File file = fileChooser.showOpenDialog((Stage) mainContainer.getScene().getWindow());
         if (file == null) {
+            System.out.println("Файл текстуры не выбран");
             return;
         }
 
         try {
-            Image textureImage = new Image(file.toURI().toString());
+            String filePath = file.toURI().toString();
+            System.out.println("Загружаем текстуру из: " + filePath);
 
-            if (mesh != null) {
-                mesh.texture = textureImage;
-                System.out.println("Текстура сохранена в модель: " +
-                        textureImage.getWidth() + "x" + textureImage.getHeight());
-            }
+            // Загружаем текстуру с фоновой загрузкой
+            Image textureImage = new Image(filePath, true);
 
-            System.out.println("✓ Текстура загружена: " + file.getAbsolutePath());
-            showInfoDialog("Успех", "Текстура загружена: " + file.getName());
+            // Добавляем слушатель для отслеживания загрузки
+            textureImage.errorProperty().addListener((obs, oldVal, newVal) -> {
+                if (newVal) {
+                    System.err.println("Ошибка загрузки текстуры: " + textureImage.getException());
+                    Platform.runLater(() -> {
+                        showErrorDialog("Ошибка", "Не удалось загрузить текстуру: " +
+                                textureImage.getException().getMessage());
+                    });
+                }
+            });
 
-            if (modelPanelController != null) {
-                modelPanelController.updateModelInfo();
-            }
+            textureImage.progressProperty().addListener((obs, oldVal, newVal) -> {
+                System.out.println("Прогресс загрузки текстуры: " + (newVal.doubleValue() * 100) + "%");
+
+                // Когда загрузка завершена
+                if (newVal.doubleValue() == 1.0 && !textureImage.isError()) {
+                    Platform.runLater(() -> {
+                        System.out.println("Текстура загружена: " +
+                                textureImage.getWidth() + "x" + textureImage.getHeight());
+
+                        // Прямое обновление превью в ModelPanelController
+                        if (modelPanelController != null) {
+                            modelPanelController.updateTexturePreview(textureImage);
+                        }
+
+                        showInfoDialog("Успех", "Текстура загружена: " + file.getName());
+                    });
+                }
+            });
 
         } catch (Exception e) {
-            showErrorDialog("Ошибка загрузки текстуры", e.getMessage());
+            System.err.println("Исключение при загрузке текстуры: " + e.getMessage());
             e.printStackTrace();
+            showErrorDialog("Ошибка загрузки текстуры", e.getMessage());
+        }
+    }
+
+    public void updateTexturePreview() {
+        if (modelPanelController != null && loadedTexture != null) {
+            modelPanelController.updateTexturePreview(loadedTexture);
         }
     }
 
