@@ -35,7 +35,7 @@ public class RenderEngine {
             zbuffer.clear();
         }
         if (texture == null) {
-            texture = new Texture("/Users/andrejpaskevic/Documents/КГ_Компьютерная_геометрия_и_графика/KGandG4/3DModels/CaracalCube/caracal_texture.png");
+            texture = new Texture("/Users/andrejpaskevic/Documents/KGandG4/3DModels/CaracalCube/caracal_texture.png");
         }
         Vector3f ray = camera.getDirection();
         ray.normalize();
