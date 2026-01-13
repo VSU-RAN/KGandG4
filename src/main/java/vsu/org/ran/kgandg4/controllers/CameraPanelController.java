@@ -14,7 +14,7 @@ import java.util.ResourceBundle;
 
 public class CameraPanelController implements Initializable {
 
-    @FXML private ScrollPane scrollPane;  // Добавлено
+    @FXML private ScrollPane scrollPane;
     @FXML private VBox cameraPanel;
     @FXML private ListView<Camera> cameraListView;
     @FXML private Label activeCameraLabel;
@@ -23,7 +23,6 @@ public class CameraPanelController implements Initializable {
     @FXML private Button removeButton, switchButton, addButton, nextButton;
 
     private CameraManager cameraManager;
-
     private boolean isUpdatingFields = false;
 
     @Override
@@ -59,7 +58,7 @@ public class CameraPanelController implements Initializable {
     }
 
     public Parent getCameraPanel() {
-        return scrollPane; // или cameraPanel, в зависимости от того, что нужно
+        return scrollPane;
     }
 
     private void setupCameraListeners(Camera camera) {
@@ -93,7 +92,6 @@ public class CameraPanelController implements Initializable {
             }
         });
 
-        // При выборе камеры обновляем поля
         cameraListView.getSelectionModel().selectedItemProperty().addListener(
                 (obs, oldVal, newCam) -> {
                     if (newCam != null) {
@@ -117,6 +115,29 @@ public class CameraPanelController implements Initializable {
         SpinnerValueFactory<Double> factory = new SpinnerValueFactory.DoubleSpinnerValueFactory(min, max, initial, step);
         spinner.setValueFactory(factory);
 
+        // Устанавливаем редактор для обработки ввода текста
+        spinner.setEditable(true);
+
+        // Обработчик для текстового поля спиннера
+        TextField editor = spinner.getEditor();
+        editor.setOnAction(event -> {
+            try {
+                String text = editor.getText();
+                if (text != null && !text.trim().isEmpty()) {
+                    double value = Double.parseDouble(text);
+                    // Проверяем границы
+                    if (value < min) value = min;
+                    if (value > max) value = max;
+                    factory.setValue(value);
+                    handleApplyChanges();
+                }
+            } catch (NumberFormatException e) {
+                // Если ввод некорректный, восстанавливаем предыдущее значение
+                editor.setText(String.valueOf(factory.getValue()));
+            }
+        });
+
+        // Также обрабатываем изменение через колесико и кнопки
         spinner.valueProperty().addListener((obs, oldVal, newVal) -> {
             if (!isUpdatingFields) {
                 handleApplyChanges();

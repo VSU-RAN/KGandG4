@@ -31,6 +31,11 @@ public class RenderPanelController implements Initializable {
     @FXML private Label greenValue;
     @FXML private Label blueValue;
 
+    // Новые чекбоксы
+    @FXML private CheckBox showWireframeCheck;
+    @FXML private CheckBox useTextureCheck;
+    @FXML private CheckBox useLightingCheck;
+
     private GuiController guiController;
     private ToggleGroup renderGroup;
 

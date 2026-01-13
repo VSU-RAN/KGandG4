@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.*?>
-<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.*?>
-<?import javafx.geometry.Insets?>
 
 <ScrollPane fx:id="scrollPane"
             hbarPolicy="NEVER"
@@ -41,6 +39,25 @@
                              style="-fx-font-size: 13px;"/>
                 <RadioButton fx:id="textureModeRadio" text="Текстура"
                              style="-fx-font-size: 13px;"/>
+            </VBox>
+        </VBox>
+
+        <!-- Настройки отображения -->
+        <VBox spacing="8" style="-fx-padding: 12;
+                                 -fx-background-color: #f8f9fa;
+                                 -fx-border-color: #e9ecef;
+                                 -fx-border-width: 1;
+                                 -fx-border-radius: 6;
+                                 -fx-background-radius: 6;">
+            <Label style="-fx-font-weight: 600; -fx-font-size: 14px; -fx-text-fill: #495057;"
+                   text="Настройки отображения:"/>
+            <VBox spacing="6" style="-fx-padding: 0 0 0 8;">
+                <CheckBox fx:id="showWireframeCheck" text="Рисовать полигональную сетку"
+                          style="-fx-font-size: 13px;"/>
+                <CheckBox fx:id="useTextureCheck" text="Использовать текстуру"
+                          style="-fx-font-size: 13px;"/>
+                <CheckBox fx:id="useLightingCheck" text="Использовать освещение"
+                          style="-fx-font-size: 13px;"/>
             </VBox>
         </VBox>
 

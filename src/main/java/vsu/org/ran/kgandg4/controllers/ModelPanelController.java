@@ -4,9 +4,8 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.control.Button;
-import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
-import javafx.scene.control.ScrollPane;  // Импорт добавлен
+import javafx.scene.control.ScrollPane;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.VBox;
 import vsu.org.ran.kgandg4.model.Model;
@@ -16,18 +15,12 @@ import java.util.ResourceBundle;
 
 public class ModelPanelController implements Initializable {
 
-    @FXML private ScrollPane scrollPane;  // Добавлено
+    @FXML private ScrollPane scrollPane;
     @FXML private VBox modelPanel;
     @FXML private Label modelInfoLabel;
     @FXML private Button loadModelButton;
     @FXML private Button loadTextureButton;
     @FXML private Button saveModelButton;
-
-    // Чекбоксы для отображения элементов
-    @FXML private CheckBox showWireframeCheck;
-    @FXML private CheckBox showFacesCheck;
-    @FXML private CheckBox showNormalsCheck;
-    @FXML private CheckBox showTextureCheck;
 
     // Превью текстуры
     @FXML private ImageView texturePreview;
@@ -37,41 +30,12 @@ public class ModelPanelController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        // Назначаем обработчики для чекбоксов
-        setupEventHandlers();
-
         updateModelInfo();
         updateTexturePreview(null);
     }
 
     public void setGuiController(GuiController guiController) {
         this.guiController = guiController;
-    }
-
-    private void setupEventHandlers() {
-        // При изменении чекбоксов
-        showWireframeCheck.setOnAction(e -> onDisplaySettingsChanged());
-        showFacesCheck.setOnAction(e -> onDisplaySettingsChanged());
-        showNormalsCheck.setOnAction(e -> onDisplaySettingsChanged());
-        showTextureCheck.setOnAction(e -> onDisplaySettingsChanged());
-    }
-
-    private void onDisplaySettingsChanged() {
-        System.out.println("Настройки отображения изменены:");
-        System.out.println("  Каркас: " + showWireframeCheck.isSelected());
-        System.out.println("  Грани: " + showFacesCheck.isSelected());
-        System.out.println("  Нормали: " + showNormalsCheck.isSelected());
-        System.out.println("  Текстура: " + showTextureCheck.isSelected());
-
-        // Отправляем настройки в GuiController
-        if (guiController != null) {
-            guiController.updateDisplaySettings(
-                    showWireframeCheck.isSelected(),
-                    showFacesCheck.isSelected(),
-                    showNormalsCheck.isSelected(),
-                    showTextureCheck.isSelected()
-            );
-        }
     }
 
     public void updateModelInfo() {

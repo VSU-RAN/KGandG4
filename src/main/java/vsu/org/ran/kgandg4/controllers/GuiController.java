@@ -52,7 +52,7 @@ public class GuiController {
     @FXML private Button cameraButton;
     @FXML private Button renderButton;
     @FXML private Button editButton;
-    @FXML private Button transformButton;  // ДОБАВЛЕНО
+    @FXML private Button transformButton;
     @FXML private Button resetButton;
 
     @FXML private MenuItem menuOpen;
@@ -62,7 +62,7 @@ public class GuiController {
     @FXML private MenuItem menuModelTools;
     @FXML private MenuItem menuRenderSettings;
     @FXML private MenuItem menuEditPanel;
-    @FXML private MenuItem menuTransformPanel;  // ДОБАВЛЕНО
+    @FXML private MenuItem menuTransformPanel;
     @FXML private MenuItem menuResetView;
     @FXML private MenuItem menuExit;
 
@@ -70,13 +70,13 @@ public class GuiController {
     private Parent modelPanelContainer;
     private Parent renderPanelContainer;
     private Parent editPanelContainer;
-    private Parent transformPanelContainer;  // ДОБАВЛЕНО
+    private Parent transformPanelContainer;
 
     private CameraPanelController cameraPanelController;
     private ModelPanelController modelPanelController;
     private RenderPanelController renderPanelController;
     private EditPanelController editPanelController;
-    private TransformPanelController transformPanelController;  // ДОБАВЛЕНО
+    private TransformPanelController transformPanelController;
 
     private Model mesh = null;
     private CameraManager cameraManager;
@@ -88,16 +88,15 @@ public class GuiController {
     private boolean isModelPanelOpen = false;
     private boolean isRenderPanelOpen = false;
     private boolean isEditPanelOpen = false;
-    private boolean isTransformPanelOpen = false;  // ДОБАВЛЕНО
+    private boolean isTransformPanelOpen = false;
 
-    // Настройки отображения
+    // Настройки отображения (обновлены)
     private boolean showWireframe = false;
-    private boolean showFaces = true;
-    private boolean showNormals = false;
-    private boolean showTexture = false;
+    private boolean useTexture = false;
+    private boolean useLighting = false;
 
     // Настройки рендеринга
-    private String renderMode = "solid"; // "solid", "texture"
+    private String renderMode = "solid";
     private Color faceColor = Color.web("#4a90e2");
     private Color wireframeColor = Color.BLACK;
 
@@ -141,7 +140,7 @@ public class GuiController {
         menuModelTools.setOnAction(event -> onModelToolsClick());
         menuRenderSettings.setOnAction(event -> onToggleRenderPanelClick());
         menuEditPanel.setOnAction(event -> onToggleEditPanelClick());
-        menuTransformPanel.setOnAction(event -> onToggleTransformPanelClick());  // ДОБАВЛЕНО
+        menuTransformPanel.setOnAction(event -> onToggleTransformPanelClick());
         menuResetView.setOnAction(event -> onResetViewClick());
         menuExit.setOnAction(event -> onExitClick());
 
@@ -237,7 +236,7 @@ public class GuiController {
         canvas.setOnMouseClicked(event -> {
             canvas.requestFocus();
 
-            // Обработка клика для редактирования (остается как было)
+            // Обработка клика для редактирования
             if (mesh != null && editPanelController != null && isEditPanelOpen) {
                 double x = (event.getX() / canvas.getWidth()) * 2 - 1;
                 double y = -((event.getY() / canvas.getHeight()) * 2 - 1);
@@ -356,7 +355,7 @@ public class GuiController {
 
             case C:
                 // Переключение на следующую камеру
-                if (!shiftDown) { // Только если не зажат Shift
+                if (!shiftDown) {
                     cameraManager.switchToNextCamera();
                 }
                 break;
@@ -508,7 +507,7 @@ public class GuiController {
         }
     }
 
-    private void loadTransformPanel() {  // ДОБАВЛЕНО
+    private void loadTransformPanel() {
         System.out.println("=== Загрузка панели трансформаций из FXML ===");
 
         try {
@@ -547,11 +546,10 @@ public class GuiController {
     private void onToggleCameraPanelClick() {
         System.out.println("=== Нажато: Панель камер ===");
 
-        // Закрываем другие панели
         if (isModelPanelOpen) closeModelPanel();
         if (isRenderPanelOpen) closeRenderPanel();
         if (isEditPanelOpen) closeEditPanel();
-        if (isTransformPanelOpen) closeTransformPanel();  // ДОБАВЛЕНО
+        if (isTransformPanelOpen) closeTransformPanel();
 
         togglePanel(cameraPanelContainer, "camera", "камер");
     }
@@ -560,11 +558,10 @@ public class GuiController {
     private void onToggleModelPanelClick() {
         System.out.println("=== Нажато: Панель моделей ===");
 
-        // Закрываем другие панели
         if (isCameraPanelOpen) closeCameraPanel();
         if (isRenderPanelOpen) closeRenderPanel();
         if (isEditPanelOpen) closeEditPanel();
-        if (isTransformPanelOpen) closeTransformPanel();  // ДОБАВЛЕНО
+        if (isTransformPanelOpen) closeTransformPanel();
 
         togglePanel(modelPanelContainer, "model", "моделей");
     }
@@ -573,11 +570,10 @@ public class GuiController {
     private void onToggleRenderPanelClick() {
         System.out.println("=== Нажато: Панель рендеринга ===");
 
-        // Закрываем другие панели
         if (isCameraPanelOpen) closeCameraPanel();
         if (isModelPanelOpen) closeModelPanel();
         if (isEditPanelOpen) closeEditPanel();
-        if (isTransformPanelOpen) closeTransformPanel();  // ДОБАВЛЕНО
+        if (isTransformPanelOpen) closeTransformPanel();
 
         togglePanel(renderPanelContainer, "render", "рендеринга");
     }
@@ -586,20 +582,18 @@ public class GuiController {
     private void onToggleEditPanelClick() {
         System.out.println("=== Нажато: Панель редактирования ===");
 
-        // Закрываем другие панели
         if (isCameraPanelOpen) closeCameraPanel();
         if (isModelPanelOpen) closeModelPanel();
         if (isRenderPanelOpen) closeRenderPanel();
-        if (isTransformPanelOpen) closeTransformPanel();  // ДОБАВЛЕНО
+        if (isTransformPanelOpen) closeTransformPanel();
 
         togglePanel(editPanelContainer, "edit", "редактирования");
     }
 
     @FXML
-    private void onToggleTransformPanelClick() {  // ДОБАВЛЕНО
+    private void onToggleTransformPanelClick() {
         System.out.println("=== Нажато: Трансформации модели ===");
 
-        // Закрываем другие панели
         if (isCameraPanelOpen) closeCameraPanel();
         if (isModelPanelOpen) closeModelPanel();
         if (isRenderPanelOpen) closeRenderPanel();
@@ -624,7 +618,6 @@ public class GuiController {
     }
 
     private void openPanel(Parent panelContainer, String panelType, String panelName) {
-        // Загружаем панель если она еще не загружена
         if (panelContainer == null) {
             System.out.println("Панель " + panelName + " не загружена, загружаем...");
             if (panelType.equals("camera")) {
@@ -639,7 +632,7 @@ public class GuiController {
             } else if (panelType.equals("edit")) {
                 loadEditPanel();
                 panelContainer = editPanelContainer;
-            } else if (panelType.equals("transform")) {  // ДОБАВЛЕНО
+            } else if (panelType.equals("transform")) {
                 loadTransformPanel();
                 panelContainer = transformPanelContainer;
             }
@@ -650,15 +643,13 @@ public class GuiController {
             }
         }
 
-        // Устанавливаем нормальные стили
         panelContainer.setStyle(
-                "-fx-background-color: #ffffff;" +  // Белый фон
-                        "-fx-border-color: #ced4da;" +      // Серая рамка
-                        "-fx-border-width: 0 0 0 1;" +      // Только левая рамка
+                "-fx-background-color: #ffffff;" +
+                        "-fx-border-color: #ced4da;" +
+                        "-fx-border-width: 0 0 0 1;" +
                         "-fx-padding: 16;"
         );
 
-        // Устанавливаем фиксированную ширину
         if (panelContainer instanceof Region) {
             Region region = (Region) panelContainer;
             region.setPrefWidth(320);
@@ -667,21 +658,16 @@ public class GuiController {
             System.out.println("✓ Ширина панели установлена: pref=320, min=300, max=350");
         }
 
-        // Очищаем правую панель и добавляем нужную панель
         rightPanelContainer.getChildren().clear();
         rightPanelContainer.getChildren().add(panelContainer);
 
-        // Показываем правую панель
         rightPanelContainer.setVisible(true);
         rightPanelContainer.setManaged(true);
 
-        // Устанавливаем разделитель
         mainSplitPane.setDividerPositions(0.75);
 
-        // Возвращаем фокус на Canvas для обработки клавиатуры
         canvas.requestFocus();
 
-        // Устанавливаем флаг и обновляем кнопки
         if (panelType.equals("camera")) {
             isCameraPanelOpen = true;
         } else if (panelType.equals("model")) {
@@ -690,17 +676,15 @@ public class GuiController {
             isRenderPanelOpen = true;
         } else if (panelType.equals("edit")) {
             isEditPanelOpen = true;
-        } else if (panelType.equals("transform")) {  // ДОБАВЛЕНО
+        } else if (panelType.equals("transform")) {
             isTransformPanelOpen = true;
         }
         updateButtonStyles();
 
-        // Если это панель моделей, обновляем информацию о модели
         if (panelType.equals("model") && modelPanelController != null) {
             modelPanelController.updateModelInfo();
         }
 
-        // Если это панель рендеринга, передаем текущие настройки
         if (panelType.equals("render") && renderPanelController != null) {
             renderPanelController.updateSettings(renderMode, faceColor);
         }
@@ -708,7 +692,6 @@ public class GuiController {
         System.out.println("✓ Панель " + panelName + " добавлена в правую панель");
         System.out.println("✓ SplitPane установлен на 75%/25%");
 
-        // Проверяем
         javafx.application.Platform.runLater(() -> {
             System.out.println("После добавления:");
             System.out.println("  Размер SplitPane: " + mainSplitPane.getWidth() + "x" + mainSplitPane.getHeight());
@@ -717,22 +700,17 @@ public class GuiController {
     }
 
     private void closePanel(Parent panelContainer, String panelType, String panelName) {
-        // Удаляем панель из правого контейнера
         rightPanelContainer.getChildren().remove(panelContainer);
         System.out.println("✓ Панель " + panelName + " удалена из правой панели");
 
-        // Скрываем правую панель
         rightPanelContainer.setVisible(false);
         rightPanelContainer.setManaged(false);
 
-        // Устанавливаем разделитель на 1.0 (Canvas занимает всю ширину)
         mainSplitPane.setDividerPositions(1.0);
         System.out.println("✓ SplitPane установлен на полную ширину Canvas");
 
-        // Возвращаем фокус на Canvas
         canvas.requestFocus();
 
-        // Сбрасываем флаг и обновляем кнопки
         if (panelType.equals("camera")) {
             isCameraPanelOpen = false;
         } else if (panelType.equals("model")) {
@@ -741,7 +719,7 @@ public class GuiController {
             isRenderPanelOpen = false;
         } else if (panelType.equals("edit")) {
             isEditPanelOpen = false;
-        } else if (panelType.equals("transform")) {  // ДОБАВЛЕНО
+        } else if (panelType.equals("transform")) {
             isTransformPanelOpen = false;
         }
         updateButtonStyles();
@@ -771,7 +749,7 @@ public class GuiController {
         }
     }
 
-    private void closeTransformPanel() {  // ДОБАВЛЕНО
+    private void closeTransformPanel() {
         if (transformPanelContainer != null && rightPanelContainer.getChildren().contains(transformPanelContainer)) {
             closePanel(transformPanelContainer, "transform", "трансформаций");
         }
@@ -790,14 +768,14 @@ public class GuiController {
         if (editButton != null) {
             editButton.setStyle(isEditPanelOpen ? BUTTON_ACTIVE_STYLE : BUTTON_NORMAL_STYLE);
         }
-        if (transformButton != null) {  // ДОБАВЛЕНО
+        if (transformButton != null) {
             transformButton.setStyle(isTransformPanelOpen ? BUTTON_ACTIVE_STYLE : BUTTON_NORMAL_STYLE);
         }
         System.out.println("✓ Стили кнопок обновлены: Модель=" + isModelPanelOpen +
                 ", Камеры=" + isCameraPanelOpen +
                 ", Рендеринг=" + isRenderPanelOpen +
                 ", Редактирование=" + isEditPanelOpen +
-                ", Трансформации=" + isTransformPanelOpen);  // ДОБАВЛЕНО
+                ", Трансформации=" + isTransformPanelOpen);
     }
 
     @FXML
@@ -825,7 +803,7 @@ public class GuiController {
     }
 
     @FXML
-    private void onTransformPanelButtonClick() {  // ДОБАВЛЕНО
+    private void onTransformPanelButtonClick() {
         System.out.println("Нажато: Кнопка Трансформации");
         onToggleTransformPanelClick();
     }
@@ -836,7 +814,6 @@ public class GuiController {
         onResetViewClick();
     }
 
-    // Метод для загрузки модели
     public void loadModel() {
         System.out.println("Загрузка модели...");
 
@@ -861,7 +838,6 @@ public class GuiController {
             System.out.println("  Нормалей: " + mesh.normals.size());
             System.out.println("  Текстурных координат: " + mesh.textureVertices.size());
 
-            // Проверим, есть ли у полигонов текстурные координаты
             int polygonsWithTexture = 0;
             for (var polygon : mesh.polygons) {
                 if (polygon.getTextureVertexIndices().size() > 0) {
@@ -870,7 +846,6 @@ public class GuiController {
             }
             System.out.println("  Полигонов с текстурными координатами: " + polygonsWithTexture + " из " + mesh.polygons.size());
 
-            // Нормализуем модель
             normalizeModel(mesh);
 
             triangulator.triangulateModel(mesh);
@@ -880,12 +855,10 @@ public class GuiController {
 
             showInfoDialog("Успех", "Модель успешно загружена: " + file.getName());
 
-            // Обновляем информацию в панели моделей, если она открыта
             if (modelPanelController != null) {
                 modelPanelController.updateModelInfo();
             }
 
-            // Обновляем информацию в панели редактирования, если она открыта
             if (editPanelController != null) {
                 editPanelController.updateModelStats();
             }
@@ -898,7 +871,6 @@ public class GuiController {
         }
     }
 
-    // Метод для загрузки текстуры
     public void loadTexture() {
         System.out.println("Загрузка текстуры...");
 
@@ -926,7 +898,6 @@ public class GuiController {
             System.out.println("✓ Текстура загружена: " + file.getAbsolutePath());
             showInfoDialog("Успех", "Текстура загружена: " + file.getName());
 
-            // Обновляем информацию в панели моделей
             if (modelPanelController != null) {
                 modelPanelController.updateModelInfo();
             }
@@ -937,7 +908,6 @@ public class GuiController {
         }
     }
 
-    // Метод для сохранения модели
     public void saveModel() {
         if (mesh == null) {
             showErrorDialog("Ошибка", "Нет модели для сохранения!");
@@ -961,29 +931,20 @@ public class GuiController {
         }
     }
 
-    // Методы для управления настройками отображения
-    public void updateDisplaySettings(boolean wireframe, boolean faces, boolean normals, boolean texture) {
+    // Методы для управления настройками отображения (обновлены)
+    public void updateDisplaySettings(boolean wireframe, boolean texture, boolean lighting) {
         this.showWireframe = wireframe;
-        this.showFaces = faces;
-        this.showNormals = normals;
-        this.showTexture = texture;
+        this.useTexture = texture;
+        this.useLighting = lighting;
         System.out.println("Настройки отображения обновлены:");
-        System.out.println("  Каркас: " + showWireframe);
-        System.out.println("  Грани: " + showFaces);
-        System.out.println("  Нормали: " + showNormals);
-        System.out.println("  Текстура: " + showTexture);
+        System.out.println("  Полигональная сетка: " + showWireframe);
+        System.out.println("  Использовать текстуру: " + useTexture);
+        System.out.println("  Использовать освещение: " + useLighting);
     }
 
     public void setRenderMode(String mode) {
         this.renderMode = mode.toLowerCase();
         System.out.println("Режим рендеринга установлен: " + renderMode);
-
-        // Автоматически настраиваем соответствующие чекбоксы
-        if (mode.equalsIgnoreCase("texture")) {
-            showTexture = true;
-        } else if (mode.equalsIgnoreCase("solid")) {
-            showFaces = true;
-        }
     }
 
     public void setFaceColor(Color color) {
@@ -1079,61 +1040,49 @@ public class GuiController {
         alert.showAndWait();
     }
 
-    // Метод для обновления отображения модели
     public void refreshModel() {
         if (mesh != null) {
             System.out.println("Обновление отображения модели...");
 
-            // Обновляем информацию в панели моделей
             if (modelPanelController != null) {
                 modelPanelController.updateModelInfo();
             }
 
-            // Обновляем информацию в панели редактирования
             if (editPanelController != null) {
                 editPanelController.updateModelStats();
             }
 
-            // Здесь можно добавить перерасчет нормалей и т.д.
             System.out.println("Модель обновлена");
         }
     }
 
-    // Геттер для модели (для ModelPanelController и EditPanelController)
     public Model getMesh() {
         return mesh;
     }
 
-    // Сеттер для модели (для ModelPanelController)
     public void setMesh(Model mesh) {
         this.mesh = mesh;
     }
 
-    // Геттер для ModelPanelController (для EditPanelController)
     public ModelPanelController getModelPanelController() {
         return modelPanelController;
     }
 
-    // Геттер для CameraManager
     public CameraManager getCameraManager() {
         return cameraManager;
     }
 
-    // Геттеры для настроек отображения
+    // Геттеры для настроек отображения (обновлены)
     public boolean isShowWireframe() {
         return showWireframe;
     }
 
-    public boolean isShowFaces() {
-        return showFaces;
+    public boolean isUseTexture() {
+        return useTexture;
     }
 
-    public boolean isShowNormals() {
-        return showNormals;
-    }
-
-    public boolean isShowTexture() {
-        return showTexture;
+    public boolean isUseLighting() {
+        return useLighting;
     }
 
     public String getRenderMode() {

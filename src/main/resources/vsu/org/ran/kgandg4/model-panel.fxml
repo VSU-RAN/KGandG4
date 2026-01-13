@@ -102,24 +102,5 @@
                     text="Сохранить модель" />
         </VBox>
 
-        <Separator style="-fx-padding: 8 0 8 0;" />
-
-        <!-- Настройки отображения -->
-        <VBox spacing="8">
-            <Label style="-fx-font-weight: 600; -fx-font-size: 13px; -fx-text-fill: #495057;"
-                   text="Отображение элементов:"/>
-            <GridPane hgap="10" vgap="8">
-                <columnConstraints>
-                    <ColumnConstraints prefWidth="140"/>
-                    <ColumnConstraints prefWidth="140"/>
-                </columnConstraints>
-
-                <CheckBox fx:id="showWireframeCheck" text="Каркас" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
-                <CheckBox fx:id="showFacesCheck" text="Грани" selected="true" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
-                <CheckBox fx:id="showNormalsCheck" text="Нормали" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
-                <CheckBox fx:id="showTextureCheck" text="Текстура" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
-            </GridPane>
-        </VBox>
-
     </VBox>
 </ScrollPane>
