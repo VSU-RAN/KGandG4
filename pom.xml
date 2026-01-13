@@ -43,6 +43,24 @@
             <version>1.3.1</version>
         </dependency>
 
+        <!--3D MathLibrary-->
+        <dependency>
+            <groupId>local</groupId>
+            <artifactId>MathLibrary</artifactId>
+            <version>1.0</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/lib/MathLibrary.jar</systemPath>
+        </dependency>
+
+        <!--AffineTransformations-->
+        <dependency>
+            <groupId>vsu.cs</groupId>
+            <artifactId>KGandG3</artifactId>
+            <version>1.0</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/lib/KGandG3.jar</systemPath>
+        </dependency>
+
         <!-- JUnit 5 -->
         <dependency>
             <groupId>org.junit.jupiter</groupId>
