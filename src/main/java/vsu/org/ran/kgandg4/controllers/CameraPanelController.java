@@ -21,6 +21,7 @@ public class CameraPanelController implements Initializable {
     @FXML private Spinner<Double> camPosX, camPosY, camPosZ;
     @FXML private Spinner<Double> camTargetX, camTargetY, camTargetZ;
     @FXML private Button removeButton, switchButton, addButton, nextButton;
+    @FXML private Spinner<Double> camFovSpinner;
 
     private CameraManager cameraManager;
     private boolean isUpdatingFields = false;
@@ -81,6 +82,14 @@ public class CameraPanelController implements Initializable {
                 isUpdatingFields = false;
             }
         });
+
+        camera.fovProperty().addListener((obs, oldFov, newFov) -> {
+            if (!isUpdatingFields && newFov != null) {
+                isUpdatingFields = true;
+                camFovSpinner.getValueFactory().setValue((double) newFov.floatValue());
+                isUpdatingFields = false;
+            }
+        });
     }
 
     private void initListView() {
@@ -109,35 +118,32 @@ public class CameraPanelController implements Initializable {
         setupSpinner(camTargetX, -1000.0, 1000.0, 0.0, 0.5);
         setupSpinner(camTargetY, -1000.0, 1000.0, 0.0, 0.5);
         setupSpinner(camTargetZ, -1000.0, 1000.0, 0.0, 0.5);
+
+        setupSpinner(camFovSpinner, 10.0, 120.0, 45.0, 1.0);
     }
 
     private void setupSpinner(Spinner<Double> spinner, double min, double max, double initial, double step) {
         SpinnerValueFactory<Double> factory = new SpinnerValueFactory.DoubleSpinnerValueFactory(min, max, initial, step);
         spinner.setValueFactory(factory);
 
-        // Устанавливаем редактор для обработки ввода текста
         spinner.setEditable(true);
 
-        // Обработчик для текстового поля спиннера
         TextField editor = spinner.getEditor();
         editor.setOnAction(event -> {
             try {
                 String text = editor.getText();
                 if (text != null && !text.trim().isEmpty()) {
                     double value = Double.parseDouble(text);
-                    // Проверяем границы
                     if (value < min) value = min;
                     if (value > max) value = max;
                     factory.setValue(value);
                     handleApplyChanges();
                 }
             } catch (NumberFormatException e) {
-                // Если ввод некорректный, восстанавливаем предыдущее значение
                 editor.setText(String.valueOf(factory.getValue()));
             }
         });
 
-        // Также обрабатываем изменение через колесико и кнопки
         spinner.valueProperty().addListener((obs, oldVal, newVal) -> {
             if (!isUpdatingFields) {
                 handleApplyChanges();
@@ -171,6 +177,8 @@ public class CameraPanelController implements Initializable {
         camTargetX.getValueFactory().setValue((double)camera.getTarget().x);
         camTargetY.getValueFactory().setValue((double)camera.getTarget().y);
         camTargetZ.getValueFactory().setValue((double)camera.getTarget().z);
+
+        camFovSpinner.getValueFactory().setValue((double)camera.getFov());
 
         isUpdatingFields = false;
     }
@@ -237,5 +245,8 @@ public class CameraPanelController implements Initializable {
         float targetY = camTargetY.getValue().floatValue();
         float targetZ = camTargetZ.getValue().floatValue();
         active.setTarget(new Vector3f(targetX, targetY, targetZ));
+
+        float fov = camFovSpinner.getValue().floatValue();
+        active.setFov(fov);
     }
 }

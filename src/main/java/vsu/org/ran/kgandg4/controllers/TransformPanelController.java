@@ -70,15 +70,8 @@ public class TransformPanelController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        System.out.println("Инициализация TransformPanelController...");
-
         // Настраиваем связь слайдеров и полей ввода
         setupSliderFieldBindings();
-
-        // Назначаем обработчик для чекбокса
-        applyImmediatelyCheck.setOnAction(e -> onApplyImmediatelyChanged());
-
-        System.out.println("✓ TransformPanelController инициализирован");
     }
 
     private void setupSliderFieldBindings() {
@@ -236,17 +229,8 @@ public class TransformPanelController implements Initializable {
         });
     }
 
-    private void onApplyImmediatelyChanged() {
-        System.out.println("Автоприменение: " + applyImmediatelyCheck.isSelected());
-    }
-
     @FXML
     public void applyTransformations() {
-        System.out.println("Применение трансформаций:");
-        System.out.println("  Перемещение: X=" + translateX + ", Y=" + translateY + ", Z=" + translateZ);
-        System.out.println("  Поворот: X=" + rotateX + ", Y=" + rotateY + ", Z=" + rotateZ);
-        System.out.println("  Масштаб: X=" + scaleX + ", Y=" + scaleY + ", Z=" + scaleZ);
-
         if (guiController != null) {
             // Здесь нужно вызвать метод GuiController для применения трансформаций
             // guiController.applyModelTransformations(translateX, translateY, translateZ,
@@ -263,7 +247,6 @@ public class TransformPanelController implements Initializable {
         translateXField.setText("0.0");
         translateYField.setText("0.0");
         translateZField.setText("0.0");
-        System.out.println("Перемещение сброшено");
     }
 
     @FXML
@@ -274,7 +257,6 @@ public class TransformPanelController implements Initializable {
         rotateXField.setText("0.0");
         rotateYField.setText("0.0");
         rotateZField.setText("0.0");
-        System.out.println("Поворот сброшен");
     }
 
     @FXML
@@ -285,7 +267,6 @@ public class TransformPanelController implements Initializable {
         scaleXField.setText("1.0");
         scaleYField.setText("1.0");
         scaleZField.setText("1.0");
-        System.out.println("Масштаб сброшен");
     }
 
     @FXML
@@ -293,13 +274,11 @@ public class TransformPanelController implements Initializable {
         resetTranslation();
         resetRotation();
         resetScale();
-        System.out.println("Все трансформации сброшены");
     }
 
     @FXML
     public void saveOriginal() {
         saveAsOriginal = true;
-        System.out.println("Режим сохранения: Исходная модель");
         // Подсветка активной кнопки
         saveOriginalButton.setStyle("-fx-font-size: 13px; " +
                 "-fx-background-color: #138496; " +
@@ -318,7 +297,6 @@ public class TransformPanelController implements Initializable {
     @FXML
     public void saveTransformed() {
         saveAsOriginal = false;
-        System.out.println("Режим сохранения: С трансформациями");
         // Подсветка активной кнопки
         saveOriginalButton.setStyle("-fx-font-size: 13px; " +
                 "-fx-background-color: #17a2b8; " +
@@ -336,7 +314,6 @@ public class TransformPanelController implements Initializable {
 
     public void setGuiController(GuiController guiController) {
         this.guiController = guiController;
-        System.out.println("✓ GuiController установлен в TransformPanelController");
     }
 
     public Parent getTransformPanel() {

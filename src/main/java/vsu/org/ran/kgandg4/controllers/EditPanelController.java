@@ -29,23 +29,17 @@ public class EditPanelController implements Initializable {
 
     private GuiController guiController;
 
-    // Текущий выбор
     private Integer selectedVertexIndex = null;
     private Integer selectedPolygonIndex = null;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        System.out.println("Инициализация EditPanelController...");
-
         updateModelStats();
         updateSelectionInfo();
-
-        System.out.println("✓ EditPanelController инициализирован");
     }
 
     public void setGuiController(GuiController guiController) {
         this.guiController = guiController;
-        System.out.println("✓ GuiController установлен в EditPanelController");
     }
 
     /**
@@ -63,13 +57,11 @@ public class EditPanelController implements Initializable {
         selectedVertexIndex = ModelTools.findNearestVertex(model, clickPoint, 0.1f); // небольшой порог
 
         if (selectedVertexIndex != null) {
-            System.out.println("Выбрана вершина #" + selectedVertexIndex);
             selectedPolygonIndex = null;
         } else {
             // Если не нашли вершину, ищем полигон
             selectedPolygonIndex = ModelTools.findNearestPolygon(model, clickPoint, 0.1f);
             if (selectedPolygonIndex != null) {
-                System.out.println("Выбран полигон #" + selectedPolygonIndex);
                 selectedVertexIndex = null;
             }
         }
@@ -95,7 +87,6 @@ public class EditPanelController implements Initializable {
         Model model = guiController.getMesh();
 
         if (selectedVertexIndex != null) {
-            System.out.println("Удаление вершины #" + selectedVertexIndex);
             ModelTools.removeVertex(model, selectedVertexIndex);
             selectedVertexIndex = null;
 
@@ -103,7 +94,6 @@ public class EditPanelController implements Initializable {
             showAlert("Успех", "Вершина успешно удалена");
 
         } else if (selectedPolygonIndex != null) {
-            System.out.println("Удаление полигона #" + selectedPolygonIndex);
             ModelTools.removePolygon(model, selectedPolygonIndex);
             selectedPolygonIndex = null;
 
@@ -148,7 +138,6 @@ public class EditPanelController implements Initializable {
 
             model.vertices.clear();
             model.polygons.clear();
-            System.out.println("Все вершины и полигоны удалены");
             showAlert("Успех", "Все вершины и полигоны удалены");
 
             clearSelection();
@@ -181,13 +170,11 @@ public class EditPanelController implements Initializable {
             // Пробуем сначала удалить вершину
             if (index >= 0 && index < model.vertices.size()) {
                 ModelTools.removeVertex(model, index);
-                System.out.println("Вершина #" + index + " удалена по индексу");
                 showAlert("Успех", "Вершина #" + index + " удалена");
             }
             // Если не вершина, пробуем полигон
             else if (index >= 0 && index < model.polygons.size()) {
                 ModelTools.removePolygon(model, index);
-                System.out.println("Полигон #" + index + " удален по индексу");
                 showAlert("Успех", "Полигон #" + index + " удален");
             } else {
                 showAlert("Ошибка", "Неверный индекс");
@@ -218,7 +205,6 @@ public class EditPanelController implements Initializable {
         selectedVertexIndex = null;
         selectedPolygonIndex = null;
         updateSelectionInfo();
-        System.out.println("Выбор очищен");
     }
 
     /**

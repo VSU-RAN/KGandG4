@@ -133,6 +133,16 @@
                 <Label text="Z:" style="-fx-min-width: 20; -fx-text-fill: #6c757d;"/>
                 <Spinner fx:id="camTargetZ" editable="true" prefWidth="70"/>
             </HBox>
+
+            <!-- Поле зрения (FOV) -->
+            <Label style="-fx-font-weight: 600; -fx-font-size: 13px; -fx-text-fill: #495057; -fx-padding-top: 6;"
+                   text="Поле зрения (FOV):"/>
+
+            <HBox spacing="8" alignment="CENTER_LEFT">
+                <Label text="FOV:" style="-fx-min-width: 40; -fx-text-fill: #6c757d;"/>
+                <Spinner fx:id="camFovSpinner" editable="true" prefWidth="80"/>
+                <Label text="°" style="-fx-text-fill: #6c757d;"/>
+            </HBox>
         </VBox>
 
     </VBox>

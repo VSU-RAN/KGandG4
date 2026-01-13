@@ -1,19 +1,19 @@
 package vsu.org.ran.kgandg4.render_engine;
 
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.*;
+import javafx.beans.property.SimpleFloatProperty;
 
 import javax.vecmath.Matrix4f;
 import javax.vecmath.Vector3f;
 import java.util.Objects;
-import java.util.Vector;
-
 
 public class Camera {
     private final int id;
     private final ObjectProperty<Vector3f> position = new SimpleObjectProperty<>();
     private final ObjectProperty<Vector3f> target = new SimpleObjectProperty<>();
-    private float fov;
+
+    // ЗАМЕНИТЬ float fov на FloatProperty
+    private final FloatProperty fov = new SimpleFloatProperty();
     private float aspectRatio;
     private float nearPlane;
     private float farPlane;
@@ -29,10 +29,25 @@ public class Camera {
         this.id = id;
         this.position.set(position);
         this.target.set(target);
-        this.fov = fov;
+        this.fov.set(fov);  // ИСПОЛЬЗОВАТЬ set()
         this.aspectRatio = aspectRatio;
         this.nearPlane = nearPlane;
         this.farPlane = farPlane;
+    }
+
+    // ДОБАВИТЬ сеттер для FOV
+    public void setFov(final float fov) {
+        this.fov.set(fov);
+    }
+
+    // ДОБАВИТЬ геттер для FOV (возвращает значение из FloatProperty)
+    public float getFov() {
+        return fov.get();
+    }
+
+    // ДОБАВИТЬ свойство для FOV (чтобы можно было отслеживать изменения)
+    public FloatProperty fovProperty() {
+        return fov;
     }
 
     public void setPosition(final Vector3f position) {
@@ -71,7 +86,6 @@ public class Camera {
         Vector3f newPos = new Vector3f(this.position.get());
         newPos.add(translation);
         this.position.set(newPos);
-
     }
 
     public void moveTarget(final Vector3f translation) {
@@ -150,35 +164,33 @@ public class Camera {
     }
 
     Matrix4f getProjectionMatrix() {
-        return GraphicConveyor.perspective(fov, aspectRatio, nearPlane, farPlane);
+        return GraphicConveyor.perspective(fov.get(), aspectRatio, nearPlane, farPlane);
     }
 
     Vector3f getDirection() {
-        Vector3f result =  this.target.get();
-       result.sub(this.position.get());
+        Vector3f result = this.target.get();
+        result.sub(this.position.get());
         return result;
     }
 
-    @Override
-    public String toString() {
-        return "Camera " + id;
-    }
-
+    // Обновить equals() и hashCode() для учета FloatProperty
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Camera camera = (Camera) o;
-        return Float.compare(fov, camera.fov) == 0 && Float.compare(aspectRatio, camera.aspectRatio) == 0 && Float.compare(nearPlane, camera.nearPlane) == 0 && Float.compare(farPlane, camera.farPlane) == 0 && Objects.equals(id, camera.id) && Objects.equals(position, camera.position) && Objects.equals(target, camera.target);
+        return id == camera.id &&
+                Float.compare(camera.fov.get(), fov.get()) == 0 &&
+                Float.compare(camera.aspectRatio, aspectRatio) == 0 &&
+                Float.compare(camera.nearPlane, nearPlane) == 0 &&
+                Float.compare(camera.farPlane, farPlane) == 0 &&
+                Objects.equals(position.get(), camera.position.get()) &&
+                Objects.equals(target.get(), camera.target.get());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, position, target, fov, aspectRatio, nearPlane, farPlane);
-    }
-
-    public float getFov() {
-        return fov;
+        return Objects.hash(id, position.get(), target.get(), fov.get(), aspectRatio, nearPlane, farPlane);
     }
 
     public float getAspectRatio() {
@@ -191,5 +203,10 @@ public class Camera {
 
     public float getFarPlane() {
         return farPlane;
+    }
+
+    @Override
+    public String toString() {
+        return "Camera " + id + " (FOV: " + String.format("%.1f", fov.get()) + "°)";
     }
 }

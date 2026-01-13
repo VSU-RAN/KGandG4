@@ -19,17 +19,21 @@ public class RenderPanelController implements Initializable {
 
     @FXML private RadioButton solidModeRadio;
     @FXML private RadioButton textureModeRadio;
+    @FXML private RadioButton lightingModeRadio;
 
     @FXML private ColorPicker faceColorPicker;
+    @FXML private ColorPicker lightColorPicker;
     @FXML private Slider redSlider;
     @FXML private Slider greenSlider;
     @FXML private Slider blueSlider;
+    @FXML private Slider lightIntensitySlider;
     @FXML private Label rgbLabel;
 
     @FXML private VBox paletteContainer;
     @FXML private Label redValue;
     @FXML private Label greenValue;
     @FXML private Label blueValue;
+    @FXML private Label lightIntensityValue;
 
     // Новые чекбоксы
     @FXML private CheckBox showWireframeCheck;
@@ -45,12 +49,11 @@ public class RenderPanelController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        System.out.println("Инициализация RenderPanelController...");
-
         // Настраиваем группу радио-кнопок
         renderGroup = new ToggleGroup();
         solidModeRadio.setToggleGroup(renderGroup);
         textureModeRadio.setToggleGroup(renderGroup);
+        lightingModeRadio.setToggleGroup(renderGroup);
         solidModeRadio.setSelected(true);
 
         // Инициализируем ColorPicker с дефолтным цветом
@@ -71,13 +74,9 @@ public class RenderPanelController implements Initializable {
                 (int)greenSlider.getValue(),
                 (int)blueSlider.getValue()
         );
-
-        System.out.println("✓ RenderPanelController инициализирован");
     }
 
     private void initCustomPalette() {
-        System.out.println("Инициализация пользовательской палитры...");
-
         // Получаем размеры контейнера
         double containerWidth = paletteContainer.getWidth() - 16; // минус padding
         if (containerWidth <= 0) containerWidth = 280; // дефолтное значение
@@ -122,22 +121,21 @@ public class RenderPanelController implements Initializable {
         // Затем палитру
         paletteContainer.getChildren().add(colorPalette);
 
-        System.out.println("✓ Пользовательская палитра инициализирована, ширина: " + containerWidth);
+        setupLightingControls();
     }
 
     public void setGuiController(GuiController guiController) {
         this.guiController = guiController;
-        System.out.println("✓ GuiController установлен в RenderPanelController");
     }
 
     public void updateSettings(String renderMode, Color faceColor) {
-        System.out.println("Обновление настроек в RenderPanelController: mode=" + renderMode + ", color=" + faceColor);
-
         // Устанавливаем режим рендеринга
         if (renderMode.equalsIgnoreCase("solid")) {
             solidModeRadio.setSelected(true);
         } else if (renderMode.equalsIgnoreCase("texture")) {
             textureModeRadio.setSelected(true);
+        } else if (renderMode.equalsIgnoreCase("lighting")) { // Добавить
+            lightingModeRadio.setSelected(true);
         }
 
         // Устанавливаем цвет
@@ -156,22 +154,21 @@ public class RenderPanelController implements Initializable {
     }
 
     private void setupEventHandlers() {
-        System.out.println("Настройка обработчиков событий...");
-
         // При изменении радио-кнопок
         solidModeRadio.setOnAction(e -> {
-            System.out.println("Выбран режим: Заливка цветом");
             onRenderModeChanged();
         });
 
         textureModeRadio.setOnAction(e -> {
-            System.out.println("Выбран режим: Текстура");
+            onRenderModeChanged();
+        });
+
+        lightingModeRadio.setOnAction(e -> {
             onRenderModeChanged();
         });
 
         // При изменении цвета через ColorPicker
         faceColorPicker.setOnAction(e -> {
-            System.out.println("Цвет изменен через ColorPicker: " + faceColorPicker.getValue());
             onColorPickerChanged();
         });
     }
@@ -213,6 +210,37 @@ public class RenderPanelController implements Initializable {
         });
     }
 
+    private void setupLightingControls() {
+        // Настройка слайдера интенсивности
+        lightIntensitySlider.setMin(0.0);
+        lightIntensitySlider.setMax(1.0);
+        lightIntensitySlider.setValue(1.0);
+        lightIntensitySlider.setBlockIncrement(0.1);
+
+        // Обновляем значение
+        updateLightIntensityLabel(1.0);
+
+        // Обработчики
+        lightIntensitySlider.valueProperty().addListener((obs, oldVal, newVal) -> {
+            double intensity = Math.round(newVal.doubleValue() * 10.0) / 10.0;
+            updateLightIntensityLabel(intensity);
+            if (guiController != null) {
+                guiController.setLightIntensity((float) intensity);
+            }
+        });
+
+        lightColorPicker.setOnAction(e -> {
+            Color color = lightColorPicker.getValue();
+            if (guiController != null) {
+                guiController.setLightColor(color);
+            }
+        });
+    }
+
+    private void updateLightIntensityLabel(double intensity) {
+        lightIntensityValue.setText(String.format("%.1f", intensity));
+    }
+
     private void updateRGBLabels() {
         redValue.setText(String.valueOf((int)redSlider.getValue()));
         greenValue.setText(String.valueOf((int)greenSlider.getValue()));
@@ -227,8 +255,9 @@ public class RenderPanelController implements Initializable {
                 mode = "solid";
             } else if (selected == textureModeRadio) {
                 mode = "texture";
+            }else if (selected == lightingModeRadio) { // Добавить
+                mode = "lighting";
             }
-            System.out.println("Установка режима рендеринга: " + mode);
             guiController.setRenderMode(mode);
         }
     }

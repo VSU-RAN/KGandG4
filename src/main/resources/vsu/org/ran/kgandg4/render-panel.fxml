@@ -39,6 +39,8 @@
                              style="-fx-font-size: 13px;"/>
                 <RadioButton fx:id="textureModeRadio" text="Текстура"
                              style="-fx-font-size: 13px;"/>
+                <RadioButton fx:id="lightingModeRadio" text="Освещение"
+                             style="-fx-font-size: 13px;"/>
             </VBox>
         </VBox>
 
@@ -142,6 +144,45 @@
 
             <Label text="Перетащите ползунки для точной настройки цвета"
                    style="-fx-font-size: 11px; -fx-text-fill: #6c757d; -fx-font-style: italic;"/>
+        </VBox>
+
+        <!-- Настройки освещения -->
+        <VBox spacing="12" style="-fx-padding: 12;
+                         -fx-background-color: #f8f9fa;
+                         -fx-border-color: #e9ecef;
+                         -fx-border-width: 1;
+                         -fx-border-radius: 6;
+                         -fx-background-radius: 6;">
+            <Label style="-fx-font-weight: 600; -fx-font-size: 14px; -fx-text-fill: #495057;"
+                   text="Настройки освещения:"/>
+
+            <!-- Интенсивность -->
+            <Label text="Интенсивность:"
+                   style="-fx-font-size: 13px; -fx-text-fill: #6c757d;"/>
+
+            <HBox spacing="8" alignment="CENTER_LEFT">
+                <Label text="0%" style="-fx-min-width: 40; -fx-font-size: 12px; -fx-text-fill: #6c757d;"/>
+                <Slider fx:id="lightIntensitySlider" HBox.hgrow="ALWAYS" minHeight="30" min="0" max="1.0" value="1.0"/>
+                <Label text="100%" style="-fx-min-width: 40; -fx-font-size: 12px; -fx-text-fill: #6c757d;"/>
+            </HBox>
+
+            <HBox spacing="8" alignment="CENTER_LEFT">
+                <Label text="Текущее:"
+                       style="-fx-min-width: 60; -fx-font-size: 13px; -fx-text-fill: #495057;"/>
+                <Label fx:id="lightIntensityValue" text="1.0"
+                       style="-fx-min-width: 60; -fx-font-size: 13px; -fx-text-fill: #ffc107; -fx-font-weight: bold;"/>
+            </HBox>
+
+            <!-- Цвет освещения -->
+            <Separator style="-fx-padding: 8 0 8 0;" />
+
+            <Label text="Цвет освещения:"
+                   style="-fx-font-size: 13px; -fx-text-fill: #6c757d;"/>
+
+            <HBox spacing="10" alignment="CENTER_LEFT">
+                <Label text="Цвет:" style="-fx-min-width: 80; -fx-font-size: 13px; -fx-text-fill: #6c757d;"/>
+                <ColorPicker fx:id="lightColorPicker" style="-fx-font-size: 13px;" value="WHITE"/>
+            </HBox>
         </VBox>
 
     </VBox>

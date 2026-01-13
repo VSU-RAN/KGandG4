@@ -92,7 +92,7 @@ public class GuiController {
     private boolean isEditPanelOpen = false;
     private boolean isTransformPanelOpen = false;
 
-    // Настройки отображения (обновлены)
+    // Настройки отображения
     private boolean showWireframe = false;
     private boolean useTexture = false;
     private boolean useLighting = false;
@@ -101,12 +101,14 @@ public class GuiController {
     private String renderMode = "solid";
     private Color faceColor = Color.web("#4a90e2");
     private Color wireframeColor = Color.BLACK;
+    private Color lightColor = Color.WHITE;
 
     // Управление камерой с клавиатуры
     private boolean shiftPressed = false;
     private static final float PAN_SPEED = 0.5f;
     private static final float ORBIT_SPEED = 0.05f;
     private static final float ZOOM_SPEED = 0.5f;
+    private float lightIntensity = 1.0f;
 
     private final String BUTTON_ACTIVE_STYLE =
             "-fx-background-color: #007bff;" +
@@ -132,7 +134,6 @@ public class GuiController {
 
     @FXML
     private void initialize() {
-        System.out.println("=== Инициализация GuiController ===");
 
         // Назначаем обработчики для MenuItems
         menuOpen.setOnAction(event -> loadModel());
@@ -150,7 +151,6 @@ public class GuiController {
         if (canvasContainer != null) {
             canvas.widthProperty().bind(canvasContainer.widthProperty());
             canvas.heightProperty().bind(canvasContainer.heightProperty());
-            System.out.println("Canvas привязан к контейнеру: " + canvasContainer);
         }
 
         // Настраиваем обработку кликов по канвасу
@@ -182,7 +182,6 @@ public class GuiController {
                             (int) width, (int) height);
 
                 } catch (Exception e) {
-                    System.err.println("Ошибка рендеринга: " + e.getMessage());
                     e.printStackTrace();
                 }
             }
@@ -200,7 +199,6 @@ public class GuiController {
                 double y = -((event.getY() / canvas.getHeight()) * 2 - 1);
                 double z = 0; // Для простоты пока используем 0
 
-                System.out.println("Клик по канвасу: " + x + ", " + y);
                 editPanelController.handleModelClick(x, y, z);
             }
         });
@@ -243,7 +241,6 @@ public class GuiController {
                 double x = (event.getX() / canvas.getWidth()) * 2 - 1;
                 double y = -((event.getY() / canvas.getHeight()) * 2 - 1);
                 double z = 0;
-                System.out.println("Клик по канвасу: " + x + ", " + y);
                 editPanelController.handleModelClick(x, y, z);
             }
         });
@@ -365,7 +362,6 @@ public class GuiController {
     }
 
     private void loadCameraPanel() {
-        System.out.println("=== Загрузка панели камер из FXML ===");
 
         try {
             java.net.URL resourceUrl = getClass().getResource("/camera-panel.fxml");
@@ -379,41 +375,31 @@ public class GuiController {
                 resourceUrl = getClass().getResource("/vsu/org/ran/kgandg4/controllers/camera-panel.fxml");
             }
 
-            System.out.println("URL ресурса: " + resourceUrl);
-
             if (resourceUrl == null) {
                 throw new IOException("Не найден файл camera-panel.fxml. Проверьте путь в проекте.");
             }
 
             FXMLLoader loader = new FXMLLoader(resourceUrl);
             cameraPanelContainer = loader.load();
-            System.out.println("FXML загружен успешно! Тип: " + cameraPanelContainer.getClass());
-
             cameraPanelController = loader.getController();
-            System.out.println("Контроллер получен: " + (cameraPanelController != null));
 
             if (cameraPanelController != null) {
                 cameraPanelController.setCameraManager(cameraManager);
-                System.out.println("✓ Панель камер успешно загружена из FXML!");
             }
 
         } catch (Exception e) {
-            System.err.println("✗ Ошибка загрузки панели камер из FXML:");
             e.printStackTrace();
             showErrorDialog("Ошибка", "Не удалось загрузить панель камер: " + e.getMessage());
         }
     }
 
     private void loadModelPanel() {
-        System.out.println("=== Загрузка панели моделей из FXML ===");
 
         try {
             java.net.URL resourceUrl = getClass().getResource("model-panel.fxml");
-            System.out.println("URL ресурса: " + resourceUrl);
 
             if (resourceUrl == null) {
                 resourceUrl = getClass().getResource("/vsu/org/ran/kgandg4/model-panel.fxml");
-                System.out.println("URL ресурса (второй попыткой): " + resourceUrl);
             }
 
             if (resourceUrl == null) {
@@ -422,33 +408,26 @@ public class GuiController {
 
             FXMLLoader loader = new FXMLLoader(resourceUrl);
             modelPanelContainer = loader.load();
-            System.out.println("FXML загружен успешно!");
 
             modelPanelController = loader.getController();
-            System.out.println("Контроллер панели моделей получен: " + (modelPanelController != null));
 
             if (modelPanelController != null) {
                 modelPanelController.setGuiController(this);
-                System.out.println("✓ Панель моделей успешно загружена из FXML!");
             }
 
         } catch (Exception e) {
-            System.err.println("✗ Ошибка загрузки панели моделей из FXML:");
             e.printStackTrace();
             showErrorDialog("Ошибка", "Не удалось загрузить панель моделей: " + e.getMessage());
         }
     }
 
     private void loadRenderPanel() {
-        System.out.println("=== Загрузка панели рендеринга из FXML ===");
 
         try {
             java.net.URL resourceUrl = getClass().getResource("render-panel.fxml");
-            System.out.println("URL ресурса: " + resourceUrl);
 
             if (resourceUrl == null) {
                 resourceUrl = getClass().getResource("/vsu/org/ran/kgandg4/render-panel.fxml");
-                System.out.println("URL ресурса (второй попыткой): " + resourceUrl);
             }
 
             if (resourceUrl == null) {
@@ -457,33 +436,26 @@ public class GuiController {
 
             FXMLLoader loader = new FXMLLoader(resourceUrl);
             renderPanelContainer = loader.load();
-            System.out.println("FXML загружен успешно!");
 
             renderPanelController = loader.getController();
-            System.out.println("Контроллер панели рендеринга получен: " + (renderPanelController != null));
 
             if (renderPanelController != null) {
                 renderPanelController.setGuiController(this);
-                System.out.println("✓ Панель рендеринга успешно загружена из FXML!");
             }
 
         } catch (Exception e) {
-            System.err.println("✗ Ошибка загрузки панели рендеринга из FXML:");
             e.printStackTrace();
             showErrorDialog("Ошибка", "Не удалось загрузить панель рендеринга: " + e.getMessage());
         }
     }
 
     private void loadEditPanel() {
-        System.out.println("=== Загрузка панели редактирования из FXML ===");
 
         try {
             java.net.URL resourceUrl = getClass().getResource("edit-panel.fxml");
-            System.out.println("URL ресурса: " + resourceUrl);
 
             if (resourceUrl == null) {
                 resourceUrl = getClass().getResource("/vsu/org/ran/kgandg4/edit-panel.fxml");
-                System.out.println("URL ресурса (второй попыткой): " + resourceUrl);
             }
 
             if (resourceUrl == null) {
@@ -492,33 +464,26 @@ public class GuiController {
 
             FXMLLoader loader = new FXMLLoader(resourceUrl);
             editPanelContainer = loader.load();
-            System.out.println("FXML панели редактирования загружен успешно!");
 
             editPanelController = loader.getController();
-            System.out.println("Контроллер панели редактирования получен: " + (editPanelController != null));
 
             if (editPanelController != null) {
                 editPanelController.setGuiController(this);
-                System.out.println("✓ Панель редактирования успешно загружена из FXML!");
             }
 
         } catch (Exception e) {
-            System.err.println("✗ Ошибка загрузки панели редактирования:");
             e.printStackTrace();
             showErrorDialog("Ошибка", "Не удалось загрузить панель редактирования: " + e.getMessage());
         }
     }
 
     private void loadTransformPanel() {
-        System.out.println("=== Загрузка панели трансформаций из FXML ===");
 
         try {
             java.net.URL resourceUrl = getClass().getResource("transform-panel.fxml");
-            System.out.println("URL ресурса: " + resourceUrl);
 
             if (resourceUrl == null) {
                 resourceUrl = getClass().getResource("/vsu/org/ran/kgandg4/transform-panel.fxml");
-                System.out.println("URL ресурса (второй попыткой): " + resourceUrl);
             }
 
             if (resourceUrl == null) {
@@ -527,27 +492,36 @@ public class GuiController {
 
             FXMLLoader loader = new FXMLLoader(resourceUrl);
             transformPanelContainer = loader.load();
-            System.out.println("FXML панели трансформаций загружен успешно!");
-
             transformPanelController = loader.getController();
-            System.out.println("Контроллер панели трансформаций получен: " + (transformPanelController != null));
 
             if (transformPanelController != null) {
                 transformPanelController.setGuiController(this);
-                System.out.println("✓ Панель трансформаций успешно загружена из FXML!");
             }
 
         } catch (Exception e) {
-            System.err.println("✗ Ошибка загрузки панели трансформаций:");
             e.printStackTrace();
             showErrorDialog("Ошибка", "Не удалось загрузить панель трансформаций: " + e.getMessage());
         }
     }
 
+    public void setLightIntensity(float intensity) {
+        this.lightIntensity = intensity;
+    }
+
+    public void setLightColor(Color color) {
+        this.lightColor = color;
+    }
+
+    public float getLightIntensity() {
+        return lightIntensity;
+    }
+
+    public Color getLightColor() {
+        return lightColor;
+    }
+
     @FXML
     private void onToggleCameraPanelClick() {
-        System.out.println("=== Нажато: Панель камер ===");
-
         if (isModelPanelOpen) closeModelPanel();
         if (isRenderPanelOpen) closeRenderPanel();
         if (isEditPanelOpen) closeEditPanel();
@@ -558,8 +532,6 @@ public class GuiController {
 
     @FXML
     private void onToggleModelPanelClick() {
-        System.out.println("=== Нажато: Панель моделей ===");
-
         if (isCameraPanelOpen) closeCameraPanel();
         if (isRenderPanelOpen) closeRenderPanel();
         if (isEditPanelOpen) closeEditPanel();
@@ -570,8 +542,6 @@ public class GuiController {
 
     @FXML
     private void onToggleRenderPanelClick() {
-        System.out.println("=== Нажато: Панель рендеринга ===");
-
         if (isCameraPanelOpen) closeCameraPanel();
         if (isModelPanelOpen) closeModelPanel();
         if (isEditPanelOpen) closeEditPanel();
@@ -582,8 +552,6 @@ public class GuiController {
 
     @FXML
     private void onToggleEditPanelClick() {
-        System.out.println("=== Нажато: Панель редактирования ===");
-
         if (isCameraPanelOpen) closeCameraPanel();
         if (isModelPanelOpen) closeModelPanel();
         if (isRenderPanelOpen) closeRenderPanel();
@@ -594,8 +562,6 @@ public class GuiController {
 
     @FXML
     private void onToggleTransformPanelClick() {
-        System.out.println("=== Нажато: Трансформации модели ===");
-
         if (isCameraPanelOpen) closeCameraPanel();
         if (isModelPanelOpen) closeModelPanel();
         if (isRenderPanelOpen) closeRenderPanel();
@@ -605,13 +571,8 @@ public class GuiController {
     }
 
     private void togglePanel(Parent panelContainer, String panelType, String panelName) {
-        System.out.println("  Детей в правой панели: " + rightPanelContainer.getChildren().size());
-
         boolean panelExists = (panelContainer != null &&
                 rightPanelContainer.getChildren().contains(panelContainer));
-
-        System.out.println("  Панель " + panelName + " найдена? " + panelExists);
-
         if (panelExists) {
             closePanel(panelContainer, panelType, panelName);
         } else {
@@ -621,7 +582,6 @@ public class GuiController {
 
     private void openPanel(Parent panelContainer, String panelType, String panelName) {
         if (panelContainer == null) {
-            System.out.println("Панель " + panelName + " не загружена, загружаем...");
             if (panelType.equals("camera")) {
                 loadCameraPanel();
                 panelContainer = cameraPanelContainer;
@@ -640,7 +600,6 @@ public class GuiController {
             }
 
             if (panelContainer == null) {
-                System.err.println("Не удалось загрузить панель " + panelName + "!");
                 return;
             }
         }
@@ -657,7 +616,6 @@ public class GuiController {
             region.setPrefWidth(320);
             region.setMinWidth(300);
             region.setMaxWidth(350);
-            System.out.println("✓ Ширина панели установлена: pref=320, min=300, max=350");
         }
 
         rightPanelContainer.getChildren().clear();
@@ -691,26 +649,16 @@ public class GuiController {
             renderPanelController.updateSettings(renderMode, faceColor);
         }
 
-        System.out.println("✓ Панель " + panelName + " добавлена в правую панель");
-        System.out.println("✓ SplitPane установлен на 75%/25%");
-
         Platform.runLater(() -> {
-            System.out.println("После добавления:");
-            System.out.println("  Размер SplitPane: " + mainSplitPane.getWidth() + "x" + mainSplitPane.getHeight());
-            System.out.println("  Размер правой панели: " + rightPanelContainer.getWidth() + "x" + rightPanelContainer.getHeight());
         });
     }
 
     private void closePanel(Parent panelContainer, String panelType, String panelName) {
         rightPanelContainer.getChildren().remove(panelContainer);
-        System.out.println("✓ Панель " + panelName + " удалена из правой панели");
-
         rightPanelContainer.setVisible(false);
         rightPanelContainer.setManaged(false);
 
         mainSplitPane.setDividerPositions(1.0);
-        System.out.println("✓ SplitPane установлен на полную ширину Canvas");
-
         canvas.requestFocus();
 
         if (panelType.equals("camera")) {
@@ -773,52 +721,39 @@ public class GuiController {
         if (transformButton != null) {
             transformButton.setStyle(isTransformPanelOpen ? BUTTON_ACTIVE_STYLE : BUTTON_NORMAL_STYLE);
         }
-        System.out.println("✓ Стили кнопок обновлены: Модель=" + isModelPanelOpen +
-                ", Камеры=" + isCameraPanelOpen +
-                ", Рендеринг=" + isRenderPanelOpen +
-                ", Редактирование=" + isEditPanelOpen +
-                ", Трансформации=" + isTransformPanelOpen);
     }
 
     @FXML
     private void onModelPanelButtonClick() {
-        System.out.println("Нажато: Кнопка Модель");
         onToggleModelPanelClick();
     }
 
     @FXML
     private void onCameraPanelButtonClick() {
-        System.out.println("Нажато: Кнопка Камеры");
         onToggleCameraPanelClick();
     }
 
     @FXML
     private void onRenderPanelButtonClick() {
-        System.out.println("Нажато: Кнопка Рендеринг");
         onToggleRenderPanelClick();
     }
 
     @FXML
     private void onEditPanelButtonClick() {
-        System.out.println("Нажато: Кнопка Редактировать");
         onToggleEditPanelClick();
     }
 
     @FXML
     private void onTransformPanelButtonClick() {
-        System.out.println("Нажато: Кнопка Трансформации");
         onToggleTransformPanelClick();
     }
 
     @FXML
     private void onResetViewButtonClick() {
-        System.out.println("Нажато: Кнопка Сбросить вид");
         onResetViewClick();
     }
 
     public void loadModel() {
-        System.out.println("Загрузка модели...");
-
         FileChooser fileChooser = new FileChooser();
         fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Модель (*.obj)", "*.obj"));
         fileChooser.setTitle("Загрузить модель");
@@ -834,26 +769,16 @@ public class GuiController {
             String fileContent = Files.readString(fileName);
             mesh = ObjReader.read(fileContent);
 
-            System.out.println("Модель загружена:");
-            System.out.println("  Вершин: " + mesh.vertices.size());
-            System.out.println("  Полигонов: " + mesh.polygons.size());
-            System.out.println("  Нормалей: " + mesh.normals.size());
-            System.out.println("  Текстурных координат: " + mesh.textureVertices.size());
-
             int polygonsWithTexture = 0;
             for (var polygon : mesh.polygons) {
                 if (polygon.getTextureVertexIndices().size() > 0) {
                     polygonsWithTexture++;
                 }
             }
-            System.out.println("  Полигонов с текстурными координатами: " + polygonsWithTexture + " из " + mesh.polygons.size());
-
             normalizeModel(mesh);
 
             triangulator.triangulateModel(mesh);
             normalCalculator.calculateNormals(mesh);
-
-            System.out.println("✓ Модель триангулирована. Полигонов: " + mesh.polygons.size());
 
             showInfoDialog("Успех", "Модель успешно загружена: " + file.getName());
 
@@ -874,8 +799,6 @@ public class GuiController {
     }
 
     public void loadTexture() {
-        System.out.println("Загрузка текстуры...");
-
         FileChooser fileChooser = new FileChooser();
         fileChooser.getExtensionFilters().addAll(
                 new FileChooser.ExtensionFilter("Изображения", "*.png", "*.jpg", "*.jpeg", "*.bmp", "*.gif"),
@@ -885,21 +808,17 @@ public class GuiController {
 
         File file = fileChooser.showOpenDialog((Stage) mainContainer.getScene().getWindow());
         if (file == null) {
-            System.out.println("Файл текстуры не выбран");
             return;
         }
 
         try {
             String filePath = file.toURI().toString();
-            System.out.println("Загружаем текстуру из: " + filePath);
-
             // Загружаем текстуру с фоновой загрузкой
             Image textureImage = new Image(filePath, true);
 
             // Добавляем слушатель для отслеживания загрузки
             textureImage.errorProperty().addListener((obs, oldVal, newVal) -> {
                 if (newVal) {
-                    System.err.println("Ошибка загрузки текстуры: " + textureImage.getException());
                     Platform.runLater(() -> {
                         showErrorDialog("Ошибка", "Не удалось загрузить текстуру: " +
                                 textureImage.getException().getMessage());
@@ -908,13 +827,9 @@ public class GuiController {
             });
 
             textureImage.progressProperty().addListener((obs, oldVal, newVal) -> {
-                System.out.println("Прогресс загрузки текстуры: " + (newVal.doubleValue() * 100) + "%");
-
                 // Когда загрузка завершена
                 if (newVal.doubleValue() == 1.0 && !textureImage.isError()) {
                     Platform.runLater(() -> {
-                        System.out.println("Текстура загружена: " +
-                                textureImage.getWidth() + "x" + textureImage.getHeight());
 
                         // Прямое обновление превью в ModelPanelController
                         if (modelPanelController != null) {
@@ -927,7 +842,6 @@ public class GuiController {
             });
 
         } catch (Exception e) {
-            System.err.println("Исключение при загрузке текстуры: " + e.getMessage());
             e.printStackTrace();
             showErrorDialog("Ошибка загрузки текстуры", e.getMessage());
         }
@@ -967,30 +881,22 @@ public class GuiController {
         this.showWireframe = wireframe;
         this.useTexture = texture;
         this.useLighting = lighting;
-        System.out.println("Настройки отображения обновлены:");
-        System.out.println("  Полигональная сетка: " + showWireframe);
-        System.out.println("  Использовать текстуру: " + useTexture);
-        System.out.println("  Использовать освещение: " + useLighting);
     }
 
     public void setRenderMode(String mode) {
         this.renderMode = mode.toLowerCase();
-        System.out.println("Режим рендеринга установлен: " + renderMode);
     }
 
     public void setFaceColor(Color color) {
         this.faceColor = color;
-        System.out.println("Цвет граней установлен: " + faceColor);
     }
 
     public void setWireframeColor(Color color) {
         this.wireframeColor = color;
-        System.out.println("Цвет каркаса установлен: " + wireframeColor);
     }
 
     @FXML
     private void onResetViewClick() {
-        System.out.println("Нажато: Сбросить вид");
         if (cameraManager != null && cameraManager.getActiveCamera() != null) {
             cameraManager.getActiveCamera().setPosition(new javax.vecmath.Vector3f(0, 0, 20));
             cameraManager.getActiveCamera().setTarget(new javax.vecmath.Vector3f(0, 0, 0));
@@ -1000,19 +906,16 @@ public class GuiController {
 
     @FXML
     private void onCameraToolsClick() {
-        System.out.println("Нажато: Инструменты камер");
         showInfoDialog("Инструменты камер", "Диалог инструментов камер еще не реализован.");
     }
 
     @FXML
     private void onModelToolsClick() {
-        System.out.println("Нажато: Инструменты моделей");
         showInfoDialog("Инструменты моделей", "Диалог инструментов моделей еще не реализован.");
     }
 
     @FXML
     private void onExitClick() {
-        System.out.println("Нажато: Выход");
         Stage stage = (Stage) mainContainer.getScene().getWindow();
         stage.close();
     }
@@ -1073,8 +976,6 @@ public class GuiController {
 
     public void refreshModel() {
         if (mesh != null) {
-            System.out.println("Обновление отображения модели...");
-
             if (modelPanelController != null) {
                 modelPanelController.updateModelInfo();
             }
@@ -1082,8 +983,6 @@ public class GuiController {
             if (editPanelController != null) {
                 editPanelController.updateModelStats();
             }
-
-            System.out.println("Модель обновлена");
         }
     }
 
