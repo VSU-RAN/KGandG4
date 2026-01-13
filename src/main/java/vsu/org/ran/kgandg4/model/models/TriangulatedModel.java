@@ -7,13 +7,9 @@ public class TriangulatedModel extends Model {
     public List<Triangle> getTriangles() {
         List<Triangle> triangles = new ArrayList<>();
         for (Polygon polygon : polygons) {
-            if (polygon.getVertexIndices().size() > 3)
+            if (polygon.getVertexIndices().size() != 3)
                 throw new IllegalArgumentException("Model is not good triangulated!");
-            triangles.add(new Triangle(
-                    vertices.get(polygon.getVertexIndices().get(0)),
-                    vertices.get(polygon.getVertexIndices().get(1)),
-                    vertices.get(polygon.getVertexIndices().get(2)
-                    )));
+            triangles.add(new Triangle(polygon));
         }
         return triangles;
     }

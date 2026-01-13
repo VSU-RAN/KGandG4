@@ -75,7 +75,7 @@ public class ObjReader {
 		try {
 			return new Vector2f(
 					Float.parseFloat(wordsInLineWithoutToken.get(0)),
-					1 - Float.parseFloat(wordsInLineWithoutToken.get(1)));
+					Float.parseFloat(wordsInLineWithoutToken.get(1)));
 
 		} catch(NumberFormatException e) {
 			throw new ObjReaderException("Failed to parse float value.", lineInd);

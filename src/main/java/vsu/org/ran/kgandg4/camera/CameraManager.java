@@ -1,4 +1,4 @@
-package vsu.org.ran.kgandg4.render_engine;
+package vsu.org.ran.kgandg4.camera;
 
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyObjectWrapper;
@@ -27,17 +27,31 @@ public class CameraManager {
     @Value("${camera.default.far}")
     private float defaultFarPlane;
 
-    private Vector3f defaultCameraSource = new Vector3f(0, 0, 20);
+    @Value("${camera.default.source.x:0}")
+    private float defaultCameraSourceX;
 
-    private Vector3f defaultTargetSource = new Vector3f(0, 0, 0);
+    @Value("${camera.default.source.y:0}")
+    private float defaultCameraSourceY;
+
+    @Value("${camera.default.source.z:20}")
+    private float defaultCameraSourceZ;
+
+    @Value("${camera.default.target.x:0}")
+    private float defaultCameraTargetX;
+
+    @Value("${camera.default.target.y:0}")
+    private float defaultCameraTargetY;
+
+    @Value("${camera.default.target.z:0}")
+    private float defaultCameraTargetZ;
 
 
     @PostConstruct
     public void init() {
         Camera initialCamera = new Camera(
                 nextId ++,
-                defaultCameraSource,
-                defaultTargetSource,
+                new Vector3f(defaultCameraSourceX, defaultCameraSourceY, defaultCameraSourceZ),
+                new Vector3f(defaultCameraTargetX, defaultCameraTargetY, defaultCameraTargetZ),
                 defaultFov,
                 aspectRatio,
                 defaultNearPlane,

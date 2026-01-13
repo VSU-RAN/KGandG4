@@ -1,32 +1,40 @@
-package vsu.org.ran.kgandg4.render_engine;
+package vsu.org.ran.kgandg4.render_engine.render;
 
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
+import javafx.scene.canvas.GraphicsContext;
 import javafx.util.Duration;
+import vsu.org.ran.kgandg4.dependecyIndjection.annotations.Autowired;
 import vsu.org.ran.kgandg4.dependecyIndjection.annotations.Component;
 import vsu.org.ran.kgandg4.dependecyIndjection.annotations.Value;
+import vsu.org.ran.kgandg4.render_engine.Scene;
 
 @Component
 public class RenderLoopService {
     private Timeline timeline;
-    private Runnable renderTask;
+    private int currentWidth;
+    private int currentHeight;
+
+    @Autowired
+    private Scene scene;
 
     @Value("${render.fps}")
     private int fps;
 
-    public void startRenderLoop(Runnable renderTask) {
-        this.renderTask = renderTask;
+    public void startRenderLoop(GraphicsContext gc, int width, int height) {
         stopRenderLoop();
+
+        this.currentWidth = width;
+        this.currentHeight = height;
+
 
         timeline = new Timeline();
         timeline.setCycleCount(Animation.INDEFINITE);
 
         Duration frameDuration = Duration.millis(1000.0 / fps);
         KeyFrame frame = new KeyFrame(frameDuration, event -> {
-            if (renderTask != null) {
-                renderTask.run();
-            }
+           scene.renderFrame(gc, currentWidth , currentHeight);
         });
 
         timeline.getKeyFrames().add(frame);
@@ -38,5 +46,16 @@ public class RenderLoopService {
             timeline.stop();
             timeline = null;
         }
+    }
+
+    public void updateSize(int width, int height) {
+        if (width > 0 && height > 0) {
+            this.currentWidth = width;
+            this.currentHeight = height;
+        }
+    }
+
+    public boolean isRunning() {
+        return timeline != null && timeline.getStatus() == Animation.Status.RUNNING;
     }
 }

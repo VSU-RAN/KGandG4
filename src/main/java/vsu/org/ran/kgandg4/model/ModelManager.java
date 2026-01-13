@@ -34,7 +34,7 @@ public class ModelManager {
         //todo: Сделать сохранение модели
     }
 
-    public Model getCurrentModel() {
+    public TriangulatedModel getCurrentModel() {
         return currentModel;
     }
 }

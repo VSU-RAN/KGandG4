@@ -1,10 +1,11 @@
-package vsu.org.ran.kgandg4.render_engine;
+package vsu.org.ran.kgandg4.camera;
 
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 
 import math.vector.Vector3f;
 import math.matrix.Matrix4f;
+import vsu.org.ran.kgandg4.render_engine.GraphicConveyor;
 
 import java.util.Objects;
 
@@ -131,8 +132,6 @@ public class Camera {
 
     /** Зум */
     public void zoom(float amount) {
-//        Vector3f direction = new Vector3f();
-//        direction.sub(this.target.get(), this.position.get());
         Vector3f direction = Vector3f.subtract(this.target.get(), this.position.get());
 
         float distance = direction.length();
@@ -140,7 +139,6 @@ public class Camera {
 
         // Новое расстояние с ограничениями
         float newDistance = distance + amount;
-        newDistance = Math.max(0.5f, Math.min(50.0f, newDistance));
 
         // Новая позиция камеры
         direction.multiplyV(newDistance);
@@ -150,18 +148,16 @@ public class Camera {
         this.position.set(newPosition);
     }
 
-    Matrix4f getViewMatrix() {
+    public Matrix4f getViewMatrix() {
         return GraphicConveyor.lookAt(position.get(), target.get());
     }
 
-    Matrix4f getProjectionMatrix() {
+    public Matrix4f getProjectionMatrix() {
         return GraphicConveyor.perspective(fov, aspectRatio, nearPlane, farPlane);
     }
 
-    Vector3f getDirection() {
-        Vector3f result = this.target.get();
-        result.subtractV(this.position.get());
-        return result;
+    public Vector3f getDirection() {
+        return Vector3f.subtract(this.target.get(), this.position.get());
     }
 
     @Override

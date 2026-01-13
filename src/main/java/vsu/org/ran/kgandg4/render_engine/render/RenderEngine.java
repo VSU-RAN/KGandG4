@@ -1,0 +1,111 @@
+package vsu.org.ran.kgandg4.render_engine.render;
+
+import math.point.Point2f;
+import math.vector.Vector2f;
+import math.vector.Vector3f;
+import math.matrix.Matrix4f;
+import vsu.org.ran.kgandg4.model.models.Triangle;
+import vsu.org.ran.kgandg4.model.models.TriangulatedModel;
+import vsu.org.ran.kgandg4.render_engine.GraphicConveyor;
+
+import static vsu.org.ran.kgandg4.rasterization.Rasterization.*;
+import static vsu.org.ran.kgandg4.render_engine.GraphicConveyor.*;
+
+public class RenderEngine {
+
+    private static class TriangleData {
+        final Point2f[] screenPoints = new Point2f[3];
+        final float[] zValues = new float[3];
+        final Vector2f[] texCoords = new Vector2f[3];
+        final Vector3f[] normals = new Vector3f[3];
+        final Vector3f[] worldVertices = new Vector3f[3];
+
+        private void setVertex(int i, Point2f screenCord, float z, Vector2f texCord, Vector3f normalCord, Vector3f worldCord) {
+            screenPoints[i] = screenCord;
+            zValues[i] = z;
+            texCoords[i] = texCord;
+            normals[i] = normalCord;
+            worldVertices[i] = worldCord;
+        }
+
+        private boolean isValid() {
+            for (int i = 0; i < 3; i ++) {
+                if (screenPoints[i] == null || texCoords[i] == null || normals[i] == null || worldVertices[i] == null) {
+                    return false;
+                }
+            }
+            return true;
+        }
+    }
+
+    public static void render(RenderContext context) {
+        TriangulatedModel model = context.getModel();
+
+        if(model == null) {
+            return;
+        }
+
+        float k = context.getAmbientLight();
+        Vector3f ray = context.getCameraDirectionNormalized();
+
+        Matrix4f pvmMatrix = context.getPVMMatrix();
+
+        for (Triangle triangle : model.getTriangles()) {
+            renderTriangle(context, triangle, pvmMatrix, ray, k);
+        }
+    }
+
+    private static void renderTriangle(RenderContext context, Triangle triangle, Matrix4f pvmMatrix, Vector3f ray, float k) {
+        TriangleData data = new TriangleData();
+        TriangulatedModel model = context.getModel();
+
+        for (int i = 0; i < 3; i++) {
+            Vector3f worldVertex = triangle.getWorldVertex(i, model);
+            Vector2f texCord = triangle.getTextureCord(i, model);
+            Vector3f normal = triangle.getNormal(i, model);
+
+            Vector3f transformed = getVertexAfterMVPandNormalize(pvmMatrix, worldVertex);
+
+            if (!GraphicConveyor.isValidVertex(transformed)) {
+                break;
+            }
+
+            Point2f screenPoint = vertexToPoint(transformed, context.getWidth(), context.getHeight());
+            data.setVertex(i, screenPoint, transformed.getZ(), texCord, normal, worldVertex);
+        }
+
+        if (data.isValid()) {
+            int x0 = (int)data.screenPoints[0].getX();
+            int y0 = (int)data.screenPoints[0].getY();
+            float z0 = data.zValues[0];
+            float u0 = data.texCoords[0].getX();
+            float v0 = data.texCoords[0].getY();
+            Vector3f n0 = data.normals[0];
+
+            int x1 = (int)data.screenPoints[1].getX();
+            int y1 = (int)data.screenPoints[1].getY();
+            float z1 = data.zValues[1];
+            float u1 = data.texCoords[1].getX();
+            float v1 = data.texCoords[1].getY();
+            Vector3f n1 = data.normals[1];
+
+            int x2 = (int)data.screenPoints[2].getX();
+            int y2 = (int)data.screenPoints[2].getY();
+            float z2 = data.zValues[2];
+            float u2 = data.texCoords[2].getX();
+            float v2 = data.texCoords[2].getY();
+            Vector3f n2 = data.normals[2];
+
+
+            drawTriangle(
+                    context.getGraphicsContext().getPixelWriter(),
+                    context.getZbuffer(),
+                    context.getTexture(),
+                    ray, k,
+                    x0, y0, z0, u0, v0, n0,
+                    x1, y1, z1, u1, v1, n1,
+                    x2, y2, z2, u2, v2, n2
+            );
+        }
+    }
+}

@@ -6,9 +6,9 @@ import java.util.Objects;
 
 public class Polygon {
 
-    private List<Integer> vertexIndices = new ArrayList<>();
-    private List<Integer> textureVertexIndices = new ArrayList<>();
-    private List<Integer> normalIndices = new ArrayList<>();
+    protected List<Integer> vertexIndices = new ArrayList<>();
+    protected List<Integer> textureVertexIndices = new ArrayList<>();
+    protected List<Integer> normalIndices = new ArrayList<>();
 
     public Polygon() {
 

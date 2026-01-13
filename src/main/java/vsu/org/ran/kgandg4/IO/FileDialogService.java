@@ -86,7 +86,7 @@ public class FileDialogService {
         };
     }
 
-    private File resolvePath(String configPath) {
+    public File resolvePath(String configPath) {
         String resolved = configPath
                 .replace("${user.dir}", System.getProperty("user.dir"))
                 .replace("${user.home}", System.getProperty("user.home"))

@@ -9,8 +9,8 @@ import javafx.scene.input.KeyEvent;
 import vsu.org.ran.kgandg4.dependecyIndjection.annotations.Autowired;
 import vsu.org.ran.kgandg4.dependecyIndjection.annotations.Component;
 import vsu.org.ran.kgandg4.dependecyIndjection.annotations.Value;
-import vsu.org.ran.kgandg4.render_engine.Camera;
-import vsu.org.ran.kgandg4.render_engine.CameraManager;
+import vsu.org.ran.kgandg4.camera.Camera;
+import vsu.org.ran.kgandg4.camera.CameraManager;
 
 import math.vector.Vector3f;
 

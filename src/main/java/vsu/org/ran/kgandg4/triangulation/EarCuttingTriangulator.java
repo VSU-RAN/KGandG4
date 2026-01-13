@@ -87,26 +87,6 @@ public class EarCuttingTriangulator implements Triangulator {
         return newPolygons;
     }
 
-    /**
-     * Проверяет список точек на принадлежность треугольнику
-     * @param leftPointIndex первая вершина треугольника
-     * @param rightPointIndex вторая вершина треугольника
-     * @param middlePointIndex третья вершина треугольника
-     * @param vertices список вершин на проверку
-     * @return true, если одна из вершин в треугольнике, иначе false
-     */
-    @Deprecated
-    protected boolean isVerticesInsideTriangle(int leftPointIndex, int rightPointIndex, int middlePointIndex, Map<Integer, Vector3f> vertices) {
-        Triangle triangle =
-                new Triangle(vertices.get(leftPointIndex), vertices.get(rightPointIndex), vertices.get(middlePointIndex));
-        for (int i : vertices.keySet()) {
-            if (i != leftPointIndex && i != rightPointIndex && i != middlePointIndex) {
-                if (triangle.isInsideTriangle(vertices.get(i))) return true;
-            }
-        }
-        return false;
-    }
-
     protected boolean isVerticesInsideTriangleByGeroneSquare(
             int leftPointIndex, int rightPointIndex, int middlePointIndex, Map<Integer, Vector3f> vertices,
             Function<Vector3f, Float> getterFirst, Function<Vector3f, Float> getterSecond

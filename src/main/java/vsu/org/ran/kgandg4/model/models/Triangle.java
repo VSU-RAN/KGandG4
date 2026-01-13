@@ -1,6 +1,7 @@
 package vsu.org.ran.kgandg4.model.models;
 
 
+import math.vector.Vector2f;
 import math.vector.Vector3f;
 import utils.MathUtil;
 
@@ -8,71 +9,68 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class Triangle {
-    List<Vector3f> points;
+public class Triangle extends Polygon {
+    private Vector3f[] worldVertices;
 
-    public Triangle(Vector3f point1, Vector3f point2, Vector3f point3) {
-        points = new ArrayList<>(List.of(point1, point2, point3));
+    public Triangle(Polygon polygon) {
+        if (polygon.getVertexIndices().size() != 3) {
+            throw new IllegalArgumentException("Треугольник должен иметь 3 вершины");
+        }
+
+        this.vertexIndices = polygon.getVertexIndices();
+        this.textureVertexIndices = polygon.getTextureVertexIndices();
+        this.normalIndices = polygon.getNormalIndices();
     }
 
-    public boolean isInsideTriangle(Vector3f vector3f) {
-        // переносим треугольник в начало координат
-        float xA = points.get(0).getX();
-        float yA = points.get(0).getY();
-        float xB = points.get(1).getX() - xA;
-        float yB = points.get(1).getY() - yA;
-        float xC = points.get(2).getX() - xA;
-        float yC = points.get(2).getY() - yA;
-        float xP = vector3f.getX() - xA;
-        float yP = vector3f.getY() - yA;
-
-        // xP = m * xB + l * xC и yP аналогично
-        double[] res = MathUtil.solveByKramer(
-                xB, xC,
-                yB, yC, xP, yP
-        );
-        double m = res[0];
-        double l = res[1];
-
-        // проверяем условия
-        return m >= 0 && l >= 0 && m + l <= 1;
-    }
-
-    public void setPointByIndex(int i, Vector3f point) {
-        points.set(i, point);
-    }
-
-    public Vector3f getVertex(int vertexIndex) {
-        return points.get(vertexIndex);
-    }
-
-
-    public List<Vector3f> getPoints() {
-        return Collections.unmodifiableList(points);
-    }
-
-
-    public Vector3f getPointByIndex(int i) {
-        return points.get(i);
-    }
-
-
-    public int getPointIndex(Vector3f point) {
-        if (point == null) throw new IllegalArgumentException();
-        for (int i = 0; i < 3; i++) {
-            if (points.get(i).equals(point)) {
-                return i;
+    public Vector3f[] getWorldVertices(Model model) {
+        if (worldVertices == null) {
+            worldVertices = new Vector3f[3];
+            for (int i = 0; i < 3; i++) {
+                worldVertices[i] = model.vertices.get(vertexIndices.get(i));
             }
         }
-        return -1;
+        return worldVertices;
     }
 
-    public int pointCnt() {
-        return points.size();
+    public Vector3f getWorldVertex(int index, Model model) {
+        return model.vertices.get(vertexIndices.get(index));
     }
 
-    @Override
-    public String toString() {
-        return "Triangle{" + "points=" + points + '}';
+    public Vector2f getTextureCord(int index, Model model) {
+        return model.textureVertices.get(textureVertexIndices.get(index));
+    }
+
+    public Vector3f getNormal(int index, Model model) {
+        return model.normals.get(normalIndices.get(index));
+    }
+
+    public boolean isInsideTriangle(Vector3f point, Model model) {
+        Vector3f[] vertices = getWorldVertices(model);
+        return isPointInTriangle(point, vertices[0], vertices[1], vertices[2]);
+    }
+
+    private boolean isPointInTriangle(Vector3f p, Vector3f a, Vector3f b, Vector3f c) {
+        Vector3f v0 = b.subtract(a);
+        Vector3f v1 = c.subtract(a);
+        Vector3f v2 = p.subtract(a);
+
+        float dot00 = Vector3f.dotProduct(v0, v0);
+        float dot01 = Vector3f.dotProduct(v0, v1);
+        float dot02 = Vector3f.dotProduct(v0, v2);
+        float dot11 = Vector3f.dotProduct(v1, v1);
+        float dot12 = Vector3f.dotProduct(v1, v2);
+
+        float invDenom = 1 / (dot00 * dot11 - dot01 * dot01);
+        float u = (dot11 * dot02 - dot01 * dot12) * invDenom;
+        float v = (dot00 * dot12 - dot01 * dot02) * invDenom;
+
+        return (u >= 0) && (v >= 0) && (u + v < 1);
+    }
+
+    public Vector3f computeFaceNormal(Model model) {
+        Vector3f[] vertices = getWorldVertices(model);
+        Vector3f u = vertices[1].subtract(vertices[0]);
+        Vector3f v = vertices[2].subtract(vertices[0]);
+        return Vector3f.crossProduct(u, v).normalized();
     }
 }

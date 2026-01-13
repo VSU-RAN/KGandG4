@@ -1,5 +1,6 @@
 package vsu.org.ran.kgandg4;
 
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.layout.AnchorPane;
@@ -8,9 +9,8 @@ import vsu.org.ran.kgandg4.IO.FileDialogService;
 import vsu.org.ran.kgandg4.dependecyIndjection.annotations.Autowired;
 import vsu.org.ran.kgandg4.dependecyIndjection.annotations.Component;
 import vsu.org.ran.kgandg4.model.ModelManager;
-import vsu.org.ran.kgandg4.render_engine.CameraManager;
-import vsu.org.ran.kgandg4.render_engine.RenderEngine;
-import vsu.org.ran.kgandg4.render_engine.RenderLoopService;
+import vsu.org.ran.kgandg4.camera.CameraManager;
+import vsu.org.ran.kgandg4.render_engine.render.RenderLoopService;
 
 import java.io.File;
 import java.io.IOException;
@@ -47,6 +47,18 @@ public class GuiController {
         if (canvasContainer != null) {
             canvas.widthProperty().bind(canvasContainer.widthProperty());
             canvas.heightProperty().bind(canvasContainer.heightProperty());
+
+            canvasContainer.widthProperty().addListener((obs, oldVal, newVal) -> {
+                if (newVal.doubleValue() > 0) {
+                    updateRenderSize();
+                }
+            });
+
+            canvasContainer.heightProperty().addListener((obs, oldVal, newVal) -> {
+                if (newVal.doubleValue() > 0) {
+                    updateRenderSize();
+                }
+            });
         }
     }
 
@@ -63,31 +75,36 @@ public class GuiController {
     }
 
     private void startRenderLoop() {
-        renderLoopService.startRenderLoop(this::renderFrame);
+        canvas.sceneProperty().addListener((obs, oldScene, newScene) -> {
+            if (newScene != null) {
+                Platform.runLater(() -> {
+                    renderLoopService.startRenderLoop(
+                            canvas.getGraphicsContext2D(),
+                            (int) canvas.getWidth(),
+                            (int) canvas.getHeight()
+                    );
+                });
+            }
+        });
     }
 
-    private void renderFrame() {
-        if (modelManager.getCurrentModel() != null) {
-            try {
-                double width = canvas.getWidth();
-                double height = canvas.getHeight();
+    private void updateRenderSize() {
+        Platform.runLater(() -> {
+            double width = canvas.getWidth();
+            double height = canvas.getHeight();
 
-                cameraManager.getActiveCamera().setAspectRatio((float) (width / height));
-                canvas.getGraphicsContext2D().clearRect(0, 0, width, height);
-
-                RenderEngine.render(
-                        canvas.getGraphicsContext2D(),
-                        cameraManager.getActiveCamera(),
-                        modelManager.getCurrentModel(),
-                        (int) width,
-                        (int) height
-                );
-
-            } catch (IOException e) {
-                throw new RuntimeException(e);
+            if (width > 0 && height > 0) {
+                if (renderLoopService.isRunning()) {
+                    renderLoopService.updateSize((int) width, (int) height);
+                } else {
+                    renderLoopService.startRenderLoop(
+                            canvas.getGraphicsContext2D(),
+                            (int) width,
+                            (int) height
+                    );
+                }
             }
-//                RenderEngine.testZBuffer(canvas.getGraphicsContext2D(), (int) width, (int) height);
-        }
+        });
     }
 
     @FXML
