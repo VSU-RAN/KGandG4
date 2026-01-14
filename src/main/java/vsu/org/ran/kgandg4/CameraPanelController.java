@@ -6,6 +6,8 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.input.ScrollEvent;
 import vsu.org.ran.kgandg4.render_engine.Camera;
 import vsu.org.ran.kgandg4.render_engine.CameraManager;
 
@@ -21,6 +23,20 @@ public class CameraPanelController implements Initializable {
     @FXML private Spinner<Double> camPosX, camPosY, camPosZ;
     @FXML private Spinner<Double> camTargetX, camTargetY, camTargetZ;
     @FXML private Button removeButton, switchButton;
+
+
+    private double mouseX, mouseY;
+    private double prevMouseX, prevMouseY;
+
+    private boolean leftMouseButtonPressed;
+    private boolean rightMouseButtonPressed;
+    private boolean middleMouseButtonPressed;
+
+    private boolean isDragging;
+
+    private static final float MOUSE_ORBIT_SENSITIVITY = 0.01f;  // Для вращения мышью
+    private static final float MOUSE_PAN_SENSITIVITY = 0.005f;   // Для панорамирования мышью
+    private static final float MOUSE_ZOOM_SENSITIVITY = 0.075f;    // Для зума колесиком
 
     private CameraManager cameraManager;
 
@@ -42,6 +58,7 @@ public class CameraPanelController implements Initializable {
     public void setScene(Scene scene) {
         this.scene = scene;
         setupKeyboardListeners();
+        setupMouseListeners();
     }
 
     private void setupKeyboardListeners() {
@@ -342,4 +359,76 @@ public class CameraPanelController implements Initializable {
         float targetZ = camTargetZ.getValue().floatValue();
         active.setTarget(new Vector3f(targetX, targetY, targetZ));
     }
+
+    private void setupMouseListeners() {
+        scene.setOnMousePressed(this::handleMousePressed);
+        scene.setOnMouseDragged(this::handleMouseDragged);
+        scene.setOnMouseReleased(this::handleMouseReleased);
+        scene.setOnScroll(this::handleScroll);
+    }
+
+    private void handleMousePressed(MouseEvent event) {
+        // Запоминаем координаты при нажатии
+        mouseX = event.getSceneX();
+        mouseY = event.getSceneY();
+
+        prevMouseX = mouseX;
+        prevMouseY = mouseY;
+        // Определяем, какая кнопка нажата
+        leftMouseButtonPressed = event.isPrimaryButtonDown();
+        rightMouseButtonPressed = event.isSecondaryButtonDown();
+        middleMouseButtonPressed = event.isMiddleButtonDown();
+        // Начинаем перетаскивание, если нажата любая кнопка
+        isDragging = leftMouseButtonPressed || rightMouseButtonPressed ||
+                middleMouseButtonPressed;
+    }
+
+    private void handleMouseDragged(MouseEvent event) {
+        if (cameraManager == null|| cameraManager.getActiveCamera() == null) {
+            return;
+        }
+
+        Camera activeCamera = cameraManager.getActiveCamera();
+
+        double dx = event.getSceneX() - prevMouseX;
+        double dy = event.getSceneY() - prevMouseY;
+
+        prevMouseX = event.getSceneX();
+        prevMouseY = event.getSceneY();
+
+        if (leftMouseButtonPressed) {
+            activeCamera.orbit(
+                    (float) dx * MOUSE_ORBIT_SENSITIVITY,
+                      (float) dy * MOUSE_ORBIT_SENSITIVITY
+            );
+        } else if (rightMouseButtonPressed) {
+            activeCamera.movePositionAndTarget(new Vector3f(
+                    (float) dx * MOUSE_PAN_SENSITIVITY,
+                    (float) -dy * MOUSE_PAN_SENSITIVITY,
+                    0
+            ));
+        } else if (middleMouseButtonPressed) {
+            return;
+        }
+    }
+
+    private void handleMouseReleased(MouseEvent event) {
+        leftMouseButtonPressed = false;
+        rightMouseButtonPressed = false;
+        middleMouseButtonPressed = false;
+        isDragging = false;
+    }
+
+    private void handleScroll(ScrollEvent event) {
+        if (cameraManager == null|| cameraManager.getActiveCamera() == null) {
+            return;
+        }
+
+        Camera activeCamera = cameraManager.getActiveCamera();
+
+        double dy = event.getDeltaY();
+
+        activeCamera.zoom((float) -dy * MOUSE_ZOOM_SENSITIVITY);
+    }
+
 }
