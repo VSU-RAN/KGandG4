@@ -1,0 +1,235 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<ScrollPane fx:id="scrollPane"
+            hbarPolicy="NEVER"
+            vbarPolicy="AS_NEEDED"
+            fitToWidth="true"
+            style="-fx-background: #ffffff;
+                  -fx-border-color: #ced4da;
+                  -fx-border-width: 0 0 0 1;"
+            xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="vsu.org.ran.kgandg4.gui.controllers.TransformPanelController">
+
+    <VBox fx:id="transformPanel" spacing="12"
+          style="-fx-padding: 16;
+                 -fx-background-color: #ffffff;"
+          minWidth="280" prefWidth="300">
+
+        <!-- Заголовок -->
+        <Label text="Трансформации модели"
+               style="-fx-font-size: 16px;
+                      -fx-font-weight: 600;
+                      -fx-text-fill: #343a40;" />
+
+        <!-- Перемещение -->
+        <VBox spacing="8" style="-fx-padding: 12;
+                                 -fx-background-color: #f8f9fa;
+                                 -fx-border-color: #e9ecef;
+                                 -fx-border-width: 1;
+                                 -fx-border-radius: 6;
+                                 -fx-background-radius: 6;">
+            <Label style="-fx-font-weight: 600; -fx-font-size: 14px; -fx-text-fill: #495057;"
+                   text="Перемещение:"/>
+
+            <!-- X -->
+            <HBox spacing="8" alignment="CENTER_LEFT">
+                <Label text="X:" style="-fx-min-width: 40; -fx-font-size: 13px; -fx-text-fill: #dc3545;"/>
+                <Slider fx:id="translateXSlider" HBox.hgrow="ALWAYS" minHeight="25" min="-10" max="10" value="0"/>
+                <TextField fx:id="translateXField" prefWidth="60" text="0.0"
+                           style="-fx-font-size: 13px; -fx-background-radius: 4;"/>
+            </HBox>
+
+            <!-- Y -->
+            <HBox spacing="8" alignment="CENTER_LEFT">
+                <Label text="Y:" style="-fx-min-width: 40; -fx-font-size: 13px; -fx-text-fill: #28a745;"/>
+                <Slider fx:id="translateYSlider" HBox.hgrow="ALWAYS" minHeight="25" min="-10" max="10" value="0"/>
+                <TextField fx:id="translateYField" prefWidth="60" text="0.0"
+                           style="-fx-font-size: 13px; -fx-background-radius: 4;"/>
+            </HBox>
+
+            <!-- Z -->
+            <HBox spacing="8" alignment="CENTER_LEFT">
+                <Label text="Z:" style="-fx-min-width: 40; -fx-font-size: 13px; -fx-text-fill: #007bff;"/>
+                <Slider fx:id="translateZSlider" HBox.hgrow="ALWAYS" minHeight="25" min="-10" max="10" value="0"/>
+                <TextField fx:id="translateZField" prefWidth="60" text="0.0"
+                           style="-fx-font-size: 13px; -fx-background-radius: 4;"/>
+            </HBox>
+
+            <HBox spacing="8" alignment="CENTER">
+                <Button fx:id="resetTranslateButton" text="Сбросить" onAction="#resetTranslation"
+                        prefWidth="130" prefHeight="32"
+                        style="-fx-font-size: 13px;
+                               -fx-background-color: #6c757d;
+                               -fx-text-fill: white;
+                               -fx-border-radius: 4;
+                               -fx-background-radius: 4;
+                               -fx-cursor: hand;"/>
+            </HBox>
+        </VBox>
+
+        <!-- Поворот -->
+        <VBox spacing="8" style="-fx-padding: 12;
+                                 -fx-background-color: #f8f9fa;
+                                 -fx-border-color: #e9ecef;
+                                 -fx-border-width: 1;
+                                 -fx-border-radius: 6;
+                                 -fx-background-radius: 6;">
+            <Label style="-fx-font-weight: 600; -fx-font-size: 14px; -fx-text-fill: #495057;"
+                   text="Поворот (градусы):"/>
+
+            <!-- X -->
+            <HBox spacing="8" alignment="CENTER_LEFT">
+                <Label text="X:" style="-fx-min-width: 40; -fx-font-size: 13px; -fx-text-fill: #dc3545;"/>
+                <Slider fx:id="rotateXSlider" HBox.hgrow="ALWAYS" minHeight="25" min="0" max="360" value="0"/>
+                <TextField fx:id="rotateXField" prefWidth="60" text="0.0"
+                           style="-fx-font-size: 13px; -fx-background-radius: 4;"/>
+            </HBox>
+
+            <!-- Y -->
+            <HBox spacing="8" alignment="CENTER_LEFT">
+                <Label text="Y:" style="-fx-min-width: 40; -fx-font-size: 13px; -fx-text-fill: #28a745;"/>
+                <Slider fx:id="rotateYSlider" HBox.hgrow="ALWAYS" minHeight="25" min="0" max="360" value="0"/>
+                <TextField fx:id="rotateYField" prefWidth="60" text="0.0"
+                           style="-fx-font-size: 13px; -fx-background-radius: 4;"/>
+            </HBox>
+
+            <!-- Z -->
+            <HBox spacing="8" alignment="CENTER_LEFT">
+                <Label text="Z:" style="-fx-min-width: 40; -fx-font-size: 13px; -fx-text-fill: #007bff;"/>
+                <Slider fx:id="rotateZSlider" HBox.hgrow="ALWAYS" minHeight="25" min="0" max="360" value="0"/>
+                <TextField fx:id="rotateZField" prefWidth="60" text="0.0"
+                           style="-fx-font-size: 13px; -fx-background-radius: 4;"/>
+            </HBox>
+
+            <HBox spacing="8" alignment="CENTER">
+                <Button fx:id="resetRotateButton" text="Сбросить" onAction="#resetRotation"
+                        prefWidth="130" prefHeight="32"
+                        style="-fx-font-size: 13px;
+                               -fx-background-color: #6c757d;
+                               -fx-text-fill: white;
+                               -fx-border-radius: 4;
+                               -fx-background-radius: 4;
+                               -fx-cursor: hand;"/>
+            </HBox>
+        </VBox>
+
+        <!-- Масштабирование -->
+        <VBox spacing="8" style="-fx-padding: 12;
+                                 -fx-background-color: #f8f9fa;
+                                 -fx-border-color: #e9ecef;
+                                 -fx-border-width: 1;
+                                 -fx-border-radius: 6;
+                                 -fx-background-radius: 6;">
+            <Label style="-fx-font-weight: 600; -fx-font-size: 14px; -fx-text-fill: #495057;"
+                   text="Масштабирование:"/>
+
+            <!-- X -->
+            <HBox spacing="8" alignment="CENTER_LEFT">
+                <Label text="X:" style="-fx-min-width: 40; -fx-font-size: 13px; -fx-text-fill: #dc3545;"/>
+                <Slider fx:id="scaleXSlider" HBox.hgrow="ALWAYS" minHeight="25" min="0.1" max="5.0" value="1.0"/>
+                <TextField fx:id="scaleXField" prefWidth="60" text="1.0"
+                           style="-fx-font-size: 13px; -fx-background-radius: 4;"/>
+            </HBox>
+
+            <!-- Y -->
+            <HBox spacing="8" alignment="CENTER_LEFT">
+                <Label text="Y:" style="-fx-min-width: 40; -fx-font-size: 13px; -fx-text-fill: #28a745;"/>
+                <Slider fx:id="scaleYSlider" HBox.hgrow="ALWAYS" minHeight="25" min="0.1" max="5.0" value="1.0"/>
+                <TextField fx:id="scaleYField" prefWidth="60" text="1.0"
+                           style="-fx-font-size: 13px; -fx-background-radius: 4;"/>
+            </HBox>
+
+            <!-- Z -->
+            <HBox spacing="8" alignment="CENTER_LEFT">
+                <Label text="Z:" style="-fx-min-width: 40; -fx-font-size: 13px; -fx-text-fill: #007bff;"/>
+                <Slider fx:id="scaleZSlider" HBox.hgrow="ALWAYS" minHeight="25" min="0.1" max="5.0" value="1.0"/>
+                <TextField fx:id="scaleZField" prefWidth="60" text="1.0"
+                           style="-fx-font-size: 13px; -fx-background-radius: 4;"/>
+            </HBox>
+
+            <HBox spacing="8" alignment="CENTER">
+                <Button fx:id="resetScaleButton" text="Сбросить" onAction="#resetScale"
+                        prefWidth="130" prefHeight="32"
+                        style="-fx-font-size: 13px;
+                               -fx-background-color: #6c757d;
+                               -fx-text-fill: white;
+                               -fx-border-radius: 4;
+                               -fx-background-radius: 4;
+                               -fx-cursor: hand;"/>
+            </HBox>
+        </VBox>
+
+        <!-- Кнопки управления -->
+        <VBox spacing="8" style="-fx-padding: 12;
+                                 -fx-background-color: #f8f9fa;
+                                 -fx-border-color: #e9ecef;
+                                 -fx-border-width: 1;
+                                 -fx-border-radius: 6;
+                                 -fx-background-radius: 6;">
+            <Label style="-fx-font-weight: 600; -fx-font-size: 14px; -fx-text-fill: #495057;"
+                   text="Управление трансформациями:"/>
+
+            <HBox spacing="8" alignment="CENTER">
+                <Button fx:id="applyTransformButton" text="Применить" onAction="#applyTransformations"
+                        prefWidth="130" prefHeight="36"
+                        style="-fx-font-size: 13px;
+                               -fx-background-color: #28a745;
+                               -fx-text-fill: white;
+                               -fx-border-radius: 4;
+                               -fx-background-radius: 4;
+                               -fx-cursor: hand;"/>
+                <Button fx:id="resetAllButton" text="Сбросить всё" onAction="#resetAllTransformations"
+                        prefWidth="130" prefHeight="36"
+                        style="-fx-font-size: 13px;
+                               -fx-background-color: #dc3545;
+                               -fx-text-fill: white;
+                               -fx-border-radius: 4;
+                               -fx-background-radius: 4;
+                               -fx-cursor: hand;"/>
+            </HBox>
+
+            <CheckBox fx:id="applyImmediatelyCheck" text="Применять сразу" selected="true"
+                      style="-fx-font-size: 13px;"/>
+            <Label text="При изменении ползунков трансформация применяется автоматически"
+                   style="-fx-font-size: 11px; -fx-text-fill: #6c757d;"/>
+        </VBox>
+
+        <!-- Настройки сохранения -->
+        <VBox spacing="8" style="-fx-padding: 12;
+                                 -fx-background-color: #f8f9fa;
+                                 -fx-border-color: #e9ecef;
+                                 -fx-border-width: 1;
+                                 -fx-border-radius: 6;
+                                 -fx-background-radius: 6;">
+            <Label style="-fx-font-weight: 600; -fx-font-size: 14px; -fx-text-fill: #495057;"
+                   text="Настройки сохранения:"/>
+
+            <HBox spacing="8" alignment="CENTER">
+                <Button fx:id="saveOriginalButton" text="Исходная" onAction="#saveOriginal"
+                        prefWidth="130" prefHeight="36"
+                        style="-fx-font-size: 13px;
+                               -fx-background-color: #17a2b8;
+                               -fx-text-fill: white;
+                               -fx-border-radius: 4;
+                               -fx-background-radius: 4;
+                               -fx-cursor: hand;"/>
+                <Button fx:id="saveTransformedButton" text="С трансформациями" onAction="#saveTransformed"
+                        prefWidth="130" prefHeight="36"
+                        style="-fx-font-size: 13px;
+                               -fx-background-color: #fd7e14;
+                               -fx-text-fill: white;
+                               -fx-border-radius: 4;
+                               -fx-background-radius: 4;
+                               -fx-cursor: hand;"/>
+            </HBox>
+
+            <Label text="Выберите режим сохранения при экспорте модели"
+                   style="-fx-font-size: 11px; -fx-text-fill: #6c757d;"/>
+        </VBox>
+
+    </VBox>
+</ScrollPane>

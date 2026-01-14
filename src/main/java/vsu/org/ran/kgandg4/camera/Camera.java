@@ -1,8 +1,11 @@
 package vsu.org.ran.kgandg4.camera;
 
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleObjectProperty;
 
+
+import javafx.beans.property.FloatProperty;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleFloatProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import math.vector.Vector3f;
 import math.matrix.Matrix4f;
 import vsu.org.ran.kgandg4.render_engine.GraphicConveyor;
@@ -14,7 +17,7 @@ public class Camera {
     private final ObjectProperty<Vector3f> position = new SimpleObjectProperty<>();
     private final ObjectProperty<Vector3f> target = new SimpleObjectProperty<>();
 
-    private float fov;
+    private final FloatProperty fov = new SimpleFloatProperty();
 
     private float aspectRatio;
 
@@ -33,10 +36,22 @@ public class Camera {
         this.id = id;
         this.position.set(position);
         this.target.set(target);
-        this.fov = fov;
+        this.fov.set(fov);
         this.aspectRatio = aspectRatio;
         this.nearPlane = nearPlane;
         this.farPlane = farPlane;
+    }
+
+    public void setFov(final float fov) {
+        this.fov.set(fov);
+    }
+
+    public float getFov() {
+        return fov.get();
+    }
+
+    public FloatProperty fovProperty() {
+        return fov;
     }
 
     public void setPosition(final Vector3f position) {
@@ -153,33 +168,31 @@ public class Camera {
     }
 
     public Matrix4f getProjectionMatrix() {
-        return GraphicConveyor.perspective(fov, aspectRatio, nearPlane, farPlane);
+        return GraphicConveyor.perspective(fov.get(), aspectRatio, nearPlane, farPlane);
     }
 
     public Vector3f getDirection() {
         return Vector3f.subtract(this.target.get(), this.position.get());
     }
 
-    @Override
-    public String toString() {
-        return "Camera " + id;
-    }
-
+    // Обновить equals() и hashCode() для учета FloatProperty
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Camera camera = (Camera) o;
-        return Float.compare(fov, camera.fov) == 0 && Float.compare(aspectRatio, camera.aspectRatio) == 0 && Float.compare(nearPlane, camera.nearPlane) == 0 && Float.compare(farPlane, camera.farPlane) == 0 && Objects.equals(id, camera.id) && Objects.equals(position, camera.position) && Objects.equals(target, camera.target);
+        return id == camera.id &&
+                Float.compare(camera.fov.get(), fov.get()) == 0 &&
+                Float.compare(camera.aspectRatio, aspectRatio) == 0 &&
+                Float.compare(camera.nearPlane, nearPlane) == 0 &&
+                Float.compare(camera.farPlane, farPlane) == 0 &&
+                Objects.equals(position.get(), camera.position.get()) &&
+                Objects.equals(target.get(), camera.target.get());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, position, target, fov, aspectRatio, nearPlane, farPlane);
-    }
-
-    public float getFov() {
-        return fov;
+        return Objects.hash(id, position.get(), target.get(), fov.get(), aspectRatio, nearPlane, farPlane);
     }
 
     public float getAspectRatio() {
@@ -192,5 +205,10 @@ public class Camera {
 
     public float getFarPlane() {
         return farPlane;
+    }
+
+    @Override
+    public String toString() {
+        return "Camera " + id + " (FOV: " + String.format("%.1f", fov.get()) + "°)";
     }
 }

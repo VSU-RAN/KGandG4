@@ -4,11 +4,20 @@ module vsu.org.ran.kgandg4 {
     requires java.desktop;
     requires MathLibrary;
 
-
     opens vsu.org.ran.kgandg4 to javafx.fxml;
-    opens vsu.org.ran.kgandg4.model to org.junit.jupiter, org.junit.platform.commons;
+    opens vsu.org.ran.kgandg4.gui to javafx.fxml;
+    opens vsu.org.ran.kgandg4.gui.controllers to javafx.fxml;
+    opens vsu.org.ran.kgandg4.render_engine.render to javafx.fxml;
+    opens vsu.org.ran.kgandg4.model to javafx.fxml;
+    opens vsu.org.ran.kgandg4.camera to javafx.fxml;
+    opens vsu.org.ran.kgandg4.render_engine to javafx.fxml;
+
+
     exports vsu.org.ran.kgandg4;
-    exports vsu.org.ran.kgandg4.IO.objReader;
-    opens vsu.org.ran.kgandg4.IO.objReader to javafx.fxml;
-    opens vsu.org.ran.kgandg4.model.models to org.junit.jupiter, org.junit.platform.commons;
+    exports vsu.org.ran.kgandg4.gui;
+    exports vsu.org.ran.kgandg4.gui.controllers;
+    exports vsu.org.ran.kgandg4.render_engine.render;
+    exports vsu.org.ran.kgandg4.model;
+    exports vsu.org.ran.kgandg4.camera;
+    exports vsu.org.ran.kgandg4.render_engine;
 }

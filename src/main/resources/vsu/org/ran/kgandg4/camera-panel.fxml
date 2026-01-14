@@ -7,52 +7,143 @@
 <?import javafx.scene.control.Spinner?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.ScrollPane?>
 
-<VBox fx:id="cameraPanel" spacing="10" style="-fx-padding: 10; -fx-min-width: 250;"
-      xmlns="http://javafx.com/javafx"
-      xmlns:fx="http://javafx.com/fxml"
-      fx:controller="vsu.org.ran.kgandg4.CameraPanelController">
+<ScrollPane fx:id="scrollPane"
+            hbarPolicy="NEVER"
+            vbarPolicy="AS_NEEDED"
+            fitToWidth="true"
+            style="-fx-background: #ffffff;
+                  -fx-border-color: #ced4da;
+                  -fx-border-width: 0 0 0 1;"
+            xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="vsu.org.ran.kgandg4.gui.controllers.CameraPanelController">
 
-    <Label alignment="CENTER" prefHeight="20.0" prefWidth="246.0"
-           style="-fx-font-size: 14; -fx-font-weight: bold;" text="Камеры" />
+    <VBox fx:id="cameraPanel" spacing="12"
+          style="-fx-padding: 16;
+                 -fx-background-color: #ffffff;"
+          minWidth="280" prefWidth="300">
 
-    <ListView fx:id="cameraListView" VBox.vgrow="ALWAYS" />
+        <!-- Заголовок -->
+        <Label text="Управление камерами"
+               style="-fx-font-size: 16px;
+                      -fx-font-weight: 600;
+                      -fx-text-fill: #343a40;" />
 
-    <HBox spacing="5">
-        <Button fx:id="addButton" onAction="#onAddCameraClick"
-                style="-fx-font-weight: bold; -fx-min-width: 30;" text="+" />
-        <Button fx:id="removeButton" onAction="#onRemoveCameraClick"
-                style="-fx-font-weight: bold; -fx-min-width: 30;" text="-" />
-        <Button fx:id="switchButton" onAction="#onSwitchToSelectedCameraClick"
-                text="Переключить" />
-        <Button fx:id="nextButton" onAction="#onNextCameraClick" text="След." />
-    </HBox>
+        <!-- Список камер -->
+        <Label text="Список камер:"
+               style="-fx-font-size: 13px; -fx-font-weight: 500; -fx-text-fill: #495057;" />
 
-    <VBox spacing="5" style="-fx-padding: 10; -fx-background-color: #f0f0f0; -fx-border-color: #ccc;">
-        <Label style="-fx-font-weight: bold;" text="Активная камера:" />
-        <Label fx:id="activeCameraLabel" text="Camera 1" />
+        <ListView fx:id="cameraListView" prefHeight="140"
+                  style="-fx-background-color: white;
+                         -fx-border-color: #dee2e6;
+                         -fx-border-radius: 4;
+                         -fx-background-radius: 4;" />
 
-        <Separator />
+        <!-- Кнопки управления - С ЦВЕТАМИ! -->
+        <HBox spacing="8" alignment="CENTER">
+            <Button fx:id="addButton" onAction="#onAddCameraClick"
+                    prefWidth="42" prefHeight="32"
+                    style="-fx-font-weight: bold;
+                           -fx-font-size: 14px;
+                           -fx-background-color: #28a745;
+                           -fx-text-fill: white;
+                           -fx-border-radius: 4;
+                           -fx-background-radius: 4;
+                           -fx-cursor: hand;"
+                    text="+" />
 
-        <Label text="Позиция:"/>
-        <HBox spacing="5">
-            <Label text="X:"/>
-            <Spinner fx:id="camPosX" editable="true" prefWidth="70"/>
-            <Label text="Y:"/>
-            <Spinner fx:id="camPosY" editable="true" prefWidth="70"/>
-            <Label text="Z:"/>
-            <Spinner fx:id="camPosZ" editable="true" prefWidth="70"/>
+            <Button fx:id="removeButton" onAction="#onRemoveCameraClick"
+                    prefWidth="42" prefHeight="32"
+                    style="-fx-font-weight: bold;
+                           -fx-font-size: 14px;
+                           -fx-background-color: #dc3545;
+                           -fx-text-fill: white;
+                           -fx-border-radius: 4;
+                           -fx-background-radius: 4;
+                           -fx-cursor: hand;"
+                    text="-" />
+
+            <Button fx:id="switchButton" onAction="#onSwitchToSelectedCameraClick"
+                    prefWidth="100" prefHeight="32"
+                    style="-fx-font-size: 13px;
+                           -fx-font-weight: 500;
+                           -fx-background-color: #007bff;
+                           -fx-text-fill: white;
+                           -fx-border-radius: 4;
+                           -fx-background-radius: 4;
+                           -fx-cursor: hand;"
+                    text="Переключить" />
+
+            <Button fx:id="nextButton" onAction="#onNextCameraClick"
+                    prefWidth="70" prefHeight="32"
+                    style="-fx-font-size: 13px;
+                           -fx-font-weight: 500;
+                           -fx-background-color: #fd7e14;
+                           -fx-text-fill: white;
+                           -fx-border-radius: 4;
+                           -fx-background-radius: 4;
+                           -fx-cursor: hand;"
+                    text="След." />
         </HBox>
 
-        <Label text="Цель:"/>
-        <HBox spacing="5">
-            <Label text="X:"/>
-            <Spinner fx:id="camTargetX" editable="true" prefWidth="70"/>
-            <Label text="Y:"/>
-            <Spinner fx:id="camTargetY" editable="true" prefWidth="70"/>
-            <Label text="Z:"/>
-            <Spinner fx:id="camTargetZ" editable="true" prefWidth="70"/>
-        </HBox>
+        <Separator style="-fx-padding: 8 0 8 0;" />
+
+        <!-- Активная камера -->
+        <VBox spacing="8" style="-fx-padding: 12;
+                                 -fx-background-color: #f8f9fa;
+                                 -fx-border-color: #e9ecef;
+                                 -fx-border-width: 1;
+                                 -fx-border-radius: 4;
+                                 -fx-background-radius: 4;">
+
+            <Label style="-fx-font-weight: 600; -fx-font-size: 14px; -fx-text-fill: #495057;"
+                   text="Активная камера:" />
+
+            <Label fx:id="activeCameraLabel"
+                   style="-fx-font-size: 13px;
+                          -fx-text-fill: #007bff;
+                          -fx-font-weight: 500;
+                          -fx-padding: 2 0 6 0;"
+                   text="Камера #1" />
+
+            <!-- Позиция камеры -->
+            <Label style="-fx-font-weight: 600; -fx-font-size: 13px; -fx-text-fill: #495057;"
+                   text="Позиция камеры:"/>
+
+            <HBox spacing="8" alignment="CENTER_LEFT">
+                <Label text="X:" style="-fx-min-width: 20; -fx-text-fill: #6c757d;"/>
+                <Spinner fx:id="camPosX" editable="true" prefWidth="70"/>
+                <Label text="Y:" style="-fx-min-width: 20; -fx-text-fill: #6c757d;"/>
+                <Spinner fx:id="camPosY" editable="true" prefWidth="70"/>
+                <Label text="Z:" style="-fx-min-width: 20; -fx-text-fill: #6c757d;"/>
+                <Spinner fx:id="camPosZ" editable="true" prefWidth="70"/>
+            </HBox>
+
+            <!-- Цель камеры -->
+            <Label style="-fx-font-weight: 600; -fx-font-size: 13px; -fx-text-fill: #495057; -fx-padding-top: 6;"
+                   text="Цель камеры:"/>
+
+            <HBox spacing="8" alignment="CENTER_LEFT">
+                <Label text="X:" style="-fx-min-width: 20; -fx-text-fill: #6c757d;"/>
+                <Spinner fx:id="camTargetX" editable="true" prefWidth="70"/>
+                <Label text="Y:" style="-fx-min-width: 20; -fx-text-fill: #6c757d;"/>
+                <Spinner fx:id="camTargetY" editable="true" prefWidth="70"/>
+                <Label text="Z:" style="-fx-min-width: 20; -fx-text-fill: #6c757d;"/>
+                <Spinner fx:id="camTargetZ" editable="true" prefWidth="70"/>
+            </HBox>
+
+            <!-- Поле зрения (FOV) -->
+            <Label style="-fx-font-weight: 600; -fx-font-size: 13px; -fx-text-fill: #495057; -fx-padding-top: 6;"
+                   text="Поле зрения (FOV):"/>
+
+            <HBox spacing="8" alignment="CENTER_LEFT">
+                <Label text="FOV:" style="-fx-min-width: 40; -fx-text-fill: #6c757d;"/>
+                <Spinner fx:id="camFovSpinner" editable="true" prefWidth="80"/>
+                <Label text="°" style="-fx-text-fill: #6c757d;"/>
+            </HBox>
+        </VBox>
+
     </VBox>
-
-</VBox>
+</ScrollPane>

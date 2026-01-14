@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<ScrollPane fx:id="scrollPane"
+            hbarPolicy="NEVER"
+            vbarPolicy="AS_NEEDED"
+            fitToWidth="true"
+            style="-fx-background: #ffffff;
+                  -fx-border-color: #ced4da;
+                  -fx-border-width: 0 0 0 1;"
+            xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="vsu.org.ran.kgandg4.gui.controllers.EditPanelController">
+
+    <VBox fx:id="editPanel" spacing="12"
+          style="-fx-padding: 16;
+                 -fx-background-color: #ffffff;"
+          minWidth="280" prefWidth="300">
+
+        <!-- Заголовок -->
+        <Label text="Редактирование модели"
+               style="-fx-font-size: 16px;
+                      -fx-font-weight: 600;
+                      -fx-text-fill: #343a40;" />
+
+        <!-- Статистика модели -->
+        <VBox spacing="8" style="-fx-padding: 12;
+                                 -fx-background-color: #f8f9fa;
+                                 -fx-border-color: #e9ecef;
+                                 -fx-border-width: 1;
+                                 -fx-border-radius: 6;
+                                 -fx-background-radius: 6;">
+            <Label style="-fx-font-weight: 600; -fx-font-size: 14px; -fx-text-fill: #495057;"
+                   text="Статистика модели:" />
+            <Label fx:id="modelStatsLabel"
+                   style="-fx-font-size: 13px;
+                          -fx-text-fill: #6c757d;
+                          -fx-padding: 2 0 6 0;"
+                   text="Модель не загружена" />
+        </VBox>
+
+        <!-- Информация о выборе -->
+        <VBox spacing="8" style="-fx-padding: 12;
+                                 -fx-background-color: #f8f9fa;
+                                 -fx-border-color: #e9ecef;
+                                 -fx-border-width: 1;
+                                 -fx-border-radius: 6;
+                                 -fx-background-radius: 6;">
+            <Label style="-fx-font-weight: 600; -fx-font-size: 14px; -fx-text-fill: #495057;"
+                   text="Текущий выбор:" />
+            <Label fx:id="selectionInfoLabel"
+                   style="-fx-font-size: 13px;
+                          -fx-text-fill: #495057;
+                          -fx-padding: 2 0 6 0;"
+                   text="Ничего не выбрано" />
+        </VBox>
+
+        <!-- Управление выбором -->
+        <VBox spacing="8" style="-fx-padding: 12;
+                                 -fx-background-color: #f8f9fa;
+                                 -fx-border-color: #e9ecef;
+                                 -fx-border-width: 1;
+                                 -fx-border-radius: 6;
+                                 -fx-background-radius: 6;">
+            <Label style="-fx-font-weight: 600; -fx-font-size: 14px; -fx-text-fill: #495057;"
+                   text="Управление выбором:"/>
+
+            <Button fx:id="deleteSelectedButton" onAction="#deleteSelected"
+                    prefWidth="280" prefHeight="36"
+                    style="-fx-font-size: 13px;
+                           -fx-font-weight: 500;
+                           -fx-background-color: #dc3545;
+                           -fx-text-fill: white;
+                           -fx-border-radius: 4;
+                           -fx-background-radius: 4;
+                           -fx-cursor: hand;"
+                    text="Удалить выбранный" />
+
+            <Button fx:id="clearSelectionButton" onAction="#clearSelection"
+                    prefWidth="280" prefHeight="36"
+                    style="-fx-font-size: 13px;
+                           -fx-font-weight: 500;
+                           -fx-background-color: #6c757d;
+                           -fx-text-fill: white;
+                           -fx-border-radius: 4;
+                           -fx-background-radius: 4;
+                           -fx-cursor: hand;"
+                    text="Очистить выбор" />
+        </VBox>
+
+        <!-- Удаление по индексу -->
+        <VBox spacing="8" style="-fx-padding: 12;
+                                 -fx-background-color: #f8f9fa;
+                                 -fx-border-color: #e9ecef;
+                                 -fx-border-width: 1;
+                                 -fx-border-radius: 6;
+                                 -fx-background-radius: 6;">
+            <Label style="-fx-font-weight: 600; -fx-font-size: 14px; -fx-text-fill: #495057;"
+                   text="Удаление по индексу:"/>
+
+            <HBox spacing="8" alignment="CENTER_LEFT">
+                <Label text="Индекс:" style="-fx-min-width: 50; -fx-font-size: 13px; -fx-text-fill: #495057;"/>
+                <TextField fx:id="selectedIndexField" prefWidth="100"
+                           promptText="0" style="-fx-font-size: 13px; -fx-background-radius: 4;"/>
+                <Button fx:id="deleteByIndexButton" onAction="#deleteByIndex"
+                        prefWidth="100" prefHeight="32"
+                        style="-fx-font-size: 13px;
+                               -fx-font-weight: 500;
+                               -fx-background-color: #fd7e14;
+                               -fx-text-fill: white;
+                               -fx-border-radius: 4;
+                               -fx-background-radius: 4;
+                               -fx-cursor: hand;"
+                        text="Удалить" />
+            </HBox>
+            <Label text="Введите индекс вершины или полигона"
+                   style="-fx-font-size: 11px; -fx-text-fill: #6c757d;"/>
+        </VBox>
+
+        <!-- Удаление всех -->
+        <VBox spacing="8" style="-fx-padding: 12;
+                                 -fx-background-color: #f8f9fa;
+                                 -fx-border-color: #e9ecef;
+                                 -fx-border-width: 1;
+                                 -fx-border-radius: 6;
+                                 -fx-background-radius: 6;">
+            <Label style="-fx-font-weight: 600; -fx-font-size: 14px; -fx-text-fill: #495057;"
+                   text="Удаление всех:"/>
+
+            <Button fx:id="deleteAllButton" onAction="#deleteAll"
+                    prefWidth="280" prefHeight="36"
+                    style="-fx-font-size: 13px;
+                           -fx-font-weight: 500;
+                           -fx-background-color: #721c24;
+                           -fx-text-fill: white;
+                           -fx-border-radius: 4;
+                           -fx-background-radius: 4;
+                           -fx-cursor: hand;"
+                    text="Удалить ВСЕ" />
+            <Label text="Удалит все вершины и полигоны"
+                   style="-fx-font-size: 11px; -fx-text-fill: #6c757d; -fx-font-style: italic;"/>
+        </VBox>
+
+    </VBox>
+</ScrollPane>

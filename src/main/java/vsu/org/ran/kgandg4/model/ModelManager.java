@@ -1,5 +1,6 @@
 package vsu.org.ran.kgandg4.model;
 
+import vsu.org.ran.kgandg4.IO.ObjWriter;
 import vsu.org.ran.kgandg4.dependecyIndjection.annotations.Autowired;
 import vsu.org.ran.kgandg4.dependecyIndjection.annotations.Component;
 import vsu.org.ran.kgandg4.model.models.Model;
@@ -20,6 +21,7 @@ public class ModelManager {
     @Autowired
     private NormalCalculator normalCalculator;
 
+
     private TriangulatedModel currentModel;
 
     public void loadModel(File file) throws IOException {
@@ -30,8 +32,20 @@ public class ModelManager {
         normalCalculator.calculateNormals(currentModel);
     }
 
-    public void saveModel(Model model) {
-        //todo: Сделать сохранение модели
+    public void saveModel(File file) throws IOException {
+        if (currentModel == null) {
+            throw new IllegalStateException("Нет модели для сохранения");
+        }
+
+        saveModel(currentModel, file);
+    }
+
+    public void saveModel(Model model, File file) throws IOException {
+        if (model == null) {
+            throw new IllegalArgumentException("Модель не может быть null");
+        }
+
+        ObjWriter.write(model, file.toPath());
     }
 
     public TriangulatedModel getCurrentModel() {

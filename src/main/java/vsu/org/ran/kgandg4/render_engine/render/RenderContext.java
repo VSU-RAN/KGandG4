@@ -16,23 +16,26 @@ import static vsu.org.ran.kgandg4.render_engine.GraphicConveyor.rotateScaleTrans
 
 @Component
 public class RenderContext {
-    public enum RenderMode {
-        WIREFRAME, SOLID, TEXTURED, WIREFRAME_OVERLAY
-    }
-
-    @Value("${render.default.mode:TEXTURED}")
-    private String defaultMode;
-
+    /// Конфигурационные значения ///
     @Value("${render.default.ambient_light:0.9}")
     private float defaultAmbientLight;
-
-    @Value("${render.default.enable_lighting:true}")
-    private boolean defaultEnableLighting;
 
     @Value("${render.default.wireframe_color:#FF0000}")
     private String defaultWireframeColor;
 
+    @Value("${render.default.light_color:#FFFFFF}")
+    private String defaultLightColor;
 
+    @Value("${render.default.enable_lighting:true}")
+    private boolean defaultEnableLighting;
+
+    @Value("${render.default.enable_wireframe:true}")
+    private boolean defaultEnableWireframe;
+
+    @Value("${render.default.enable_texture:true}")
+    private boolean defaultEnableTexture;
+
+    /// Состояние рендеринга ///
     private GraphicsContext graphicsContext;
     private Camera camera;
     private TriangulatedModel model;
@@ -41,11 +44,11 @@ public class RenderContext {
     private int width;
     private int height;
 
-    // === Текущие настройки ===
+    /// Настройки рендеринга ///
     private RenderMode mode;
     private float ambientLight;
-    private boolean enableLighting;
     private Color wireframeColor;
+    private Color lightColor;
 
 
     private Matrix4f pvmMatrix;
@@ -53,10 +56,10 @@ public class RenderContext {
 
     @PostConstruct
     private void init() {
-        this.mode = RenderMode.valueOf(defaultMode.toUpperCase());
+        this.mode = new RenderMode(defaultEnableWireframe, defaultEnableTexture, defaultEnableLighting);
         this.ambientLight = defaultAmbientLight;
-        this.enableLighting = defaultEnableLighting;
         this.wireframeColor = Color.web(defaultWireframeColor);
+        this.lightColor = Color.web(defaultLightColor);
     }
 
 
@@ -105,50 +108,55 @@ public class RenderContext {
         return cameraDirectionNormalized;
     }
 
+
     public GraphicsContext getGraphicsContext() { return graphicsContext; }
-    public Camera getCamera() { return camera; }
     public TriangulatedModel getModel() { return model; }
     public Texture getTexture() { return texture; }
     public Zbuffer getZbuffer() { return zbuffer; }
     public int getWidth() { return width; }
     public int getHeight() { return height; }
-    public RenderMode getMode() { return mode; }
-    public float getAmbientLight() { return ambientLight; }
-    public boolean isEnableLighting() { return enableLighting; }
-    public Color getWireframeColor() { return wireframeColor; }
     public Matrix4f getPVMMatrix() {
         calculatePVMMatrix();
         return this.pvmMatrix;
     }
 
-    public void setGraphicsContext(GraphicsContext gc) { this.graphicsContext = gc; }
+    public RenderMode getMode() { return mode; }
+    public float getAmbientLight() { return ambientLight; }
+    public Color getLightColor() {return lightColor;}
+    public Color getWireframeColor() { return wireframeColor; }
+    public Color getMaterialColor() { return texture.getMaterialColor();}
+
+    public boolean shouldDrawWireframe() {return mode.isWireframe();}
+    public boolean shouldUseTexture() {return mode.isTexture() && texture != null && texture.hasTexture();}
+    public boolean shouldUseLighting() {return mode.isLighting();}
+
 
     public void setCamera(Camera camera) {
         this.camera = camera;
+        this.cameraDirectionNormalized = null;
         this.pvmMatrix = null;
     }
 
     public void setModel(TriangulatedModel model) { this.model = model; }
     public void setTexture(Texture texture) { this.texture = texture; }
-    public void setZbuffer(Zbuffer zbuffer) { this.zbuffer = zbuffer; }
-    public void setWidth(int width) { this.width = width; }
-    public void setHeight(int height) { this.height = height; }
-
-    // === Сеттеры для настроек ===
-    public void setMode(RenderMode mode) { this.mode = mode; }
     public void setAmbientLight(float ambientLight) { this.ambientLight = ambientLight; }
-    public void setEnableLighting(boolean enableLighting) { this.enableLighting = enableLighting; }
+    public void setLightColor(Color lightColor) {this.lightColor = lightColor;}
     public void setWireframeColor(Color wireframeColor) { this.wireframeColor = wireframeColor; }
 
-    private static void printMatrix(Matrix4f matrix) {
-        System.out.printf("[%.4f, %.4f, %.4f, %.4f]\n",
-                matrix.getElement(0), matrix.getElement(1), matrix.getElement(2), matrix.getElement(3));
-        System.out.printf("[%.4f, %.4f, %.4f, %.4f]\n",
-                matrix.getElement(4), matrix.getElement(5), matrix.getElement(6), matrix.getElement(7));
-        System.out.printf("[%.4f, %.4f, %.4f, %.4f]\n",
-                matrix.getElement(8), matrix.getElement(9), matrix.getElement(10), matrix.getElement(11)); // Исправлено
-        System.out.printf("[%.4f, %.4f, %.4f, %.4f]\n",
-                matrix.getElement(12), matrix.getElement(13), matrix.getElement(14), matrix.getElement(15)); // Исправлено
+    public void setDrawWireframe(boolean drawWireframe) {
+        this.mode = new RenderMode(drawWireframe, mode.isTexture(), mode.isLighting());
     }
+
+    public void setUseTexture(boolean useTexture) {
+        this.mode = new RenderMode(mode.isWireframe(), useTexture, mode.isLighting());
+        if (texture != null) {
+            texture.enableTexture(useTexture);
+        }
+    }
+
+    public void setUseLighting(boolean useLighting) {
+        this.mode = new RenderMode(mode.isWireframe(), mode.isTexture(), useLighting);
+    }
+
 }
 
