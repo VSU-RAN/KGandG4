@@ -18,11 +18,16 @@ import java.util.ResourceBundle;
 
 public class CameraPanelController implements Initializable {
 
-    @FXML private ListView<Camera> cameraListView;
-    @FXML private Label activeCameraLabel;
-    @FXML private Spinner<Double> camPosX, camPosY, camPosZ;
-    @FXML private Spinner<Double> camTargetX, camTargetY, camTargetZ;
-    @FXML private Button removeButton, switchButton;
+    @FXML
+    private ListView<Camera> cameraListView;
+    @FXML
+    private Label activeCameraLabel;
+    @FXML
+    private Spinner<Double> camPosX, camPosY, camPosZ;
+    @FXML
+    private Spinner<Double> camTargetX, camTargetY, camTargetZ;
+    @FXML
+    private Button removeButton, switchButton;
 
 
     private double mouseX, mouseY;
@@ -283,13 +288,13 @@ public class CameraPanelController implements Initializable {
         if (camera == null || isUpdatingFields) return;
         isUpdatingFields = true;
 
-        camPosX.getValueFactory().setValue((double)camera.getPosition().getX());
-        camPosY.getValueFactory().setValue((double)camera.getPosition().getY());
-        camPosZ.getValueFactory().setValue((double)camera.getPosition().getZ());
+        camPosX.getValueFactory().setValue((double) camera.getPosition().getX());
+        camPosY.getValueFactory().setValue((double) camera.getPosition().getY());
+        camPosZ.getValueFactory().setValue((double) camera.getPosition().getZ());
 
-        camTargetX.getValueFactory().setValue((double)camera.getTarget().getX());
-        camTargetY.getValueFactory().setValue((double)camera.getTarget().getY());
-        camTargetZ.getValueFactory().setValue((double)camera.getTarget().getZ());
+        camTargetX.getValueFactory().setValue((double) camera.getTarget().getX());
+        camTargetY.getValueFactory().setValue((double) camera.getTarget().getY());
+        camTargetZ.getValueFactory().setValue((double) camera.getTarget().getZ());
 
         isUpdatingFields = false;
     }
@@ -303,15 +308,15 @@ public class CameraPanelController implements Initializable {
         Camera active = cameraManager.getActiveCamera();
 
         Camera newCamera = cameraManager.addCamera(
-            new Vector3f(
-                    active.getPosition().getX() + 50,
-                    active.getPosition().getY(),
-                    active.getPosition().getZ()),
-            new Vector3f(active.getTarget()),
-            active.getFov(),
-            active.getAspectRatio(),
-            active.getNearPlane(),
-            active.getFarPlane()
+                new Vector3f(
+                        active.getPosition().getX() + 50,
+                        active.getPosition().getY(),
+                        active.getPosition().getZ()),
+                new Vector3f(active.getTarget()),
+                active.getFov(),
+                active.getAspectRatio(),
+                active.getNearPlane(),
+                active.getFarPlane()
         );
         cameraListView.getSelectionModel().select(newCamera);
     }
@@ -384,7 +389,7 @@ public class CameraPanelController implements Initializable {
     }
 
     private void handleMouseDragged(MouseEvent event) {
-        if (cameraManager == null|| cameraManager.getActiveCamera() == null) {
+        if (cameraManager == null || cameraManager.getActiveCamera() == null) {
             return;
         }
 
@@ -399,7 +404,7 @@ public class CameraPanelController implements Initializable {
         if (leftMouseButtonPressed) {
             activeCamera.orbit(
                     (float) dx * MOUSE_ORBIT_SENSITIVITY,
-                      (float) dy * MOUSE_ORBIT_SENSITIVITY
+                    (float) dy * MOUSE_ORBIT_SENSITIVITY
             );
         } else if (rightMouseButtonPressed) {
             activeCamera.movePositionAndTarget(new Vector3f(
@@ -408,8 +413,30 @@ public class CameraPanelController implements Initializable {
                     0
             ));
         } else if (middleMouseButtonPressed) {
-            return;
+            performCameraInversion(activeCamera);
         }
+    }
+
+    private void performCameraInversion(Camera camera) {
+        // 1. Получаем текущие позицию и цель
+        Vector3f position = camera.getPosition();
+        Vector3f target = camera.getTarget();
+
+        // 2. Вычисляем вектор от цели к камере
+        Vector3f offset = Vector3f.subtract(position, target);
+
+        // 3. Инвертируем X и Z компоненты (вращение на 180°)
+        Vector3f invertedOffset = new Vector3f(
+                -offset.getX(),
+                -offset.getY(),
+                -offset.getZ()
+        );
+
+        // 4. Вычисление новой позиции
+        Vector3f newPosition = target.add(invertedOffset);
+
+        // 5. Устанавливаем новую позицию камере
+        camera.setPosition(newPosition);
     }
 
     private void handleMouseReleased(MouseEvent event) {
@@ -420,7 +447,7 @@ public class CameraPanelController implements Initializable {
     }
 
     private void handleScroll(ScrollEvent event) {
-        if (cameraManager == null|| cameraManager.getActiveCamera() == null) {
+        if (cameraManager == null || cameraManager.getActiveCamera() == null) {
             return;
         }
 
