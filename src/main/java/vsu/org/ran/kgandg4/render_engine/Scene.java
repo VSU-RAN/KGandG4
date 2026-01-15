@@ -15,7 +15,6 @@ public class Scene {
     @Autowired
     private RenderContext renderContext;
 
-
     @Autowired
     private ModelManager modelManager;
 
@@ -32,18 +31,62 @@ public class Scene {
     private Zbuffer zbuffer;
 
     public void renderFrame(GraphicsContext gc, int width, int height) {
-        TriangulatedModel model = modelManager.getCurrentModel();
         Camera camera = cameraManager.getActiveCamera();
+        if (camera != null) {
+            camera.setAspectRatio((float) width/height);
+        }
 
-        camera.setAspectRatio((float) width/height);
-
-        zbuffer.resize(width, height);
-        zbuffer.clear();
+        if (zbuffer != null) {
+            zbuffer.resize(width, height);
+            zbuffer.clear();
+        }
 
         gc.clearRect(0, 0, width, height);
 
-        renderContext.create(gc, camera, model, defaultTexture, zbuffer, width, height);
+        // Рендерим все видимые модели
+        for (TriangulatedModel model : modelManager.getModels()) {
+            if (model.visible) {
+                try {
+                    // Используем существующий метод create (без матрицы трансформации)
+                    renderContext.create(
+                            gc,
+                            camera,
+                            model,
+                            defaultTexture,
+                            zbuffer,
+                            width,
+                            height
+                    );
 
-        RenderEngine.render(renderContext);
+                    // Рендерим модель
+                    RenderEngine.render(renderContext);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    public int getVisibleModelCount() {
+        if (modelManager == null) return 0;
+
+        int count = 0;
+        for (TriangulatedModel model : modelManager.getModels()) {
+            if (model.visible) count++;
+        }
+        return count;
+    }
+
+    public TriangulatedModel getActiveModel() {
+        return modelManager != null ? modelManager.getActiveModel() : null;
+    }
+
+    public boolean hasVisibleModels() {
+        if (modelManager == null) return false;
+
+        for (TriangulatedModel model : modelManager.getModels()) {
+            if (model.visible) return true;
+        }
+        return false;
     }
 }
