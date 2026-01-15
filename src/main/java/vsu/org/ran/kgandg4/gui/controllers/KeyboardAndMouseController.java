@@ -1,6 +1,7 @@
 package vsu.org.ran.kgandg4.gui.controllers;
 
 import javafx.scene.Scene;
+import javafx.scene.canvas.Canvas;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
@@ -21,6 +22,11 @@ public class KeyboardAndMouseController {
 
     @Autowired
     private Scene scene;
+
+    @Autowired
+    private Canvas attachedCanvas;
+
+    private boolean isCanvasFocused = false;
 
     @Value("${camera.keyboard.pan_speed:0.5}")
     private float PAN_SPEED;
@@ -55,15 +61,49 @@ public class KeyboardAndMouseController {
     public void attachToScene(Scene scene) {
         if (scene == null) return;
 
-        //Обработчики клавиатуры
         scene.addEventFilter(KeyEvent.KEY_PRESSED, this::handleKeyPressed);
         scene.addEventFilter(KeyEvent.KEY_RELEASED, this::handleKeyReleased);
 
-        //Обработчики мыши
-        scene.addEventFilter(MouseEvent.MOUSE_PRESSED, this::handleMousePressed);
-        scene.addEventFilter(MouseEvent.MOUSE_DRAGGED, this::handleMouseDragged);
-        scene.addEventFilter(MouseEvent.MOUSE_RELEASED, this::handleMouseReleased);
-        scene.addEventFilter(ScrollEvent.SCROLL, this::handleScroll);
+        scene.addEventFilter(MouseEvent.MOUSE_PRESSED, event -> {
+            if (attachedCanvas != null && !event.getTarget().equals(attachedCanvas)) {
+                isCanvasFocused = false;
+            }
+        });
+    }
+
+    public void attachToCanvas(Canvas canvas) {
+        if (canvas == null) return;
+
+        this.isCanvasFocused = canvas.isFocused();
+
+
+        // Мышь - только для канваса
+        canvas.addEventFilter(MouseEvent.MOUSE_PRESSED, this::handleMousePressed);
+        canvas.addEventFilter(MouseEvent.MOUSE_DRAGGED, this::handleMouseDragged);
+        canvas.addEventFilter(MouseEvent.MOUSE_RELEASED, this::handleMouseReleased);
+        canvas.addEventFilter(ScrollEvent.SCROLL, this::handleScroll);
+
+        // Также добавляем обработчики фокуса
+        canvas.focusedProperty().addListener((obs, oldVal, newVal) -> {
+            isCanvasFocused = newVal;
+        });
+
+        // Устанавливаем фокус на канвас при клике
+        canvas.setOnMouseClicked(e -> canvas.requestFocus());
+
+        canvas.addEventFilter(MouseEvent.ANY, event -> {
+            // Для событий мыши на канвасе - останавливаем всплытие
+            if (event.getEventType() == MouseEvent.MOUSE_PRESSED ||
+                    event.getEventType() == MouseEvent.MOUSE_DRAGGED ||
+                    event.getEventType() == MouseEvent.MOUSE_RELEASED ||
+                    event.getEventType() == MouseEvent.MOUSE_CLICKED) {
+
+                // Пропускаем только если это наш канвас
+                if (event.getTarget().equals(canvas)) {
+                    event.consume();
+                }
+            }
+        });
     }
 
     private void handleKeyPressed(KeyEvent event) {

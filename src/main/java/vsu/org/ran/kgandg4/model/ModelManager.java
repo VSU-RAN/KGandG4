@@ -34,16 +34,17 @@ public class ModelManager {
         Model loadModel = ObjReader.read(content);
         loadModel.setName(file.getName());
 
-        return this.addModel(loadModel);
+        return this.addModel(loadModel, file.getName());
     }
 
-    public Model addModel(Model model) {
+    public Model addModel(Model model, String name) {
         TriangulatedModel triangulatedModel = triangulator.createTriangulatedModel(model);
 
         normalCalculator.calculateNormals(triangulatedModel);
 
         triangulatedModel.setId(nextId++);
         triangulatedModel.setVisible(true);
+        triangulatedModel.setName(name != null ? name : "Модель " + String.valueOf(nextId));
 
         this.modelList.add(triangulatedModel);
 

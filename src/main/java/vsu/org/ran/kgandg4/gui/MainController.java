@@ -117,14 +117,16 @@ public class MainController {
     }
 
     private void setupEventHandlers() {
-        mainContainer.setOnMouseClicked(event -> {
-            mainContainer.requestFocus();
-        });
+        keyboardAndMouseController.attachToCanvas(canvas);
 
         mainContainer.sceneProperty().addListener((obs, oldScene, newScene) -> {
             if (newScene != null) {
                 keyboardAndMouseController.attachToScene(newScene);
             }
+        });
+
+        mainContainer.setOnMouseClicked(event -> {
+            mainContainer.requestFocus();
         });
     }
 

@@ -114,8 +114,20 @@ public class ModelPanelController implements Initializable, PanelController {
                     setGraphic(null);
                     setStyle(null);
                 } else {
-                    setText(model.equals(modelManager.getCurrentModel()) ? getModelDisplayName(model) + " ✓" : getModelDisplayName(model));
-                    setStyle(model.equals(modelManager.getCurrentModel()) ? "-fx-text-fill: #007bff; -fx-font-weight: bold;" : null);
+                    Model currentModel = modelManager != null ? modelManager.getCurrentModel() : null;
+                    boolean isActive = model.equals(currentModel);
+
+                    String modelName = getModelDisplayName(model);
+                    if (isActive) {
+                        modelName += " ✓";
+                    }
+                    setText(modelName);
+
+                    if (isActive) {
+                        setStyle("-fx-text-fill: #007bff; -fx-font-weight: bold;");
+                    } else {
+                        setStyle(null);
+                    }
                 }
             }
         });
@@ -199,7 +211,8 @@ public class ModelPanelController implements Initializable, PanelController {
 
     private String getModelDisplayName(Model model) {
         if (model == null) return DEFAULT_MODEL_TEXT;
-        return model.getName();
+        String name = model.getName();
+        return name != null && !name.trim().isEmpty() ? name : "Безымянная модель";
     }
 
     private void updateModelInfo(Model model) {
