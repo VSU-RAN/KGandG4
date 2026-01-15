@@ -407,7 +407,7 @@ public class CameraPanelController implements Initializable {
             activeCamera.orbit(orbitX, orbitY);
 
         } else if (rightMouseButtonPressed) {
-            activeCamera.movePositionAndTarget(new Vector3f(
+            activeCamera.movePositionAndTargetTest(new Vector3f(
                     (float) dx * MOUSE_PAN_SENSITIVITY,
                     (float) -dy * MOUSE_PAN_SENSITIVITY,
                     0

@@ -377,7 +377,7 @@ public class Camera {
 
     Vector3f getDirection() {
         Vector3f result = this.target.get();
-        result.subtractV(this.position.get());
+        result.subtract(this.position.get());
         return result;
     }
 
