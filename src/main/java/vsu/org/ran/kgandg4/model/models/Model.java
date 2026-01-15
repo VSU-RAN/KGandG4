@@ -1,9 +1,9 @@
 package vsu.org.ran.kgandg4.model.models;
 
+import java.util.ArrayList;
+
 import math.vector.Vector2f;
 import math.vector.Vector3f;
-
-import java.util.ArrayList;
 
 public class Model {
 

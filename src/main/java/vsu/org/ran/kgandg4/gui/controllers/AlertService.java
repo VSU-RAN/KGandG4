@@ -1,15 +1,15 @@
 package vsu.org.ran.kgandg4.gui.controllers;
 
-import javafx.application.Platform;
+import java.util.Optional;
+
+import javafx.stage.Window;
 import javafx.scene.control.Alert;
+import javafx.application.Platform;
 import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
-import javafx.stage.Window;
+import vsu.org.ran.kgandg4.gui.PanelManager;
 import vsu.org.ran.kgandg4.dependecyIndjection.annotations.Autowired;
 import vsu.org.ran.kgandg4.dependecyIndjection.annotations.Component;
-import vsu.org.ran.kgandg4.gui.PanelManager;
-
-import java.util.Optional;
 
 @Component
 public class AlertService {

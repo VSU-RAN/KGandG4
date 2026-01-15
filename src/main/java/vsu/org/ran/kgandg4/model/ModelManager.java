@@ -1,17 +1,17 @@
 package vsu.org.ran.kgandg4.model;
 
-import vsu.org.ran.kgandg4.IO.ObjWriter;
-import vsu.org.ran.kgandg4.dependecyIndjection.annotations.Autowired;
-import vsu.org.ran.kgandg4.dependecyIndjection.annotations.Component;
-import vsu.org.ran.kgandg4.model.models.Model;
-import vsu.org.ran.kgandg4.model.models.TriangulatedModel;
-import vsu.org.ran.kgandg4.normals.NormalCalculator;
-import vsu.org.ran.kgandg4.IO.objReader.ObjReader;
-import vsu.org.ran.kgandg4.triangulation.Triangulator;
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+
+import vsu.org.ran.kgandg4.IO.ObjWriter;
+import vsu.org.ran.kgandg4.model.models.Model;
+import vsu.org.ran.kgandg4.IO.objReader.ObjReader;
+import vsu.org.ran.kgandg4.normals.NormalCalculator;
+import vsu.org.ran.kgandg4.triangulation.Triangulator;
+import vsu.org.ran.kgandg4.model.models.TriangulatedModel;
+import vsu.org.ran.kgandg4.dependecyIndjection.annotations.Autowired;
+import vsu.org.ran.kgandg4.dependecyIndjection.annotations.Component;
 
 @Component
 public class ModelManager {

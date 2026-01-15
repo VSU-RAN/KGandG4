@@ -1,13 +1,14 @@
 package vsu.org.ran.kgandg4.render_engine.render;
 
-import javafx.animation.Animation;
+import javafx.util.Duration;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
+import javafx.animation.Animation;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.util.Duration;
+
+import vsu.org.ran.kgandg4.dependecyIndjection.annotations.Value;
 import vsu.org.ran.kgandg4.dependecyIndjection.annotations.Autowired;
 import vsu.org.ran.kgandg4.dependecyIndjection.annotations.Component;
-import vsu.org.ran.kgandg4.dependecyIndjection.annotations.Value;
 
 @Component
 public class RenderLoopService {

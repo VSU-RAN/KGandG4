@@ -1,21 +1,23 @@
 package vsu.org.ran.kgandg4.gui;
 
-import javafx.application.Platform;
 import javafx.fxml.FXML;
+import javafx.stage.Stage;
+import javafx.scene.layout.VBox;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.control.Button;
+import javafx.application.Platform;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.SplitPane;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.VBox;
-import javafx.stage.Stage;
+
 import math.vector.Vector3f;
-import vsu.org.ran.kgandg4.dependecyIndjection.annotations.Autowired;
-import vsu.org.ran.kgandg4.dependecyIndjection.annotations.Component;
+
 import vsu.org.ran.kgandg4.gui.controllers.*;
 import vsu.org.ran.kgandg4.model.ModelManager;
 import vsu.org.ran.kgandg4.camera.CameraManager;
 import vsu.org.ran.kgandg4.render_engine.render.RenderLoopService;
+import vsu.org.ran.kgandg4.dependecyIndjection.annotations.Autowired;
+import vsu.org.ran.kgandg4.dependecyIndjection.annotations.Component;
 
 @Component
 public class MainController {

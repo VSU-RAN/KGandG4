@@ -1,16 +1,16 @@
 package vsu.org.ran.kgandg4;
 
-import javafx.application.Application;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Scene;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.VBox;
-import javafx.stage.Stage;
-import vsu.org.ran.kgandg4.config.AppConfig;
-import vsu.org.ran.kgandg4.dependecyIndjection.DIContainer;
-
 import java.io.IOException;
 import java.util.Objects;
+
+import javafx.stage.Stage;
+import javafx.scene.Scene;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.layout.VBox;
+import javafx.application.Application;
+
+import vsu.org.ran.kgandg4.config.AppConfig;
+import vsu.org.ran.kgandg4.dependecyIndjection.DIContainer;
 
 public class Simple3DViewer extends Application {
     private static DIContainer diContainer;

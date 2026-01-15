@@ -1,7 +1,7 @@
 package vsu.org.ran.kgandg4.config;
 
-import vsu.org.ran.kgandg4.dependecyIndjection.annotations.Component;
 import vsu.org.ran.kgandg4.dependecyIndjection.annotations.Value;
+import vsu.org.ran.kgandg4.dependecyIndjection.annotations.Component;
 
 @Component
 public class AppConfig {

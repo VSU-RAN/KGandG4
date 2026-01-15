@@ -1,18 +1,18 @@
 package vsu.org.ran.kgandg4.gui;
 
-import javafx.fxml.FXMLLoader;
+import java.util.Map;
+import java.util.HashMap;
+import java.io.IOException;
+
 import javafx.scene.Parent;
-import javafx.scene.layout.VBox;
 import javafx.stage.Window;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.layout.VBox;
+
 import vsu.org.ran.kgandg4.Simple3DViewer;
+import vsu.org.ran.kgandg4.gui.controllers.*;
 import vsu.org.ran.kgandg4.dependecyIndjection.DIContainer;
 import vsu.org.ran.kgandg4.dependecyIndjection.annotations.Component;
-import vsu.org.ran.kgandg4.gui.controllers.*;
-
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
 
 @Component
 public class PanelManager {

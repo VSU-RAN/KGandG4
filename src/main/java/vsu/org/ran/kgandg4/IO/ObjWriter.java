@@ -1,18 +1,17 @@
 package vsu.org.ran.kgandg4.IO;
 
-
+import java.util.Locale;
+import java.nio.file.Path;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 
 import math.vector.Vector2f;
 import math.vector.Vector3f;
+
 import vsu.org.ran.kgandg4.model.models.Model;
 import vsu.org.ran.kgandg4.model.models.Polygon;
-
-import java.io.FileWriter;
-import java.io.IOException;
-import java.nio.file.Path;
-import java.text.DecimalFormat;
-import java.text.DecimalFormatSymbols;
-import java.util.Locale;
 
 public class ObjWriter {
 

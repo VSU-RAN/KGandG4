@@ -1,16 +1,16 @@
 package vsu.org.ran.kgandg4.dependecyIndjection;
 
 import vsu.org.ran.kgandg4.config.PropertyResolver;
+import vsu.org.ran.kgandg4.dependecyIndjection.annotations.Value;
 import vsu.org.ran.kgandg4.dependecyIndjection.annotations.Autowired;
 import vsu.org.ran.kgandg4.dependecyIndjection.annotations.PostConstruct;
-import vsu.org.ran.kgandg4.dependecyIndjection.annotations.Value;
 
+import java.util.*;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.*;
+import java.lang.reflect.InvocationTargetException;
 
 public class DIContainer {
     private final Map<Class<?>, Object> beans = new HashMap<>();

@@ -1,14 +1,13 @@
 package vsu.org.ran.kgandg4.triangulation.utils;
 
-
-import vsu.org.ran.kgandg4.model.models.Model;
-import vsu.org.ran.kgandg4.model.models.Polygon;
+import java.util.Map;
+import java.util.List;
+import java.util.ArrayList;
 
 import math.vector.Vector3f;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import vsu.org.ran.kgandg4.model.models.Model;
+import vsu.org.ran.kgandg4.model.models.Polygon;
 
 public class PolygonUtil {
     public static Polygon createNewPolygon(

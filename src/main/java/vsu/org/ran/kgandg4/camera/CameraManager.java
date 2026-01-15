@@ -1,14 +1,14 @@
 package vsu.org.ran.kgandg4.camera;
 
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.ReadOnlyObjectWrapper;
 
 import math.vector.Vector3f;
+import vsu.org.ran.kgandg4.dependecyIndjection.annotations.Value;
 import vsu.org.ran.kgandg4.dependecyIndjection.annotations.Component;
 import vsu.org.ran.kgandg4.dependecyIndjection.annotations.PostConstruct;
-import vsu.org.ran.kgandg4.dependecyIndjection.annotations.Value;
 
 @Component
 public class CameraManager {

@@ -2,18 +2,18 @@ package vsu.org.ran.kgandg4.render_engine.render;
 
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
+
 import math.matrix.Matrix4f;
 import math.vector.Vector3f;
+
 import vsu.org.ran.kgandg4.camera.Camera;
-import vsu.org.ran.kgandg4.dependecyIndjection.annotations.Autowired;
-import vsu.org.ran.kgandg4.dependecyIndjection.annotations.Component;
-import vsu.org.ran.kgandg4.dependecyIndjection.annotations.PostConstruct;
-import vsu.org.ran.kgandg4.dependecyIndjection.annotations.Value;
-import vsu.org.ran.kgandg4.model.models.TriangulatedModel;
-import vsu.org.ran.kgandg4.render_engine.Lightning;
 import vsu.org.ran.kgandg4.render_engine.Texture;
 import vsu.org.ran.kgandg4.render_engine.Zbuffer;
-
+import vsu.org.ran.kgandg4.render_engine.Lightning;
+import vsu.org.ran.kgandg4.model.models.TriangulatedModel;
+import vsu.org.ran.kgandg4.dependecyIndjection.annotations.Value;
+import vsu.org.ran.kgandg4.dependecyIndjection.annotations.Component;
+import vsu.org.ran.kgandg4.dependecyIndjection.annotations.PostConstruct;
 import static vsu.org.ran.kgandg4.render_engine.GraphicConveyor.rotateScaleTranslate;
 
 @Component

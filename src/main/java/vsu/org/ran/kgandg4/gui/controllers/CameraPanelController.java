@@ -1,20 +1,21 @@
 package vsu.org.ran.kgandg4.gui.controllers;
 
-import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
-import javafx.scene.control.*;
-import javafx.scene.layout.VBox;
-import vsu.org.ran.kgandg4.dependecyIndjection.annotations.Autowired;
-import vsu.org.ran.kgandg4.dependecyIndjection.annotations.Component;
-import vsu.org.ran.kgandg4.camera.Camera;
-import vsu.org.ran.kgandg4.camera.CameraManager;
-
-import math.vector.Vector3f;
-import vsu.org.ran.kgandg4.dependecyIndjection.annotations.Value;
-import vsu.org.ran.kgandg4.gui.PanelController;
-
 import java.net.URL;
 import java.util.ResourceBundle;
+
+import javafx.fxml.FXML;
+import javafx.scene.control.*;
+import javafx.scene.layout.VBox;
+import javafx.fxml.Initializable;
+
+import math.vector.Vector3f;
+
+import vsu.org.ran.kgandg4.camera.Camera;
+import vsu.org.ran.kgandg4.gui.PanelController;
+import vsu.org.ran.kgandg4.camera.CameraManager;
+import vsu.org.ran.kgandg4.dependecyIndjection.annotations.Value;
+import vsu.org.ran.kgandg4.dependecyIndjection.annotations.Autowired;
+import vsu.org.ran.kgandg4.dependecyIndjection.annotations.Component;
 
 @Component
 public class CameraPanelController implements Initializable, PanelController {

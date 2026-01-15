@@ -2,12 +2,11 @@ package vsu.org.ran.kgandg4.gui.controllers;
 
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.Parent;
+
 import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
-import vsu.org.ran.kgandg4.dependecyIndjection.annotations.Component;
-import vsu.org.ran.kgandg4.gui.MainController;
 import vsu.org.ran.kgandg4.gui.PanelController;
+import vsu.org.ran.kgandg4.dependecyIndjection.annotations.Component;
 
 import java.net.URL;
 import java.util.ResourceBundle;

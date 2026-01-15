@@ -1,12 +1,15 @@
 package vsu.org.ran.kgandg4.normals;
 
+
+import java.util.List;
+import java.util.ArrayList;
+
 import math.vector.Vector3f;
-import vsu.org.ran.kgandg4.dependecyIndjection.annotations.Component;
+
 import vsu.org.ran.kgandg4.model.models.Model;
 import vsu.org.ran.kgandg4.model.models.Polygon;
+import vsu.org.ran.kgandg4.dependecyIndjection.annotations.Component;
 
-import java.util.ArrayList;
-import java.util.List;
 
 @Component
 public class FaceNormalCalculator implements NormalCalculator{

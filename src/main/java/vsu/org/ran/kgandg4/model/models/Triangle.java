@@ -1,13 +1,7 @@
 package vsu.org.ran.kgandg4.model.models;
 
-
 import math.vector.Vector2f;
 import math.vector.Vector3f;
-import utils.MathUtil;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 public class Triangle extends Polygon {
     private Vector3f[] worldVertices;

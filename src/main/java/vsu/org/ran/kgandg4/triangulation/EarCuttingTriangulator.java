@@ -1,19 +1,18 @@
 package vsu.org.ran.kgandg4.triangulation;
 
-import vsu.org.ran.kgandg4.model.models.Model;
-import vsu.org.ran.kgandg4.model.models.Polygon;
-import vsu.org.ran.kgandg4.model.models.Triangle;
-import vsu.org.ran.kgandg4.triangulation.utils.ByPassDirection;
-import vsu.org.ran.kgandg4.triangulation.utils.Constants;
-import vsu.org.ran.kgandg4.triangulation.utils.PolygonUtil;
-
-import utils.MathUtil;
-import math.vector.Vector3f;
-
 import java.util.*;
 import java.util.function.Function;
 
 import static java.lang.Math.*;
+
+import utils.MathUtil;
+import math.vector.Vector3f;
+
+import vsu.org.ran.kgandg4.model.models.Model;
+import vsu.org.ran.kgandg4.model.models.Polygon;
+import vsu.org.ran.kgandg4.triangulation.utils.Constants;
+import vsu.org.ran.kgandg4.triangulation.utils.PolygonUtil;
+import vsu.org.ran.kgandg4.triangulation.utils.ByPassDirection;
 
 public class EarCuttingTriangulator implements Triangulator {
     @Override

@@ -1,12 +1,12 @@
 package vsu.org.ran.kgandg4.IO;
 
-import javafx.stage.FileChooser;
-import javafx.stage.Window;
-import vsu.org.ran.kgandg4.dependecyIndjection.annotations.Component;
-import vsu.org.ran.kgandg4.dependecyIndjection.annotations.Value;
-
 import java.io.File;
 import java.util.Optional;
+
+import javafx.stage.Window;
+import javafx.stage.FileChooser;
+import vsu.org.ran.kgandg4.dependecyIndjection.annotations.Value;
+import vsu.org.ran.kgandg4.dependecyIndjection.annotations.Component;
 
 @Component
 public class FileDialogService {

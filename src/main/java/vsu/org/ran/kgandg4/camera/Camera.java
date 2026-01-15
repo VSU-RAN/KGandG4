@@ -1,5 +1,7 @@
 package vsu.org.ran.kgandg4.camera;
 
+import java.util.Objects;
+
 import javafx.beans.property.FloatProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleFloatProperty;
@@ -8,13 +10,12 @@ import javafx.beans.property.SimpleObjectProperty;
 import math.quaternion.Quat4f;
 import math.vector.Vector3f;
 import math.matrix.Matrix4f;
-import vsu.org.ran.kgandg4.render_engine.GraphicConveyor;
 import math.vector.Vector4f;
-import vsu.cs.AffineBuilder;
-import vsu.cs.transformations.RotateTransformationOnQuad;
-import vsu.cs.transformations.TranslationTransformation;
 
-import java.util.Objects;
+import vsu.org.ran.kgandg4.render_engine.GraphicConveyor;
+import vsu.org.ran.kgandg4.affineTransformations.AffineBuilder;
+import vsu.org.ran.kgandg4.affineTransformations.transformations.TranslationTransformation;
+import vsu.org.ran.kgandg4.affineTransformations.transformations.RotateTransformationOnQuad;
 
 public class Camera {
     private final int id;

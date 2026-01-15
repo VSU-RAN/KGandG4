@@ -1,15 +1,17 @@
 package vsu.org.ran.kgandg4.dependecyIndjection;
 
-import vsu.org.ran.kgandg4.dependecyIndjection.annotations.Component;
-
 import java.io.File;
 import java.io.IOException;
-import java.net.URISyntaxException;
+
 import java.net.URL;
+
+import java.util.List;
 import java.util.ArrayList;
 import java.util.Enumeration;
-import java.util.List;
 import java.util.jar.JarFile;
+import java.net.URISyntaxException;
+
+import vsu.org.ran.kgandg4.dependecyIndjection.annotations.Component;
 
 public class ClassScanner {
     private static final String PACKAGE_SEPARATOR = ".";

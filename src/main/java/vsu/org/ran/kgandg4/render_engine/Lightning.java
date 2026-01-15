@@ -1,10 +1,12 @@
 package vsu.org.ran.kgandg4.render_engine;
 
 import javafx.scene.paint.Color;
+
 import math.vector.Vector3f;
+
+import vsu.org.ran.kgandg4.dependecyIndjection.annotations.Value;
 import vsu.org.ran.kgandg4.dependecyIndjection.annotations.Component;
 import vsu.org.ran.kgandg4.dependecyIndjection.annotations.PostConstruct;
-import vsu.org.ran.kgandg4.dependecyIndjection.annotations.Value;
 
 import static math.vector.Vector3f.dotProduct;
 

@@ -1,15 +1,19 @@
 package vsu.org.ran.kgandg4.render_engine;
 
+import java.io.IOException;
+import java.util.concurrent.CompletableFuture;
+
 import javafx.scene.image.*;
 import javafx.scene.paint.Color;
+
 import vsu.org.ran.kgandg4.IO.FileDialogService;
+import vsu.org.ran.kgandg4.dependecyIndjection.annotations.Value;
 import vsu.org.ran.kgandg4.dependecyIndjection.annotations.Autowired;
 import vsu.org.ran.kgandg4.dependecyIndjection.annotations.Component;
 import vsu.org.ran.kgandg4.dependecyIndjection.annotations.PostConstruct;
-import vsu.org.ran.kgandg4.dependecyIndjection.annotations.Value;
 
-import java.io.IOException;
-import java.util.concurrent.CompletableFuture;
+
+
 
 @Component
 public class Texture {

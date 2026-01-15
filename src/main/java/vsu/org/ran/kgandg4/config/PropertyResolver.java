@@ -1,10 +1,10 @@
 package vsu.org.ran.kgandg4.config;
 
-import vsu.org.ran.kgandg4.dependecyIndjection.annotations.Component;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
+
+import vsu.org.ran.kgandg4.dependecyIndjection.annotations.Component;
 
 @Component
 public class PropertyResolver {

@@ -1,8 +1,8 @@
 package vsu.org.ran.kgandg4.render_engine;
 
-import vsu.org.ran.kgandg4.dependecyIndjection.annotations.Component;
-
 import java.util.Arrays;
+
+import vsu.org.ran.kgandg4.dependecyIndjection.annotations.Component;
 
 @Component
 public class Zbuffer {

@@ -1,15 +1,14 @@
 package vsu.org.ran.kgandg4.render_engine;
 
-
 import math.point.Point2f;
 import math.vector.Vector3f;
 import math.vector.Vector4f;
 import math.matrix.Matrix4f;
 import math.quaternion.Quat4f;
-import vsu.cs.AffineBuilder;
-import vsu.cs.transformations.RotateTransformationOnQuad;
-import vsu.cs.transformations.TranslationTransformation;
 
+import vsu.org.ran.kgandg4.affineTransformations.AffineBuilder;
+import vsu.org.ran.kgandg4.affineTransformations.transformations.TranslationTransformation;
+import vsu.org.ran.kgandg4.affineTransformations.transformations.RotateTransformationOnQuad;
 
 public class GraphicConveyor {
 

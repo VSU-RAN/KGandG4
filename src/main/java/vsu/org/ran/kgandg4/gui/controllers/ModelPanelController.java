@@ -1,29 +1,34 @@
 package vsu.org.ran.kgandg4.gui.controllers;
 
-import javafx.application.Platform;
-import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
-import javafx.scene.Parent;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.ScrollPane;
-import javafx.scene.image.ImageView;
-import javafx.scene.layout.VBox;
-import vsu.org.ran.kgandg4.IO.FileDialogService;
-import vsu.org.ran.kgandg4.dependecyIndjection.annotations.Component;
-import vsu.org.ran.kgandg4.gui.ConstantsAndStyles;
-import vsu.org.ran.kgandg4.dependecyIndjection.annotations.Autowired;
-import vsu.org.ran.kgandg4.gui.PanelController;
-import vsu.org.ran.kgandg4.gui.PanelManager;
-import vsu.org.ran.kgandg4.model.ModelManager;
-import vsu.org.ran.kgandg4.model.models.TriangulatedModel;
-import vsu.org.ran.kgandg4.render_engine.Texture;
+import java.net.URL;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URL;
+
 import java.util.ResourceBundle;
 import java.util.concurrent.CompletableFuture;
+
+import javafx.fxml.FXML;
+import javafx.fxml.Initializable;
+
+import javafx.scene.Parent;
+import javafx.scene.layout.VBox;
+import javafx.scene.control.Label;
+import javafx.scene.control.Button;
+import javafx.scene.image.ImageView;
+import javafx.scene.control.ScrollPane;
+
+import javafx.application.Platform;
+
+import vsu.org.ran.kgandg4.gui.PanelManager;
+import vsu.org.ran.kgandg4.model.ModelManager;
+import vsu.org.ran.kgandg4.gui.PanelController;
+import vsu.org.ran.kgandg4.IO.FileDialogService;
+import vsu.org.ran.kgandg4.render_engine.Texture;
+import vsu.org.ran.kgandg4.gui.ConstantsAndStyles;
+import vsu.org.ran.kgandg4.model.models.TriangulatedModel;
+import vsu.org.ran.kgandg4.dependecyIndjection.annotations.Autowired;
+import vsu.org.ran.kgandg4.dependecyIndjection.annotations.Component;
 
 @Component
 public class ModelPanelController implements Initializable, PanelController {

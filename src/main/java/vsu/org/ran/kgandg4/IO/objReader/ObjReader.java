@@ -1,15 +1,14 @@
 package vsu.org.ran.kgandg4.IO.objReader;
 
-
+import java.util.Arrays;
+import java.util.Scanner;
+import java.util.ArrayList;
 
 import math.vector.Vector2f;
 import math.vector.Vector3f;
+
 import vsu.org.ran.kgandg4.model.models.Model;
 import vsu.org.ran.kgandg4.model.models.Polygon;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Scanner;
 
 public class ObjReader {
 

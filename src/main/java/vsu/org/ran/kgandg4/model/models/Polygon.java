@@ -1,8 +1,8 @@
 package vsu.org.ran.kgandg4.model.models;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.ArrayList;
 
 public class Polygon {
 

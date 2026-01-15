@@ -1,24 +1,20 @@
 package vsu.org.ran.kgandg4.gui.controllers;
 
+import java.net.URL;
+import java.util.ResourceBundle;
+
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.Parent;
 import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+
+import vsu.org.ran.kgandg4.gui.PanelController;
+import vsu.org.ran.kgandg4.gui.components.HueSlider;
+import vsu.org.ran.kgandg4.render_engine.render.Scene;
+import vsu.org.ran.kgandg4.gui.components.ColorPalette;
 import vsu.org.ran.kgandg4.dependecyIndjection.annotations.Autowired;
 import vsu.org.ran.kgandg4.dependecyIndjection.annotations.Component;
-import vsu.org.ran.kgandg4.dependecyIndjection.annotations.Value;
-import vsu.org.ran.kgandg4.gui.components.ColorPalette;
-import vsu.org.ran.kgandg4.gui.components.HueSlider;
-import vsu.org.ran.kgandg4.gui.MainController;
-import vsu.org.ran.kgandg4.gui.PanelController;
-import vsu.org.ran.kgandg4.render_engine.render.RenderContext;
-import vsu.org.ran.kgandg4.render_engine.render.RenderMode;
-import vsu.org.ran.kgandg4.render_engine.render.Scene;
-
-import java.net.URL;
-import java.util.ResourceBundle;
 
 @Component
 public class RenderPanelController implements Initializable, PanelController {

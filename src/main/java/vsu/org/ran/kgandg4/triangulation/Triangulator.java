@@ -1,12 +1,11 @@
 package vsu.org.ran.kgandg4.triangulation;
 
+import java.util.List;
+import java.util.ArrayList;
+
 import vsu.org.ran.kgandg4.model.models.Model;
 import vsu.org.ran.kgandg4.model.models.Polygon;
 import vsu.org.ran.kgandg4.model.models.TriangulatedModel;
-
-import java.util.ArrayList;
-import java.util.List;
-
 
 public interface Triangulator {
     /**
