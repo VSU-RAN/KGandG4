@@ -33,12 +33,12 @@ public class EarCuttingTriangulator implements Triangulator {
         List<Vector3f> verticesList = new ArrayList<>();
         int indexOfVertexInPolygon = 0;
         for (Integer vertexIndex : verticesIndexes) {
-            vertices.put(vertexIndex, model.vertices.get(vertexIndex));
+            vertices.put(vertexIndex, model.getVertices().get(vertexIndex));
             if (vertexIndex < polygon.getTextureVertexIndices().size())
                 textureIndexesMap.put(vertexIndex, polygon.getTextureVertexIndices().get(indexOfVertexInPolygon));
             if (vertexIndex < polygon.getNormalIndices().size())
                 normalsIndexesMap.put(vertexIndex, polygon.getNormalIndices().get(indexOfVertexInPolygon));
-            verticesList.add(model.vertices.get(vertexIndex));
+            verticesList.add(model.getVertices().get(vertexIndex));
             indexOfVertexInPolygon++;
         }
 

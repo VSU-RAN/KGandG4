@@ -14,20 +14,20 @@ public interface Triangulator {
      * @param model - пользовательская модель
      */
     default void triangulateModel(Model model) {
-        ArrayList<Polygon> newPolygons = new ArrayList<>(Math.max(model.vertices.size() - 2, 0));
-        for (Polygon polygon : model.polygons) {
+        ArrayList<Polygon> newPolygons = new ArrayList<>(Math.max(model.getVertices().size() - 2, 0));
+        for (Polygon polygon : model.getPolygons()) {
             List<Polygon> clipped = triangulatePolygon(model, polygon);
             newPolygons.addAll(clipped);
         }
-        model.polygons = newPolygons;
+        model.setPolygons(newPolygons);
     }
 
     default TriangulatedModel createTriangulatedModel(Model model) {
         TriangulatedModel triangulatedModel = new TriangulatedModel();
-        triangulatedModel.vertices = new ArrayList<>(model.vertices);
-        triangulatedModel.normals = new ArrayList<>(model.normals);
-        triangulatedModel.textureVertices = new ArrayList<>(model.textureVertices);
-        triangulatedModel.polygons = new ArrayList<>(model.polygons);
+        triangulatedModel.setVertices(new ArrayList<>(model.getVertices()));
+        triangulatedModel.setNormals(new ArrayList<>(model.getNormals()));
+        triangulatedModel.setTextureVertices(new ArrayList<>(model.getTextureVertices()));
+        triangulatedModel.setPolygons(new ArrayList<>(model.getPolygons()));
         triangulateModel(triangulatedModel);
         return triangulatedModel;
     }

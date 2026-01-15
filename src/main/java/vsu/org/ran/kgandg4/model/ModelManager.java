@@ -7,7 +7,6 @@ import javafx.collections.ObservableList;
 import vsu.org.ran.kgandg4.IO.ObjWriter;
 import vsu.org.ran.kgandg4.dependecyIndjection.annotations.Autowired;
 import vsu.org.ran.kgandg4.dependecyIndjection.annotations.Component;
-import vsu.org.ran.kgandg4.dependecyIndjection.annotations.PostConstruct;
 import vsu.org.ran.kgandg4.model.models.Model;
 import vsu.org.ran.kgandg4.model.models.TriangulatedModel;
 import vsu.org.ran.kgandg4.normals.NormalCalculator;
@@ -26,65 +25,38 @@ public class ModelManager {
     @Autowired
     private NormalCalculator normalCalculator;
 
-    private ObservableList<TriangulatedModel> modelList = FXCollections.observableArrayList();
+    private ObservableList<Model> modelList = FXCollections.observableArrayList();
     private int nextId = 0;
-    private final ReadOnlyObjectWrapper<TriangulatedModel> activeModelProperty = new ReadOnlyObjectWrapper<>();
+    private final ReadOnlyObjectWrapper<Model> activeModelProperty = new ReadOnlyObjectWrapper<>();
 
-    @PostConstruct
-    public void init() {
-    }
-
-    public TriangulatedModel loadModel(File file) throws IOException {
+    public Model loadModel(File file) throws IOException {
         String content = Files.readString(file.toPath());
         Model loadModel = ObjReader.read(content);
+        loadModel.setName(file.getName());
 
-        TriangulatedModel triangulatedModel = triangulator.createTriangulatedModel(loadModel);
+        return this.addModel(loadModel);
+    }
+
+    public Model addModel(Model model) {
+        TriangulatedModel triangulatedModel = triangulator.createTriangulatedModel(model);
 
         normalCalculator.calculateNormals(triangulatedModel);
 
-        triangulatedModel.id = nextId++;
-        triangulatedModel.name = file.getName();
-        triangulatedModel.visible = true;
+        triangulatedModel.setId(nextId++);
+        triangulatedModel.setVisible(true);
 
         this.modelList.add(triangulatedModel);
 
         // Если это первая модель или нет активной модели, делаем ее активной
         if (modelList.size() == 1 || activeModelProperty.get() == null) {
-            switchToModelById(triangulatedModel.id);
+            switchToModelById(triangulatedModel.getId());
         }
+
         return triangulatedModel;
     }
 
-    public TriangulatedModel addModel() {
-        TriangulatedModel model = new TriangulatedModel();
-        model.id = nextId++;
-        model.name = "Model " + model.id;
-        model.visible = true;
-        this.modelList.add(model);
 
-        // Если это первая модель, делаем ее активной
-        if (modelList.size() == 1 || activeModelProperty.get() == null) {
-            switchToModelById(model.id);
-        }
 
-        return model;
-    }
-
-    public TriangulatedModel addModel(TriangulatedModel model) {
-        model.id = nextId++;
-        if (model.name == null) {
-            model.name = "Model " + model.id;
-        }
-        model.visible = true;
-        this.modelList.add(model);
-
-        // Если это первая модель, делаем ее активной
-        if (modelList.size() == 1 || activeModelProperty.get() == null) {
-            switchToModelById(model.id);
-        }
-
-        return model;
-    }
 
     public void removeModel(TriangulatedModel model) {
         if (modelList.size() <= 1) {
@@ -101,10 +73,7 @@ public class ModelManager {
             throw new IllegalArgumentException("Нельзя удалить последнюю модель");
         }
 
-        TriangulatedModel model = modelList.stream()
-                .filter(m -> m.id == id)
-                .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("Нет модели с таким ID: " + id));
+        Model model = this.getModelById(id);
 
         modelList.remove(model);
         if (activeModelProperty.get() != null && activeModelProperty.get().equals(model)) {
@@ -114,18 +83,18 @@ public class ModelManager {
 
     public void switchToModel(int index) {
         if (index >= 0 && index < modelList.size()) {
-            TriangulatedModel newActive = modelList.get(index);
+            Model newActive = modelList.get(index);
             activeModelProperty.set(newActive);
         }
     }
 
     public void switchToModelById(int id) {
-        TriangulatedModel model = getModelById(id);
+        Model model = getModelById(id);
         activeModelProperty.set(model);
     }
 
-    public TriangulatedModel switchToNextModel() {
-        TriangulatedModel activeModel = activeModelProperty.get();
+    public Model switchToNextModel() {
+        Model activeModel = activeModelProperty.get();
         if (activeModel == null || modelList.isEmpty()) return activeModel;
 
         int curIndex = modelList.indexOf(activeModel);
@@ -134,27 +103,27 @@ public class ModelManager {
         return activeModel;
     }
 
-    public ObjectProperty<TriangulatedModel> activeModelProperty() {
+    public ObjectProperty<Model> activeModelProperty() {
         return activeModelProperty;
     }
 
-    public TriangulatedModel getActiveModel() {
+    public Model getCurrentModel() {
         return activeModelProperty.get();
     }
 
-    public TriangulatedModel getModelById(int id) {
+    public Model getModelById(int id) {
         return modelList.stream()
-                .filter(model -> model.id == id)
+                .filter(model -> model.getId() == id)
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("Нет модели с таким ID: " + id));
     }
 
-    public ObservableList<TriangulatedModel> getModels() {
+    public ObservableList<Model> getModels() {
         return FXCollections.unmodifiableObservableList(this.modelList);
     }
 
     public void saveModel(File file) throws IOException {
-        TriangulatedModel modelToSave = getActiveModel();
+        Model modelToSave = getCurrentModel();
         if (modelToSave == null) {
             throw new IllegalStateException("Нет активной модели для сохранения");
         }
@@ -168,27 +137,10 @@ public class ModelManager {
         ObjWriter.write(model, file.toPath());
     }
 
-    public TriangulatedModel getCurrentModel() {
-        return getActiveModel();
-    }
-
     @Deprecated
-    public void setCurrentModel(TriangulatedModel model) {
+    public void setCurrentModel(Model model) {
         if (model != null && modelList.contains(model)) {
             activeModelProperty.set(model);
         }
-    }
-
-    public boolean hasModels() {
-        return !modelList.isEmpty();
-    }
-
-    public int getModelCount() {
-        return modelList.size();
-    }
-
-    public void clearAllModels() {
-        modelList.clear();
-        activeModelProperty.set(null);
     }
 }

@@ -11,7 +11,7 @@ import vsu.org.ran.kgandg4.gui.PanelController;
 import vsu.org.ran.kgandg4.gui.ConstantsAndStyles;
 import vsu.org.ran.kgandg4.model.ModelManager;
 import vsu.org.ran.kgandg4.model.modelEdit.ModelTools;
-import vsu.org.ran.kgandg4.model.models.TriangulatedModel;
+import vsu.org.ran.kgandg4.model.models.Model;
 
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -55,7 +55,7 @@ public class EditPanelController implements Initializable, PanelController {
             return;
         }
 
-        TriangulatedModel model = modelManager.getCurrentModel();
+        Model model = modelManager.getCurrentModel();
 
 
          Vector3f clickPoint = new Vector3f((float)x, (float)y, (float)z);
@@ -84,23 +84,25 @@ public class EditPanelController implements Initializable, PanelController {
             return;
         }
 
-        TriangulatedModel model = modelManager.getCurrentModel();
+        Model model = modelManager.getCurrentModel();
 
         if (selectedVertexIndex != null) {
-            System.out.println("Would delete vertex #" + selectedVertexIndex);
-            TODO: ModelTools.removeVertex(model, selectedVertexIndex);
-            selectedVertexIndex = null;
-
-            // Показываем уведомление
-            alertService.showInfo("Успех", "Вершина успешно удалена");
+            try {
+                ModelTools.removeVertex(model, selectedVertexIndex);
+                alertService.showInfo("Успех", "Вершина успешно удалена");
+                selectedVertexIndex = null;
+            } catch (Exception e) {
+                alertService.showError("Ошибка", "Не удалось удалить вершину: " + e.getMessage());
+            }
 
         } else if (selectedPolygonIndex != null) {
-            System.out.println("Would delete polygon #" + selectedPolygonIndex);
-            TODO: ModelTools.removePolygon(model, selectedPolygonIndex);
-            selectedPolygonIndex = null;
-
-            // Показываем уведомление
-            alertService.showInfo("Успех", "Полигон успешно удален");
+            try {
+                ModelTools.removePolygon(model, selectedPolygonIndex);
+                alertService.showInfo("Успех", "Полигон успешно удален");
+                selectedPolygonIndex = null;
+            } catch (Exception e) {
+                alertService.showError("Ошибка", "Не удалось удалить полигон: " + e.getMessage());
+            }
         } else {
             alertService.showInfo("Предупреждение", "Не выбран элемент для удаления");
         }
@@ -115,25 +117,28 @@ public class EditPanelController implements Initializable, PanelController {
     @FXML
     public void deleteAll() {
         if (modelManager.getCurrentModel() == null) {
+            alertService.showInfo("Предупреждение", "Нет активной модели");
             return;
         }
 
         boolean confirmed = alertService.showConfirmation("Подтверждение", "Вы действительно хотите удалить ВСЕ вершины и полигоны?");
 
         if (confirmed) {
-            TriangulatedModel model = modelManager.getCurrentModel();
+            try {
+                Model model = modelManager.getCurrentModel();
 
-            // Временная заглушка
-            System.out.println("Deleting all vertices and polygons...");
+                model.deleteVertices();
+                model.deletePolygons();
+                model.deleteTextureVertices();
+                model.deleteNormals();
 
-            model.vertices.clear();
-            model.polygons.clear();
+                alertService.showInfo("Успех", "Все вершины и полигоны удалены");
 
-            alertService.showInfo("Успех", "Все вершины и полигоны удалены");
-
-            clearSelection();
-            updateModelStats();
-
+                clearSelection();
+                updateModelStats();
+            } catch (Exception e) {
+                alertService.showError("Ошибка", "Не удалось очистить модель: " + e.getMessage());
+            }
         }
 
         updateModelStats();
@@ -149,20 +154,17 @@ public class EditPanelController implements Initializable, PanelController {
             return;
         }
 
-
         try {
             int index = Integer.parseInt(selectedIndexField.getText().trim());
-            TriangulatedModel model = modelManager.getCurrentModel();
+            Model model = modelManager.getCurrentModel();
 
             // Пробуем сначала удалить вершину
-            if (index >= 0 && index < model.vertices.size()) {
-                // TODO: Реальная реализация удаления вершины
+            if (index >= 0 && index < model.getVertices().size()) {
                 ModelTools.removeVertex(model, index);
                 alertService.showInfo("Успех", "Вершина #" + index + " удалена");
             }
             // Если не вершина, пробуем полигон
-            else if (index >= 0 && index < model.polygons.size()) {
-                // TODO: Реальная реализация удаления полигона
+            else if (index >= 0 && index < model.getPolygons().size()) {
                 ModelTools.removePolygon(model, index);
                 alertService.showInfo("Успех", "Полигон #" + index + " удален");
             } else {
@@ -193,7 +195,7 @@ public class EditPanelController implements Initializable, PanelController {
      */
     public void updateModelStats() {
         if (modelManager.getCurrentModel() != null) {
-            TriangulatedModel currentModel = modelManager.getCurrentModel();
+            Model currentModel = modelManager.getCurrentModel();
             modelStatsLabel.setText(currentModel.toString());
         } else {
             modelStatsLabel.setText(ConstantsAndStyles.DEFAULT_MODEL_TEXT);

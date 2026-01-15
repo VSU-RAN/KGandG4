@@ -1,6 +1,7 @@
 package vsu.org.ran.kgandg4.gui.controllers;
 
 import javafx.application.Platform;
+import javafx.collections.ListChangeListener;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Parent;
@@ -14,6 +15,7 @@ import vsu.org.ran.kgandg4.dependecyIndjection.annotations.Autowired;
 import vsu.org.ran.kgandg4.gui.PanelController;
 import vsu.org.ran.kgandg4.gui.PanelManager;
 import vsu.org.ran.kgandg4.model.ModelManager;
+import vsu.org.ran.kgandg4.model.models.Model;
 import vsu.org.ran.kgandg4.model.models.TriangulatedModel;
 import vsu.org.ran.kgandg4.render_engine.Texture;
 
@@ -23,6 +25,8 @@ import java.net.URL;
 import java.util.ResourceBundle;
 import java.util.concurrent.CompletableFuture;
 
+import static vsu.org.ran.kgandg4.gui.ConstantsAndStyles.DEFAULT_MODEL_TEXT;
+
 @Component
 public class ModelPanelController implements Initializable, PanelController {
 
@@ -30,7 +34,7 @@ public class ModelPanelController implements Initializable, PanelController {
     @FXML private VBox modelPanel;
 
     // Элементы для управления списком моделей
-    @FXML private ListView<TriangulatedModel> modelListView;
+    @FXML private ListView<Model> modelListView;
     @FXML private Label activeModelLabel;
     @FXML private Button switchModelButton;
     @FXML private Button nextModelButton;
@@ -92,31 +96,17 @@ public class ModelPanelController implements Initializable, PanelController {
         }
 
         // Настройка отображения моделей в списке
-        modelListView.setCellFactory(lv -> new ListCell<TriangulatedModel>() {
+        modelListView.setCellFactory(lv -> new ListCell<Model>() {
             @Override
-            protected void updateItem(TriangulatedModel model, boolean empty) {
+            protected void updateItem(Model model, boolean empty) {
                 super.updateItem(model, empty);
                 if (empty || model == null) {
                     setText(null);
                     setGraphic(null);
                     setStyle(null);
                 } else {
-                    String displayName = getModelDisplayName(model);
-
-                    // Добавляем иконку для активной модели
-                    StringBuilder text = new StringBuilder(displayName);
-                    if (model.equals(modelManager.getActiveModel())) {
-                        text.append(" ✓");
-                    }
-
-                    setText(text.toString());
-
-                    // Стиль в зависимости от статуса
-                    if (model.equals(modelManager.getActiveModel())) {
-                        setStyle("-fx-text-fill: #007bff; -fx-font-weight: bold;");
-                    } else {
-                        setStyle(null);
-                    }
+                    setText(model.equals(modelManager.getCurrentModel()) ? getModelDisplayName(model) + " ✓" : getModelDisplayName(model));
+                    setStyle(model.equals(modelManager.getCurrentModel()) ? "-fx-text-fill: #007bff; -fx-font-weight: bold;" : null);
                 }
             }
         });
@@ -163,17 +153,17 @@ public class ModelPanelController implements Initializable, PanelController {
         });
 
         // Слушатель для обновления списка при изменении моделей
-        modelManager.getModels().addListener((javafx.collections.ListChangeListener<TriangulatedModel>) change -> {
+        modelManager.getModels().addListener((ListChangeListener<Model>) change -> {
             Platform.runLater(() -> {
                 modelListView.refresh();
                 updateButtonsState();
 
                 // Обновляем метку активной модели
-                TriangulatedModel active = modelManager.getActiveModel();
+                Model active = modelManager.getCurrentModel();
                 if (active != null) {
                     activeModelLabel.setText(getModelDisplayName(active));
                 } else {
-                    activeModelLabel.setText("Нет модели");
+                    activeModelLabel.setText(DEFAULT_MODEL_TEXT);
                 }
             });
         });
@@ -181,35 +171,34 @@ public class ModelPanelController implements Initializable, PanelController {
         // Начальная инициализация - нет начальной модели
         // Активная модель будет установлена при загрузке первой модели
         updateButtonsState();
-        activeModelLabel.setText("Нет модели");
-        modelInfoLabel.setText(ConstantsAndStyles.DEFAULT_MODEL_TEXT);
+        activeModelLabel.setText(DEFAULT_MODEL_TEXT);
+        modelInfoLabel.setText(DEFAULT_MODEL_TEXT);
     }
 
-    private void showOnlySelectedModel(TriangulatedModel selectedModel) {
+    private void showOnlySelectedModel(Model selectedModel) {
         if (modelManager == null) return;
 
-        for (TriangulatedModel model : modelManager.getModels()) {
-            // Показываем только выбранную модель, остальные скрываем
-            model.visible = model.equals(selectedModel);
-        }
+        modelManager.getModels().forEach(model -> {
+            model.setVisible(model.equals(selectedModel));
+        });
 
-        // Обновляем отображение списка
+
         if (modelListView != null) {
             modelListView.refresh();
         }
     }
 
-    private String getModelDisplayName(TriangulatedModel model) {
-        if (model == null) return "Нет модели";
-        return model.name != null ? model.name : "Model " + model.id;
+    private String getModelDisplayName(Model model) {
+        if (model == null) return DEFAULT_MODEL_TEXT;
+        return model.getName();
     }
 
-    private void updateModelInfo(TriangulatedModel model) {
+    private void updateModelInfo(Model model) {
         if (model == null) {
-            modelInfoLabel.setText(ConstantsAndStyles.DEFAULT_MODEL_TEXT);
+            modelInfoLabel.setText(DEFAULT_MODEL_TEXT);
             clearTexturePreview();
         } else {
-            modelInfoLabel.setText(getDetailedModelInfo(model));
+            modelInfoLabel.setText(model.toString());
             if (texture.hasTexture()) {
                 updateTexturePreview();
             } else {
@@ -218,22 +207,12 @@ public class ModelPanelController implements Initializable, PanelController {
         }
     }
 
-    private String getDetailedModelInfo(TriangulatedModel model) {
-        StringBuilder info = new StringBuilder();
-
-        info.append(getModelDisplayName(model)).append("\n");
-        info.append("Вершин: ").append(model.vertices.size())
-                .append("\nПолигонов: ").append(model.polygons.size());
-
-        return info.toString();
-    }
-
     private void updateButtonsState() {
         if (modelManager == null) {
             return;
         }
 
-        TriangulatedModel selected = modelListView != null ?
+        Model selected = modelListView != null ?
                 modelListView.getSelectionModel().getSelectedItem() : null;
 
         boolean hasModels = !modelManager.getModels().isEmpty();
@@ -241,7 +220,7 @@ public class ModelPanelController implements Initializable, PanelController {
 
         if (switchModelButton != null) {
             if (hasSelectedModel) {
-                boolean isActive = selected.equals(modelManager.getActiveModel());
+                boolean isActive = selected.equals(modelManager.getCurrentModel());
                 switchModelButton.setDisable(isActive);
                 switchModelButton.setText(isActive ? "Активна" : "Сделать активной");
             } else {
@@ -270,24 +249,13 @@ public class ModelPanelController implements Initializable, PanelController {
             boolean showAll = showAllCheckbox.isSelected();
 
             if (showAll) {
-                // Включаем галку "Показать все" - показываем все модели
-                for (TriangulatedModel model : modelManager.getModels()) {
-                    model.visible = true;
-                }
-                System.out.println("Все модели показаны");
+                modelManager.getModels().forEach(model -> model.setVisible(true));
             } else {
-                // Выключаем галку "Показать все" - скрываем все модели
-                for (TriangulatedModel model : modelManager.getModels()) {
-                    model.visible = false;
-                }
-                System.out.println("Все модели скрыты");
+                modelManager.getModels().forEach(model -> model.setVisible(false));
 
-                // Но если есть выбранная модель - показываем ее
-                TriangulatedModel selected = modelListView != null ?
-                        modelListView.getSelectionModel().getSelectedItem() : null;
+                Model selected = modelListView != null ? modelListView.getSelectionModel().getSelectedItem() : null;
                 if (selected != null) {
-                    selected.visible = true;
-                    System.out.println("Выбранная модель показана: " + getModelDisplayName(selected));
+                    selected.setVisible(true);
                 }
             }
 
@@ -302,12 +270,10 @@ public class ModelPanelController implements Initializable, PanelController {
 
     @FXML
     private void onSwitchModelClick() {
-        TriangulatedModel selected = modelListView != null ?
-                modelListView.getSelectionModel().getSelectedItem() : null;
+        Model selected = modelListView != null ? modelListView.getSelectionModel().getSelectedItem() : null;
         if (selected != null && modelManager != null) {
             try {
-                modelManager.switchToModelById(selected.id);
-                alertService.showInfo("Успех", "Активная модель изменена: " + getModelDisplayName(selected));
+                modelManager.switchToModelById(selected.getId());
 
                 // Если галка "Показать все" выключена, показываем только активную модель
                 if (showAllCheckbox != null && !showAllCheckbox.isSelected()) {
@@ -329,11 +295,10 @@ public class ModelPanelController implements Initializable, PanelController {
                     return;
                 }
 
-                TriangulatedModel previousModel = modelManager.getActiveModel();
-                TriangulatedModel nextModel = modelManager.switchToNextModel();
+                Model previousModel = modelManager.getCurrentModel();
+                Model nextModel = modelManager.switchToNextModel();
 
                 if (previousModel != null && !previousModel.equals(nextModel)) {
-                    alertService.showInfo("Успех", "Переключено на модель: " + getModelDisplayName(nextModel));
 
                     // Если галка "Показать все" выключена, показываем только активную модель
                     if (showAllCheckbox != null && !showAllCheckbox.isSelected()) {
@@ -362,7 +327,7 @@ public class ModelPanelController implements Initializable, PanelController {
 
     private void onModelLoadSuccess(File file) {
         Platform.runLater(() -> {
-            TriangulatedModel loadedModel = modelManager.getActiveModel();
+            Model loadedModel = modelManager.getCurrentModel();
 
             // Если галка "Показать все" выключена, показываем только загруженную модель
             if (showAllCheckbox != null && !showAllCheckbox.isSelected() && loadedModel != null) {
@@ -401,7 +366,7 @@ public class ModelPanelController implements Initializable, PanelController {
         loadFuture.thenAcceptAsync(result -> {
             Platform.runLater(() -> {
                 updateTexturePreview();
-                updateModelInfo(modelManager.getActiveModel());
+                updateModelInfo(modelManager.getCurrentModel());
                 alertService.showInfo("Успех", "Текстура загружена: " + file.getName());
             });
         }).exceptionallyAsync(error -> {
@@ -518,8 +483,8 @@ public class ModelPanelController implements Initializable, PanelController {
     @Override
     public void onPanelShow() {
         Platform.runLater(() -> {
-            TriangulatedModel activeModel = modelManager != null ?
-                    modelManager.getActiveModel() : null;
+            Model activeModel = modelManager != null ?
+                    modelManager.getCurrentModel() : null;
             updateModelInfo(activeModel);
             updateButtonsState();
 

@@ -12,9 +12,9 @@ import java.util.List;
 public class FaceNormalCalculator implements NormalCalculator{
     @Override
     public void calculateNormals(Model model) {
-        model.normals.clear();
+        model.getNormals().clear();
 
-        for (Polygon polygon : model.polygons) {
+        for (Polygon polygon : model.getPolygons()) {
             ArrayList<Integer> vertexIndeces = polygon.getVertexIndices();
 
             if (vertexIndeces.size() != 3) {
@@ -23,15 +23,15 @@ public class FaceNormalCalculator implements NormalCalculator{
                 );
             }
 
-            Vector3f v0 = model.vertices.get(vertexIndeces.get(0));
-            Vector3f v1 = model.vertices.get(vertexIndeces.get(1));
-            Vector3f v2 = model.vertices.get(vertexIndeces.get(2));
+            Vector3f v0 = model.getVertices().get(vertexIndeces.get(0));
+            Vector3f v1 = model.getVertices().get(vertexIndeces.get(1));
+            Vector3f v2 = model.getVertices().get(vertexIndeces.get(2));
 
             Vector3f normal  = calculateTriangleNormal(v0, v1, v2);
 
-            model.normals.add(normal);
+            model.getNormals().add(normal);
 
-            int normalIndex = model.normals.size() - 1;
+            int normalIndex = model.getNormals().size() - 1;
 
 
             polygon.setNormalIndices(List.of(normalIndex, normalIndex, normalIndex));

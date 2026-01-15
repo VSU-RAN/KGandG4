@@ -36,7 +36,7 @@ public class PolygonUtil {
     }
 
     public static float calcTrianglePolygonSquare(Polygon polygon, Model model) {
-        List<Vector3f> vertices = polygon.getVertexIndices().stream().map(model.vertices::get).toList();
+        List<Vector3f> vertices = polygon.getVertexIndices().stream().map(model.getVertices()::get).toList();
         if (vertices.size() != 3)
             throw new IllegalArgumentException("Method works only with triangles. Cnt given polygon vertices: "
                     + vertices.size());

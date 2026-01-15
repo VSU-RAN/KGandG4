@@ -6,6 +6,7 @@ import vsu.org.ran.kgandg4.camera.CameraManager;
 import vsu.org.ran.kgandg4.dependecyIndjection.annotations.Autowired;
 import vsu.org.ran.kgandg4.dependecyIndjection.annotations.Component;
 import vsu.org.ran.kgandg4.model.ModelManager;
+import vsu.org.ran.kgandg4.model.models.Model;
 import vsu.org.ran.kgandg4.model.models.TriangulatedModel;
 import vsu.org.ran.kgandg4.render_engine.render.RenderContext;
 import vsu.org.ran.kgandg4.render_engine.render.RenderEngine;
@@ -44,14 +45,14 @@ public class Scene {
         gc.clearRect(0, 0, width, height);
 
         // Рендерим все видимые модели
-        for (TriangulatedModel model : modelManager.getModels()) {
-            if (model.visible) {
+        for (Model model : modelManager.getModels()) {
+            if (model.isVisible()) {
                 try {
                     // Используем существующий метод create (без матрицы трансформации)
                     renderContext.create(
                             gc,
                             camera,
-                            model,
+                            (TriangulatedModel) model,
                             defaultTexture,
                             zbuffer,
                             width,
@@ -65,28 +66,5 @@ public class Scene {
                 }
             }
         }
-    }
-
-    public int getVisibleModelCount() {
-        if (modelManager == null) return 0;
-
-        int count = 0;
-        for (TriangulatedModel model : modelManager.getModels()) {
-            if (model.visible) count++;
-        }
-        return count;
-    }
-
-    public TriangulatedModel getActiveModel() {
-        return modelManager != null ? modelManager.getActiveModel() : null;
-    }
-
-    public boolean hasVisibleModels() {
-        if (modelManager == null) return false;
-
-        for (TriangulatedModel model : modelManager.getModels()) {
-            if (model.visible) return true;
-        }
-        return false;
     }
 }
