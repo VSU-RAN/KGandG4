@@ -5,6 +5,7 @@ import javafx.scene.canvas.GraphicsContext;
 
 import vsu.org.ran.kgandg4.camera.Camera;
 import vsu.org.ran.kgandg4.camera.CameraManager;
+import vsu.org.ran.kgandg4.model.models.Model;
 import vsu.org.ran.kgandg4.render_engine.Texture;
 import vsu.org.ran.kgandg4.render_engine.Zbuffer;
 import vsu.org.ran.kgandg4.model.ModelManager;
@@ -96,7 +97,6 @@ public class Scene {
 
 
     public void renderFrame(GraphicsContext gc, int width, int height) {
-        TriangulatedModel model = modelManager.getCurrentModel();
         Camera camera = cameraManager.getActiveCamera();
 
         camera.setAspectRatio((float) width/height);
@@ -106,8 +106,22 @@ public class Scene {
 
         gc.clearRect(0, 0, width, height);
 
-        renderContext.setup(gc, camera, model, texture, zbuffer, lightning, width, height);
+        for (Model model: modelManager.getModels()) {
+            if (model.isVisible()) {
+                renderContext.setup(
+                        gc,
+                        camera,
+                        (TriangulatedModel) model,
+                        texture,
+                        zbuffer,
+                        lightning,
+                        width,
+                        height
+                );
 
-        RenderEngine.render(renderContext);
+                // Рендерим модель
+                RenderEngine.render(renderContext);
+            }
+        }
     }
 }
