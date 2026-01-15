@@ -23,7 +23,7 @@
     <VBox fx:id="cameraPanel" spacing="12"
           style="-fx-padding: 16;
                  -fx-background-color: #ffffff;"
-          minWidth="280" prefWidth="300">
+          minWidth="280" prefWidth="320">
 
         <!-- Заголовок -->
         <Label text="Управление камерами"
@@ -41,7 +41,7 @@
                          -fx-border-radius: 4;
                          -fx-background-radius: 4;" />
 
-        <!-- Кнопки управления - С ЦВЕТАМИ! -->
+        <!-- Кнопки управления -->
         <HBox spacing="8" alignment="CENTER">
             <Button fx:id="addButton" onAction="#onAddCameraClick"
                     prefWidth="42" prefHeight="32"
@@ -143,6 +143,18 @@
                 <Spinner fx:id="camFovSpinner" editable="true" prefWidth="80"/>
                 <Label text="°" style="-fx-text-fill: #6c757d;"/>
             </HBox>
+
+            <!-- Near и Far плоскости -->
+            <Label style="-fx-font-weight: 600; -fx-font-size: 13px; -fx-text-fill: #495057; -fx-padding-top: 6;"
+                   text="Ближняя и дальняя плоскости:"/>
+
+            <HBox spacing="8" alignment="CENTER_LEFT">
+                <Label text="Near:" style="-fx-min-width: 40; -fx-text-fill: #6c757d;"/>
+                <Spinner fx:id="camNearSpinner" editable="true" prefWidth="80"/>
+                <Label text="Far:" style="-fx-min-width: 40; -fx-text-fill: #6c757d; -fx-padding-left: 10;"/>
+                <Spinner fx:id="camFarSpinner" editable="true" prefWidth="80"/>
+            </HBox>
+
         </VBox>
 
     </VBox>

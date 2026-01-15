@@ -10,6 +10,7 @@ import vsu.org.ran.kgandg4.camera.Camera;
 import vsu.org.ran.kgandg4.camera.CameraManager;
 
 import math.vector.Vector3f;
+import vsu.org.ran.kgandg4.dependecyIndjection.annotations.Value;
 import vsu.org.ran.kgandg4.gui.PanelController;
 
 import java.net.URL;
@@ -25,10 +26,19 @@ public class CameraPanelController implements Initializable, PanelController {
     @FXML private Spinner<Double> camPosX, camPosY, camPosZ;
     @FXML private Spinner<Double> camTargetX, camTargetY, camTargetZ;
     @FXML private Button removeButton, switchButton, addButton, nextButton;
-    @FXML private Spinner<Double> camFovSpinner;
+    @FXML private Spinner<Double> camFovSpinner, camNearSpinner, camFarSpinner;
 
     @Autowired
     private CameraManager cameraManager;
+
+    @Value("${camera.pan_speed:0.5}")
+    private float PAN_SPEED;
+
+    @Value("${camera.orbit_speed:0.05}")
+    private float ORBIT_SPEED;
+
+    @Value("${camera.zoom_speed:0.5}")
+    private float ZOOM_SPEED;
 
     private boolean isUpdatingFields = false;
 
@@ -95,6 +105,22 @@ public class CameraPanelController implements Initializable, PanelController {
                 isUpdatingFields = false;
             }
         });
+
+        camera.nearPlaneProperty().addListener((obs, oldNear, newNear) -> {
+            if (!isUpdatingFields && newNear != null) {
+                isUpdatingFields = true;
+                camNearSpinner.getValueFactory().setValue((double) newNear.floatValue());
+                isUpdatingFields = false;
+            }
+        });
+
+        camera.farPlaneProperty().addListener((obs, oldFar, newFar) -> {
+            if (!isUpdatingFields && newFar != null) {
+                isUpdatingFields = true;
+                camFarSpinner.getValueFactory().setValue((double) newFar.floatValue());
+                isUpdatingFields = false;
+            }
+        });
     }
 
     //Задаем отображение списка камер, а также для этого списка задаем слушатель на изменение камеры, который будет обновлять поля активной камеры в гуи
@@ -119,14 +145,16 @@ public class CameraPanelController implements Initializable, PanelController {
     }
 
     private void initSpinners() {
-        setupSpinner(camPosX, -1000.0, 1000.0, 0.0, 0.5);
-        setupSpinner(camPosY, -1000.0, 1000.0, 0.0, 0.5);
-        setupSpinner(camPosZ, -1000.0, 1000.0, 100.0, 0.5);
-        setupSpinner(camTargetX, -1000.0, 1000.0, 0.0, 0.5);
-        setupSpinner(camTargetY, -1000.0, 1000.0, 0.0, 0.5);
-        setupSpinner(camTargetZ, -1000.0, 1000.0, 0.0, 0.5);
+        setupSpinner(camPosX, -1000.0, 1000.0, cameraManager.getDefaultCameraSourceX(), PAN_SPEED);
+        setupSpinner(camPosY, -1000.0, 1000.0, cameraManager.getDefaultCameraSourceY(), PAN_SPEED);
+        setupSpinner(camPosZ, -1000.0, 1000.0, cameraManager.getDefaultCameraSourceZ(), PAN_SPEED);
+        setupSpinner(camTargetX, -1000.0, 1000.0, cameraManager.getDefaultCameraTargetX(), PAN_SPEED);
+        setupSpinner(camTargetY, -1000.0, 1000.0, cameraManager.getDefaultCameraTargetY(), PAN_SPEED);
+        setupSpinner(camTargetZ, -1000.0, 1000.0, cameraManager.getDefaultCameraTargetZ(), PAN_SPEED);
 
-        setupSpinner(camFovSpinner, 10.0, 120.0, 45.0, 1.0);
+        setupSpinner(camFovSpinner, 10.0, 120.0, cameraManager.getDefaultFov(), 1.0);
+        setupSpinner(camNearSpinner, 0.01, 100.0, cameraManager.getDefaultNearPlane(), 0.1);
+        setupSpinner(camFarSpinner, 1.0, 10000.0, cameraManager.getDefaultFarPlane(), 10.0);
     }
 
     private void setupSpinner(Spinner<Double> spinner, double min, double max, double initial, double step) {
@@ -186,6 +214,8 @@ public class CameraPanelController implements Initializable, PanelController {
         camTargetZ.getValueFactory().setValue((double)camera.getTarget().getZ());
 
         camFovSpinner.getValueFactory().setValue((double)camera.getFov());
+        camFarSpinner.getValueFactory().setValue((double)camera.getFarPlane());
+        camNearSpinner.getValueFactory().setValue((double)camera.getNearPlane());
 
         isUpdatingFields = false;
     }
@@ -257,7 +287,15 @@ public class CameraPanelController implements Initializable, PanelController {
 
         float fov = camFovSpinner.getValue().floatValue();
         active.setFov(fov);
+
+        float near = camNearSpinner.getValue().floatValue();
+        active.setNear(near);
+
+        float far = camFarSpinner.getValue().floatValue();
+        active.setFar(far);
     }
+
+
 
     @Override
     public void onPanelShow() {

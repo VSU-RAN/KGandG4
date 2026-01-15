@@ -20,4 +20,6 @@ module vsu.org.ran.kgandg4 {
     exports vsu.org.ran.kgandg4.model;
     exports vsu.org.ran.kgandg4.camera;
     exports vsu.org.ran.kgandg4.render_engine;
+    exports vsu.org.ran.kgandg4.model.models;
+    opens vsu.org.ran.kgandg4.model.models to javafx.fxml;
 }

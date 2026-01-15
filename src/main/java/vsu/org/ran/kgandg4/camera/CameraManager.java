@@ -135,4 +135,40 @@ public class CameraManager {
     public ObservableList<Camera> getCameras() {
         return FXCollections.unmodifiableObservableList(this.cameraList);
     }
+
+    public float getDefaultFov() {
+        return defaultFov;
+    }
+
+    public float getDefaultNearPlane() {
+        return defaultNearPlane;
+    }
+
+    public float getDefaultFarPlane() {
+        return defaultFarPlane;
+    }
+
+    public float getDefaultCameraSourceX() {
+        return defaultCameraSourceX;
+    }
+
+    public float getDefaultCameraSourceY() {
+        return defaultCameraSourceY;
+    }
+
+    public float getDefaultCameraSourceZ() {
+        return defaultCameraSourceZ;
+    }
+
+    public float getDefaultCameraTargetX() {
+        return defaultCameraTargetX;
+    }
+
+    public float getDefaultCameraTargetY() {
+        return defaultCameraTargetY;
+    }
+
+    public float getDefaultCameraTargetZ() {
+        return defaultCameraTargetZ;
+    }
 }

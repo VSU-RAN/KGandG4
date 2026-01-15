@@ -9,6 +9,7 @@ import vsu.org.ran.kgandg4.dependecyIndjection.annotations.PostConstruct;
 import vsu.org.ran.kgandg4.dependecyIndjection.annotations.Value;
 
 import java.io.IOException;
+import java.util.concurrent.CompletableFuture;
 
 @Component
 public class Texture {
@@ -33,24 +34,45 @@ public class Texture {
         this.materialColor = Color.web(defaultColorString);
     }
 
-    public void loadFromFile(String filePath) {
+    public CompletableFuture<Void> loadFromFile(String filePath) {
+        CompletableFuture<Void> future = new CompletableFuture<>();
+
         try {
             this.image = new Image(filePath, true);
 
 
             if (image.isError()) {
-                throw new IOException(image.getException() != null ? image.getException().getMessage() : "Ошибка загрузки изображения");
+                Throwable error = image.getException();
+                future.completeExceptionally(new IOException("Ошибка загрузки изображения", error));
+                return future;
             }
 
             image.progressProperty().addListener((obs, oldVal, newVal) -> {
-                if (newVal.doubleValue() == 1.0 && !image.isError()) {
-                    this.pixelReader = image.getPixelReader();
+                if (newVal.doubleValue() == 1.0) {
+                    if (image.isError()) {
+                        Throwable error = image.getException();
+                        future.completeExceptionally(new IOException("Ошибка загрузки изображения", error));
+                    } else {
+                        this.pixelReader = image.getPixelReader();
+                        future.complete(null);
+                    }
                 }
             });
 
-        } catch (IOException e) {
-            throw new RuntimeException("Не удалось загрузить текстуру: " + e.getMessage(), e);
+            if (!image.isBackgroundLoading() || image.getProgress() == 1.0) {
+                if (image.isError()) {
+                    Throwable error = image.getException();
+                    future.completeExceptionally(new IOException("Ошибка загрузки изображения", error));
+                } else {
+                    this.pixelReader = image.getPixelReader();
+                    future.complete(null);
+                }
+            }
+
+        } catch (Exception e) {
+            future.completeExceptionally(e);
         }
+        return future;
     }
 
     public void setMaterialColor(Color color) {

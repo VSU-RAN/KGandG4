@@ -21,9 +21,9 @@ public class Camera {
 
     private float aspectRatio;
 
-    private float nearPlane;
+    private FloatProperty nearPlane = new SimpleFloatProperty();
 
-    private float farPlane;
+    private FloatProperty farPlane = new SimpleFloatProperty();
 
     public Camera(
             final int id,
@@ -38,20 +38,8 @@ public class Camera {
         this.target.set(target);
         this.fov.set(fov);
         this.aspectRatio = aspectRatio;
-        this.nearPlane = nearPlane;
-        this.farPlane = farPlane;
-    }
-
-    public void setFov(final float fov) {
-        this.fov.set(fov);
-    }
-
-    public float getFov() {
-        return fov.get();
-    }
-
-    public FloatProperty fovProperty() {
-        return fov;
+        this.nearPlane.set(nearPlane);
+        this.farPlane.set(farPlane);
     }
 
     public void setPosition(final Vector3f position) {
@@ -168,14 +156,55 @@ public class Camera {
     }
 
     public Matrix4f getProjectionMatrix() {
-        return GraphicConveyor.perspective(fov.get(), aspectRatio, nearPlane, farPlane);
+        return GraphicConveyor.perspective(fov.get(), aspectRatio, nearPlane.get(), farPlane.get());
     }
 
     public Vector3f getDirection() {
         return Vector3f.subtract(this.target.get(), this.position.get());
     }
 
-    // Обновить equals() и hashCode() для учета FloatProperty
+
+    public float getAspectRatio() {
+        return aspectRatio;
+    }
+
+    public void setFov(final float fov) {
+        this.fov.set(fov);
+    }
+
+    public float getFov() {
+        return fov.get();
+    }
+
+    public FloatProperty fovProperty() {
+        return fov;
+    }
+
+    public void setNear(final float nearPlane) {
+        this.nearPlane.set(nearPlane);
+    }
+
+    public float getNearPlane() {
+        return nearPlane.get();
+    }
+
+    public FloatProperty nearPlaneProperty() {
+        return nearPlane;
+    }
+
+    public void setFar(final float far) {
+        this.farPlane.set(far);
+    }
+
+    public float getFarPlane() {
+        return farPlane.get();
+    }
+
+    public FloatProperty farPlaneProperty() {
+        return farPlane;
+    }
+
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -184,8 +213,8 @@ public class Camera {
         return id == camera.id &&
                 Float.compare(camera.fov.get(), fov.get()) == 0 &&
                 Float.compare(camera.aspectRatio, aspectRatio) == 0 &&
-                Float.compare(camera.nearPlane, nearPlane) == 0 &&
-                Float.compare(camera.farPlane, farPlane) == 0 &&
+                Float.compare(camera.nearPlane.get(), nearPlane.get()) == 0 &&
+                Float.compare(camera.farPlane.get(), farPlane.get()) == 0 &&
                 Objects.equals(position.get(), camera.position.get()) &&
                 Objects.equals(target.get(), camera.target.get());
     }
@@ -195,20 +224,11 @@ public class Camera {
         return Objects.hash(id, position.get(), target.get(), fov.get(), aspectRatio, nearPlane, farPlane);
     }
 
-    public float getAspectRatio() {
-        return aspectRatio;
-    }
-
-    public float getNearPlane() {
-        return nearPlane;
-    }
-
-    public float getFarPlane() {
-        return farPlane;
-    }
 
     @Override
     public String toString() {
-        return "Camera " + id + " (FOV: " + String.format("%.1f", fov.get()) + "°)";
+        return "Camera " + id + " (FOV: " + String.format("%.1f", fov.get()) + "°;"
+                + " Near Plane: " + String.format("%.1f", nearPlane.get()) + ";"
+                + " Far Plane: " + String.format("%.1f", farPlane.get()) + ")";
     }
 }

@@ -1,5 +1,6 @@
 package vsu.org.ran.kgandg4.gui.controllers;
 
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Parent;
@@ -22,6 +23,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
+import java.util.concurrent.CompletableFuture;
 
 @Component
 public class ModelPanelController implements Initializable, PanelController {
@@ -91,12 +93,24 @@ public class ModelPanelController implements Initializable, PanelController {
     }
 
     private void loadTexture(File file) {
-        try {
-            texture.loadFromFile(file.toURI().toString());
-            onTextureLoadSuccess(file);
-        } catch (Exception e) {
-            onTextureLoadError(file, e);
-        }
+        textureInfoLabel.setText("Загрузка...");
+        texturePreview.setImage(null);
+
+        CompletableFuture<Void> loadFuture = texture.loadFromFile(file.toURI().toString());
+
+        loadFuture.thenAcceptAsync(result -> {
+            Platform.runLater(() -> {
+                updateTexturePreview();
+                updateModelInfo();
+                alertService.showInfo("Успех", "Текстура загружена: " + file.getName());
+            });
+        }).exceptionallyAsync(error -> {
+            Platform.runLater(() -> {
+                onTextureLoadError(file, error instanceof Exception ?
+                        (Exception) error : new Exception(error));
+            });
+            return null;
+        });
     }
 
 
@@ -120,8 +134,8 @@ public class ModelPanelController implements Initializable, PanelController {
     }
 
     public void updateTexturePreview() {
+        texturePreview.setImage(null);
         texturePreview.setImage(this.texture.getTexture());
-
         textureInfoLabel.setText(this.texture.toString());
     }
 

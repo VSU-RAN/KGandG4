@@ -21,4 +21,9 @@ public class TriangulatedModel extends Model {
         }
         return true;
     }
+
+    @Override
+    public String toString() {
+        return super.toString();
+    }
 }
