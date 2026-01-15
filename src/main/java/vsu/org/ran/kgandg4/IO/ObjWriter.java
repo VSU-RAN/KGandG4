@@ -33,42 +33,42 @@ public class ObjWriter {
     }
 
     private static void writeVertices(Model model, FileWriter writer) throws IOException {
-        for (Vector3f vertex : model.vertices) {
+        for (Vector3f vertex : model.getVertices()) {
             writer.write(String.format("v %s %s %s\n",
                     DECIMAL_FORMAT.format(vertex.getX()),
                     DECIMAL_FORMAT.format(vertex.getY()),
                     DECIMAL_FORMAT.format(vertex.getZ())));
         }
-        if (!model.vertices.isEmpty()) {
+        if (!model.getVertices().isEmpty()) {
             writer.write("\n");
         }
     }
 
     private static void writeTextureVertices(Model model, FileWriter writer) throws IOException {
-        for (Vector2f texVertex : model.textureVertices) {
+        for (Vector2f texVertex : model.getTextureVertices()) {
             writer.write(String.format("vt %s %s\n",
                     DECIMAL_FORMAT.format(texVertex.getX()),
                     DECIMAL_FORMAT.format(texVertex.getY())));
         }
-        if (!model.textureVertices.isEmpty()) {
+        if (!model.getTextureVertices().isEmpty()) {
             writer.write("\n");
         }
     }
 
     private static void writeNormals(Model model, FileWriter writer) throws IOException {
-        for (Vector3f normal : model.normals) {
+        for (Vector3f normal : model.getNormals()) {
             writer.write(String.format("vn %s %s %s\n",
                     DECIMAL_FORMAT.format(normal.getX()),
                     DECIMAL_FORMAT.format(normal.getY()),
                     DECIMAL_FORMAT.format(normal.getZ())));
         }
-        if (!model.normals.isEmpty()) {
+        if (!model.getNormals().isEmpty()) {
             writer.write("\n");
         }
     }
 
     private static void writeFaces(Model model, FileWriter writer) throws IOException {
-        for (Polygon polygon : model.polygons) {
+        for (Polygon polygon : model.getPolygons()) {
             writer.write("f");
 
             for (int i = 0; i < polygon.getVertexIndices().size(); i++) {

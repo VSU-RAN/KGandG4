@@ -43,28 +43,28 @@ public class ObjReader {
 			switch (token) {
 				case OBJ_VERTEX_TOKEN -> {
 					if (wordsInLine.size() >= 3) {
-						result.vertices.add(parseVertex(wordsInLine, lineInd));
+						result.getVertices().add(parseVertex(wordsInLine, lineInd));
 					} else {
 						throw new ObjReaderException("Слишком мало аргументов для вершины.", lineInd);
 					}
 				}
 				case OBJ_TEXTURE_TOKEN -> {
 					if (wordsInLine.size() >= 2) {
-						result.textureVertices.add(parseTextureVertex(wordsInLine, lineInd));
+						result.getTextureVertices().add(parseTextureVertex(wordsInLine, lineInd));
 					} else {
 						throw new ObjReaderException("Слишком мало аргументов для текстурной вершины.", lineInd);
 					}
 				}
 				case OBJ_NORMAL_TOKEN -> {
 					if (wordsInLine.size() >= 3) {
-						result.normals.add(parseNormal(wordsInLine, lineInd));
+						result.getNormals().add(parseNormal(wordsInLine, lineInd));
 					} else {
 						throw new ObjReaderException("Слишком мало аргументов для нормали.", lineInd);
 					}
 				}
 				case OBJ_FACE_TOKEN -> {
 					if (wordsInLine.size() >= 3) {
-						result.polygons.add(parseFace(wordsInLine, lineInd));
+						result.getPolygons().add(parseFace(wordsInLine, lineInd));
 					} else {
 						throw new ObjReaderException("Слишком мало аргументов для полигона.", lineInd);
 					}
