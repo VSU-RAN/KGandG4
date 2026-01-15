@@ -40,7 +40,7 @@ public class CameraPanelController implements Initializable {
     private boolean isDragging;
 
     private static final float MOUSE_ORBIT_SENSITIVITY = 0.01f;  // Для вращения мышью
-    private static final float MOUSE_PAN_SENSITIVITY = 0.005f;   // Для панорамирования мышью
+    private static final float MOUSE_PAN_SENSITIVITY = 0.05f;   // Для панорамирования мышью
     private static final float MOUSE_ZOOM_SENSITIVITY = 0.075f;    // Для зума колесиком
 
     private CameraManager cameraManager;
@@ -402,10 +402,10 @@ public class CameraPanelController implements Initializable {
         prevMouseY = event.getSceneY();
 
         if (leftMouseButtonPressed) {
-            activeCamera.orbit(
-                    (float) dx * MOUSE_ORBIT_SENSITIVITY,
-                    (float) dy * MOUSE_ORBIT_SENSITIVITY
-            );
+            float orbitX = (float) dx * MOUSE_ORBIT_SENSITIVITY;
+            float orbitY = (float) dy * MOUSE_ORBIT_SENSITIVITY;
+            activeCamera.orbit(orbitX, orbitY);
+
         } else if (rightMouseButtonPressed) {
             activeCamera.movePositionAndTarget(new Vector3f(
                     (float) dx * MOUSE_PAN_SENSITIVITY,
