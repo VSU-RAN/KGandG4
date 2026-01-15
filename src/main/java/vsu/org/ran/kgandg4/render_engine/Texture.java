@@ -79,7 +79,7 @@ public class Texture {
         this.materialColor = color;
     }
 
-    public void enableTexture(boolean enable) {
+    public void enableTexture(boolean enable) throws IllegalStateException {
         if (enable && !hasTexture()) {
             throw new IllegalStateException("Нельзя включить режим отрисовки с текстурой: текстура не загружена");
         }

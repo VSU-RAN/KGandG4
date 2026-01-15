@@ -7,6 +7,7 @@ import math.matrix.Matrix4f;
 import vsu.org.ran.kgandg4.model.models.Triangle;
 import vsu.org.ran.kgandg4.model.models.TriangulatedModel;
 import vsu.org.ran.kgandg4.render_engine.GraphicConveyor;
+import vsu.org.ran.kgandg4.render_engine.Lightning;
 
 import static vsu.org.ran.kgandg4.rasterization.Rasterization.*;
 import static vsu.org.ran.kgandg4.render_engine.GraphicConveyor.*;
@@ -45,17 +46,18 @@ public class RenderEngine {
             return;
         }
 
-        float k = context.getAmbientLight();
+        Lightning lightning = context.getLightning();
         Vector3f ray = context.getCameraDirectionNormalized();
-
+        RenderMode renderMode = context.getMode();
         Matrix4f pvmMatrix = context.getPVMMatrix();
 
+
         for (Triangle triangle : model.getTriangles()) {
-            renderTriangle(context, triangle, pvmMatrix, ray, k);
+            renderTriangle(context, triangle, pvmMatrix, ray, renderMode, lightning);
         }
     }
 
-    private static void renderTriangle(RenderContext context, Triangle triangle, Matrix4f pvmMatrix, Vector3f ray, float k) {
+    private static void renderTriangle(RenderContext context, Triangle triangle, Matrix4f pvmMatrix, Vector3f ray, RenderMode mode, Lightning lightning) {
         TriangleData data = new TriangleData();
         TriangulatedModel model = context.getModel();
 
@@ -65,6 +67,10 @@ public class RenderEngine {
             Vector3f normal = triangle.getNormal(i, model);
 
             Vector3f transformed = getVertexAfterMVPandNormalize(pvmMatrix, worldVertex);
+
+            if (Math.abs(transformed.getZ()) < 0.001f) {
+                System.out.println("WARNING: z слишком близко к 0! Деление на ноль?");
+            }
 
             if (!GraphicConveyor.isValidVertex(transformed)) {
                 break;
@@ -96,16 +102,24 @@ public class RenderEngine {
             float v2 = data.texCoords[2].getY();
             Vector3f n2 = data.normals[2];
 
-
             drawTriangle(
                     context.getGraphicsContext().getPixelWriter(),
                     context.getZbuffer(),
                     context.getTexture(),
-                    ray, k,
+                    ray, lightning,
                     x0, y0, z0, u0, v0, n0,
                     x1, y1, z1, u1, v1, n1,
                     x2, y2, z2, u2, v2, n2
             );
+
+            if (mode.isWireframe()) {
+                drawWireFrameTriangle(context.getGraphicsContext().getPixelWriter(),
+                        context.getZbuffer(),
+                        context.getWireframeColor(),
+                        x0, y0, z0,
+                        x1, y1, z1,
+                        x2, y2, z2);
+            }
         }
     }
 }

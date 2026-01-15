@@ -3,15 +3,17 @@ package vsu.org.ran.kgandg4.rasterization;
 import javafx.scene.image.PixelWriter;
 import javafx.scene.paint.Color;
 import math.vector.Vector3f;
+import vsu.org.ran.kgandg4.render_engine.Lightning;
 import vsu.org.ran.kgandg4.render_engine.Texture;
 import vsu.org.ran.kgandg4.render_engine.Zbuffer;
+import vsu.org.ran.kgandg4.render_engine.render.RenderMode;
 
 import static java.lang.Math.*;
 import static math.vector.Vector3f.dotProduct;
 
 public class Rasterization {
     public static void drawTriangle(PixelWriter pw, Zbuffer zbuffer, Texture texture,
-                                    Vector3f ray, float k,
+                                    Vector3f ray, Lightning lightning,
                                     int x0, int y0, float z0, float u0, float v0, Vector3f n0,
                                     int x1, int y1, float z1, float u1, float v1, Vector3f n1,
                                     int x2, int y2, float z2, float u2, float v2, Vector3f n2) {
@@ -70,7 +72,7 @@ public class Rasterization {
         if (y0 == y1 && y1 == y2) {
             for (int x = minX; x <= max(x0, max(x1, x2)); x++) {
                 double[] barycentric = findBarycentricCords(x, y0, x0, y0, x1, y1, x2, y2);
-                drawPixel(pw, zbuffer, texture, ray, k,
+                drawPixel(pw, zbuffer, texture, ray, lightning,
                         x, y0,
                         barycentric[0], barycentric[1], barycentric[2],
                         z0, z1, z2,
@@ -115,7 +117,7 @@ public class Rasterization {
             xEnd = min(xEnd, maxX);
             for (int x = xStart; x <= xEnd; x++) {
                 double[] barycentric = findBarycentricCords(x, y, x0, y0, x1, y1, x2, y2);
-                drawPixel(pw, zbuffer, texture, ray, k,
+                drawPixel(pw, zbuffer, texture, ray, lightning,
                         x, y,
                         barycentric[0], barycentric[1], barycentric[2],
                         z0, z1, z2,
@@ -155,7 +157,7 @@ public class Rasterization {
             xEnd = min(xEnd, maxX);
             for (int x = xStart; x <= xEnd; x++) {
                 double[] barycentric = findBarycentricCords(x, y, x0, y0, x1, y1, x2, y2);
-                drawPixel(pw, zbuffer, texture, ray, k,
+                drawPixel(pw, zbuffer, texture, ray, lightning,
                         x, y,
                         barycentric[0], barycentric[1], barycentric[2],
                         z0, z1, z2,
@@ -171,7 +173,7 @@ public class Rasterization {
 
     private static void drawPixel(
             PixelWriter pw, Zbuffer zbuffer, Texture texture,
-            Vector3f ray, float k,
+            Vector3f ray, Lightning lightning,
             int x, int y,
             double alpha, double beta, double gamma,
             float z0, float z1, float z2,
@@ -184,7 +186,6 @@ public class Rasterization {
             float z_interpolated = 1.0f / oneOverZ;
 
             if (zbuffer.testPointAndSet(x, y, z_interpolated)) {
-
                 // Перспективно-корректная интерполяция
                 float uOverZ = (float) (alpha * u0OverZ + beta * u1OverZ + gamma * u2OverZ);
                 float vOverZ = (float) (alpha * v0OverZ + beta * v1OverZ + gamma * v2OverZ);
@@ -192,9 +193,9 @@ public class Rasterization {
                 float u = uOverZ * z_interpolated;
                 float v = vOverZ * z_interpolated;
 
-                Color baseColor = texture.getColor(u, v);
+                // Получаем цвет (Texture возвращает wireframe или текстурный цвет)
+                Color color = texture.getColor(u, v);
 
-                // Интерполируем нормаль
                 Vector3f n = new Vector3f(
                         (float) (alpha * n0.getX() + beta * n1.getX() + gamma * n2.getX()),
                         (float) (alpha * n0.getY() + beta * n1.getY() + gamma * n2.getY()),
@@ -202,98 +203,90 @@ public class Rasterization {
                 );
                 n.normalize();
 
-                // Освещение
-                float l = Math.max(0, -dotProduct(n, ray));
-                float factor = (1 - k) + (k * l);
+                // Применяем освещение (Lightning возвращает исходный цвет или преобразованный)
+                color = lightning.calculateLightning(color, n, ray);
 
-                float r = (float) baseColor.getRed() * factor;
-                float g = (float) baseColor.getGreen() * factor;
-                float b = (float) baseColor.getBlue() * factor;
-
-                Color colorLightning = new Color(r, g, b, baseColor.getOpacity());
-                pw.setColor(x, y, colorLightning);
+                pw.setColor(x, y, color);
             }
         }
     }
 
-    /**
-     * Метод рисования линии. Позволяет рисовать ее из точки 1 в точку 2. Использует округление и
-     * линейную интерполяцию для того, чтобы получить промежуточные значения и построить путь из 1 в 2.
-     *
-     * @param pixelWriter объект для рисования
-     * @param x1          точка начала
-     * @param y1          точка начала
-     * @param x2          точка конца
-     * @param y2          точка конца
-     */
-    public static void drawLine(PixelWriter pixelWriter, double x1, double y1, double x2, double y2) {
+    public static void drawLine(PixelWriter pixelWriter, Zbuffer zbuffer, Color color,
+                                double x1, double y1, double z1,
+                                double x2, double y2, double z2) {
+
         double dx = x2 - x1;
         double dy = y2 - y1;
+        double dz = z2 - z1;
+
         if (Math.abs(dx) > Math.abs(dy)) {
             if (x1 > x2) {
-                double tmp = x2;
-                x2 = x1;
-                x1 = tmp;
-
-                tmp = y2;
-                y2 = y1;
-                y1 = tmp;
+                double tmpX = x2; x2 = x1; x1 = tmpX;
+                double tmpY = y2; y2 = y1; y1 = tmpY;
+                double tmpZ = z2; z2 = z1; z1 = tmpZ;
             }
-            int[] points = interpolate(y1, x1, y2, x2);
-            for (double x = x1; x < x2; x++) {
-                pixelWriter.setColor((int) x, points[(int) (x - x1)], Color.RED);
+
+            double slope = dy / dx;
+            double zSlope = dz / dx;
+
+            double y = y1;
+            double z = z1;
+
+            int startX = (int)Math.round(x1);
+            int endX = (int)Math.round(x2);
+
+            for (int x = startX; x <= endX; x++) {
+                double currentZ = z;
+
+                float wireframeZ = (float)currentZ - 0.01f;
+
+                if (zbuffer.testPointAndSet(x, (int)Math.round(y), wireframeZ)) {
+                    pixelWriter.setColor(x, (int)Math.round(y), color);
+                }
+
+                y += slope;
+                z += zSlope;
             }
         } else {
             if (y1 > y2) {
-                double tmp = x2;
-                x2 = x1;
-                x1 = tmp;
-
-                tmp = y2;
-                y2 = y1;
-                y1 = tmp;
+                double tmpX = x2; x2 = x1; x1 = tmpX;
+                double tmpY = y2; y2 = y1; y1 = tmpY;
+                double tmpZ = z2; z2 = z1; z1 = tmpZ;
             }
-            int[] points = interpolate(x1, y1, x2, y2);
-            for (double y = y1; y < y2; y++) {
-                pixelWriter.setColor(points[(int) (y - y1)], (int) y, Color.RED);
+
+            double slope = dx / dy;
+            double zSlope = dz / dy;
+
+            double x = x1;
+            double z = z1;
+
+            int startY = (int)Math.round(y1);
+            int endY = (int)Math.round(y2);
+
+            for (int y = startY; y <= endY; y++) {
+                double currentZ = z;
+                float wireframeZ = (float)currentZ - 0.01f;
+
+                if (zbuffer.testPointAndSet((int)Math.round(x), y, wireframeZ)) {
+                    pixelWriter.setColor((int)Math.round(x), y, color);
+                }
+
+                x += slope;
+                z += zSlope;
             }
         }
     }
 
     /**
-     * Вычисляет значения функции d = f(i) от i=i0 до i=i1
-     * Использует числа с плавающей точкой и их округление.
-     *
-     * @param d0 значение функции в начальной координате
-     * @param i0 аргумент функции в начальной координате
-     * @param d1 значение функции в конечной координате
-     * @param i1 аргумент функции в конечной координате
+     * Wireframe треугольник с Z-буфером
      */
-    private static int[] interpolate(double d0, double i0, double d1, double i1) {
-        double tmp;
-        int[] values = new int[(int) ((i1 - i0) + 1)];
-        if (i0 > i1) {
-            tmp = i1;
-            i1 = i0;
-            i0 = tmp;
-        }
-
-        double a = (d1 - d0) / (i1 - i0);
-        double value = d0;
-        for (double i = i0; i <= i1; i++) {
-            values[(int) (i - i0)] = (int) Math.round(value);
-            value += a;
-        }
-        return values;
-    }
-
-    /**
-     * С помощью линий рисует треугольник, однако не заполняет его, а ставит пиксели только на стороны.
-     */
-    public static void drawWireFrameTriangle(PixelWriter pixelWriter, double x0, double y0, double x1, double y1, double x2, double y2) {
-        drawLine(pixelWriter, x0, y0, x1, y1);
-        drawLine(pixelWriter, x0, y0, x2, y2);
-        drawLine(pixelWriter, x2, y2, x1, y1);
+    public static void drawWireFrameTriangle(PixelWriter pixelWriter, Zbuffer zbuffer, Color color,
+                                             double x0, double y0, double z0,
+                                             double x1, double y1, double z1,
+                                             double x2, double y2, double z2) {
+        drawLine(pixelWriter, zbuffer, color, x0, y0, z0, x1, y1, z1);
+        drawLine(pixelWriter, zbuffer, color, x0, y0, z0, x2, y2, z2);
+        drawLine(pixelWriter, zbuffer, color, x2, y2, z2, x1, y1, z1);
     }
 
     private static int findThirdOrderDeterminant(

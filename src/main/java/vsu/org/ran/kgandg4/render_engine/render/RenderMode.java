@@ -11,10 +11,6 @@ public class RenderMode {
         this.lighting = lighting;
     }
 
-    public static RenderMode fromFlags(boolean wireframe, boolean texture, boolean lighting) {
-        return new RenderMode(wireframe, texture, lighting);
-    }
-
     public boolean isWireframe() { return wireframe; }
     public boolean isTexture() { return texture; }
     public boolean isLighting() { return lighting; }

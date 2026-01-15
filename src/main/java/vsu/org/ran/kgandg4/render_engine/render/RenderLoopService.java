@@ -8,7 +8,6 @@ import javafx.util.Duration;
 import vsu.org.ran.kgandg4.dependecyIndjection.annotations.Autowired;
 import vsu.org.ran.kgandg4.dependecyIndjection.annotations.Component;
 import vsu.org.ran.kgandg4.dependecyIndjection.annotations.Value;
-import vsu.org.ran.kgandg4.render_engine.Scene;
 
 @Component
 public class RenderLoopService {

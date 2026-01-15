@@ -25,25 +25,6 @@
                       -fx-font-weight: 600;
                       -fx-text-fill: #343a40;" />
 
-        <!-- Режим рендеринга -->
-        <VBox spacing="8" style="-fx-padding: 12;
-                                 -fx-background-color: #f8f9fa;
-                                 -fx-border-color: #e9ecef;
-                                 -fx-border-width: 1;
-                                 -fx-border-radius: 6;
-                                 -fx-background-radius: 6;">
-            <Label style="-fx-font-weight: 600; -fx-font-size: 14px; -fx-text-fill: #495057;"
-                   text="Режим рендеринга:"/>
-            <VBox spacing="6" style="-fx-padding: 0 0 0 8;">
-                <RadioButton fx:id="solidModeRadio" text="Заливка цветом" selected="true"
-                             style="-fx-font-size: 13px;"/>
-                <RadioButton fx:id="textureModeRadio" text="Текстура"
-                             style="-fx-font-size: 13px;"/>
-                <RadioButton fx:id="lightingModeRadio" text="Освещение"
-                             style="-fx-font-size: 13px;"/>
-            </VBox>
-        </VBox>
-
         <!-- Настройки отображения -->
         <VBox spacing="8" style="-fx-padding: 12;
                                  -fx-background-color: #f8f9fa;
@@ -54,7 +35,7 @@
             <Label style="-fx-font-weight: 600; -fx-font-size: 14px; -fx-text-fill: #495057;"
                    text="Настройки отображения:"/>
             <VBox spacing="6" style="-fx-padding: 0 0 0 8;">
-                <CheckBox fx:id="showWireframeCheck" text="Рисовать полигональную сетку"
+                <CheckBox fx:id="showWireframeCheck" text="Полигональная сетка"
                           style="-fx-font-size: 13px;"/>
                 <CheckBox fx:id="useTextureCheck" text="Использовать текстуру"
                           style="-fx-font-size: 13px;"/>
@@ -67,22 +48,13 @@
         <!-- Контейнер для пользовательской палитры -->
         <VBox fx:id="paletteContainer" spacing="6"
               style="-fx-padding: 8;
-             -fx-background-color: #ffffff;
-             -fx-border-color: #e9ecef;
-             -fx-border-width: 1;
-             -fx-border-radius: 4;
-             -fx-background-radius: 4;">
+                     -fx-background-color: #ffffff;
+                     -fx-border-color: #e9ecef;
+                     -fx-border-width: 1;
+                     -fx-border-radius: 4;
+                     -fx-background-radius: 4;">
             <Label text="Выберите цвет кликом" style="-fx-font-size: 12px; -fx-text-fill: #6c757d; -fx-padding: 0 0 4 0;"/>
-
-            <!-- HueSlider с фиксированной шириной -->
-            <Pane fx:id="hueSliderContainer" style="-fx-pref-height: 25;">
-                <!-- HueSlider будет добавлен динамически -->
-            </Pane>
-
-            <!-- ColorPalette с фиксированными размерами -->
-            <Pane fx:id="colorPaletteContainer" style="-fx-pref-height: 140;">
-                <!-- ColorPalette будет добавлен динамически -->
-            </Pane>
+            <!-- HueSlider и ColorPalette будут добавлены динамически -->
         </VBox>
 
         <!-- Быстрый выбор цвета -->
@@ -104,11 +76,11 @@
 
         <!-- Точная настройка RGB -->
         <VBox spacing="12" style="-fx-padding: 12;
-                         -fx-background-color: #f8f9fa;
-                         -fx-border-color: #e9ecef;
-                         -fx-border-width: 1;
-                         -fx-border-radius: 6;
-                         -fx-background-radius: 6;">
+                                  -fx-background-color: #f8f9fa;
+                                  -fx-border-color: #e9ecef;
+                                  -fx-border-width: 1;
+                                  -fx-border-radius: 6;
+                                  -fx-background-radius: 6;">
             <Label style="-fx-font-weight: 600; -fx-font-size: 14px; -fx-text-fill: #495057;"
                    text="Точная настройка RGB:"/>
 
@@ -148,11 +120,11 @@
 
         <!-- Настройки освещения -->
         <VBox spacing="12" style="-fx-padding: 12;
-                         -fx-background-color: #f8f9fa;
-                         -fx-border-color: #e9ecef;
-                         -fx-border-width: 1;
-                         -fx-border-radius: 6;
-                         -fx-background-radius: 6;">
+                                  -fx-background-color: #f8f9fa;
+                                  -fx-border-color: #e9ecef;
+                                  -fx-border-width: 1;
+                                  -fx-border-radius: 6;
+                                  -fx-background-radius: 6;">
             <Label style="-fx-font-weight: 600; -fx-font-size: 14px; -fx-text-fill: #495057;"
                    text="Настройки освещения:"/>
 

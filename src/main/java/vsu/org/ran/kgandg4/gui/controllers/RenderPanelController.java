@@ -14,6 +14,8 @@ import vsu.org.ran.kgandg4.gui.components.HueSlider;
 import vsu.org.ran.kgandg4.gui.MainController;
 import vsu.org.ran.kgandg4.gui.PanelController;
 import vsu.org.ran.kgandg4.render_engine.render.RenderContext;
+import vsu.org.ran.kgandg4.render_engine.render.RenderMode;
+import vsu.org.ran.kgandg4.render_engine.render.Scene;
 
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -22,11 +24,6 @@ import java.util.ResourceBundle;
 public class RenderPanelController implements Initializable, PanelController {
 
     @FXML private ScrollPane scrollPane;
-    @FXML private VBox renderPanel;
-
-    @FXML private RadioButton solidModeRadio;
-    @FXML private RadioButton textureModeRadio;
-    @FXML private RadioButton lightingModeRadio;
 
     @FXML private ColorPicker faceColorPicker;
     @FXML private ColorPicker lightColorPicker;
@@ -47,14 +44,15 @@ public class RenderPanelController implements Initializable, PanelController {
     @FXML private CheckBox useTextureCheck;
     @FXML private CheckBox useLightingCheck;
 
-    private ToggleGroup renderGroup;
-
     // Пользовательские компоненты
     private ColorPalette colorPalette;
     private HueSlider hueSlider;
 
     @Autowired
-    private RenderContext renderContext;
+    private Scene scene;
+
+    @Autowired
+    private AlertService alertService;
 
     private boolean updatingColor = false;
 
@@ -63,121 +61,60 @@ public class RenderPanelController implements Initializable, PanelController {
         // 1. Настраиваем чекбоксы
         initCheckboxes();
 
-        // 2. Настраиваем радио-кнопки
-        initRadioButtons();
-
-        // 3. Настраиваем цвет материала
+        // 2. Настраиваем цвет материала
         initMaterialColorControls();
 
-
-        // 4. Настраиваем освещение
+        // 3. Настраиваем освещение
         initLightingControls();
 
-        // 5. Настраиваем пользовательскую палитру
+        // 4. Настраиваем пользовательскую палитру
         initCustomPalette();
     }
 
     private void initCheckboxes() {
-        if (renderContext != null) {
-            showWireframeCheck.setSelected(renderContext.shouldDrawWireframe());
-            useTextureCheck.setSelected(renderContext.shouldUseTexture());
-            useLightingCheck.setSelected(renderContext.shouldUseLighting());
+        if (scene != null) {
+            showWireframeCheck.setSelected(scene.isWireframeEnabled());
+            useTextureCheck.setSelected(scene.isTextureEnabled());
+            useLightingCheck.setSelected(scene.isLightEnabled());
         }
 
         showWireframeCheck.selectedProperty().addListener((obs, oldVal, newVal) -> {
-            if (renderContext != null) {
-                renderContext.setDrawWireframe(newVal);
-                updateRadioButtonsFromFlags();
+            if (scene != null) {
+                scene.setWireframeEnabled(newVal);
             }
         });
 
         useTextureCheck.selectedProperty().addListener((obs, oldVal, newVal) -> {
-            if (renderContext != null) {
-                renderContext.setUseTexture(newVal);
-                updateRadioButtonsFromFlags();
+            if (scene != null) {
+                try {
+                    scene.setTextureEnabled(newVal);
+                } catch (IllegalStateException e) {
+                    useTextureCheck.setSelected(oldVal);
+                    alertService.showError("Текстура не загружена", e.getMessage() + "\n\nПожалуйста, сначала загрузите текстуру в панели редактирования модели.");
+                }
             }
         });
 
         useLightingCheck.selectedProperty().addListener((obs, oldVal, newVal) -> {
-            if (renderContext != null) {
-                renderContext.setUseLighting(newVal);
-                updateRadioButtonsFromFlags();
+            if (scene!= null) {
+                scene.setLightEnabled(newVal);
             }
         });
-    }
-
-    private void initRadioButtons() {
-        renderGroup = new ToggleGroup();
-        solidModeRadio.setToggleGroup(renderGroup);
-        textureModeRadio.setToggleGroup(renderGroup);
-        lightingModeRadio.setToggleGroup(renderGroup);
-
-
-        updateRadioButtonsFromFlags();
-
-        solidModeRadio.setOnAction(e -> {
-            if (renderContext != null) {
-                renderContext.setDrawWireframe(false);
-                renderContext.setUseTexture(false);
-                renderContext.setUseLighting(false);
-                updateCheckboxesFromContext();
-            }
-        });
-
-        textureModeRadio.setOnAction(e -> {
-            if (renderContext != null) {
-                renderContext.setDrawWireframe(false);
-                renderContext.setUseTexture(true);
-                renderContext.setUseLighting(false);
-                updateCheckboxesFromContext();
-            }
-        });
-
-        lightingModeRadio.setOnAction(e -> {
-            if (renderContext != null) {
-                renderContext.setDrawWireframe(false);
-                renderContext.setUseTexture(false);
-                renderContext.setUseLighting(true);
-                updateCheckboxesFromContext();
-            }
-        });
-    }
-
-
-    private void updateRadioButtonsFromFlags() {
-        if (renderContext == null) return;
-
-        boolean wireframe = renderContext.shouldDrawWireframe();
-        boolean texture = renderContext.shouldUseTexture();
-        boolean lighting = renderContext.shouldUseLighting();
-
-        // Логика выбора радио-кнопки
-        if (wireframe && !texture && !lighting) {
-            solidModeRadio.setSelected(true); // Фактически wireframe режим
-        } else if (!wireframe && texture && !lighting) {
-            textureModeRadio.setSelected(true);
-        } else if (!wireframe && !texture && lighting) {
-            lightingModeRadio.setSelected(true);
-        } else {
-            // Для комбинированных режимов выбираем solid как default
-            solidModeRadio.setSelected(true);
-        }
     }
 
     private void updateCheckboxesFromContext() {
-        if (renderContext == null) return;
-
-        showWireframeCheck.setSelected(renderContext.shouldDrawWireframe());
-        useTextureCheck.setSelected(renderContext.shouldUseTexture());
-        useLightingCheck.setSelected(renderContext.shouldUseLighting());
+        if (scene == null) return;
+        showWireframeCheck.setSelected(scene.isWireframeEnabled());
+        useTextureCheck.setSelected(scene.isTextureEnabled());
+        useLightingCheck.setSelected(scene.isLightEnabled());
     }
 
 
 
     private void initMaterialColorControls() {
         // Начальный цвет из RenderContext
-        if (renderContext != null && renderContext.getTexture() != null) {
-            Color materialColor = renderContext.getMaterialColor();
+        if (scene != null && scene.getTexture() != null) {
+            Color materialColor = scene.getMaterialColor();
             faceColorPicker.setValue(materialColor);
             updateRGBFromColor(materialColor);
         }
@@ -199,9 +136,7 @@ public class RenderPanelController implements Initializable, PanelController {
                     }
 
                     // Сохраняем цвет в RenderContext
-                    if (renderContext != null && renderContext.getTexture() != null) {
-                        renderContext.getTexture().setMaterialColor(color);
-                    }
+                    scene.setMaterialColor(color);
                 } finally {
                     updatingColor = false;
                 }
@@ -212,11 +147,10 @@ public class RenderPanelController implements Initializable, PanelController {
     private void initLightingControls() {
         // Настройка слайдера интенсивности освещения
         lightIntensitySlider.setMin(0.0);
-        lightIntensitySlider.setMax(1.0);
-        lightIntensitySlider.setBlockIncrement(0.1);
+        lightIntensitySlider.setMax(100.0);
 
-        if (renderContext != null) {
-            lightIntensitySlider.setValue(renderContext.getAmbientLight());
+        if (scene != null && scene.getLightning() != null) {
+            lightIntensitySlider.setValue(scene.getLightIntensity() * 100.0f);
         }
 
         // Обновляем лейбл
@@ -224,24 +158,22 @@ public class RenderPanelController implements Initializable, PanelController {
 
         // Обработчик слайдера интенсивности
         lightIntensitySlider.valueProperty().addListener((obs, oldVal, newVal) -> {
-            double intensity = Math.round(newVal.doubleValue() * 10.0) / 10.0;
+            double intensity = Math.round(newVal.doubleValue());
             updateLightIntensityLabel(intensity);
 
-            if (renderContext != null) {
-                renderContext.setAmbientLight((float) intensity);
-            }
+            scene.setLightIntensity((float) (intensity / 100));
         });
 
         // Настройка ColorPicker для цвета света
-        if (renderContext != null && renderContext.getLightColor() != null) {
-            lightColorPicker.setValue(renderContext.getLightColor());
+        if (scene != null) {
+            lightColorPicker.setValue(scene.getLightColor());
         }
 
         // Обработчик цвета света
         lightColorPicker.setOnAction(e -> {
             Color color = lightColorPicker.getValue();
-            if (renderContext != null) {
-                renderContext.setLightColor(color);
+            if (scene != null) {
+                scene.setLightColor(color);
             }
         });
     }
@@ -258,12 +190,7 @@ public class RenderPanelController implements Initializable, PanelController {
         hueSlider = new HueSlider(containerWidth, 20);
 
         // Устанавливаем начальный цвет
-        Color initialColor;
-        if (renderContext != null && renderContext.getTexture() != null) {
-            initialColor = renderContext.getMaterialColor();
-        } else {
-            initialColor = Color.web("#4a90e2");
-        }
+        Color initialColor = scene.getMaterialColor();
 
         colorPalette.setSelectedColor(initialColor);
         hueSlider.setHue(initialColor.getHue());
@@ -283,8 +210,8 @@ public class RenderPanelController implements Initializable, PanelController {
                     updateRGBFromColor(newVal);
 
                     // Сохраняем цвет в RenderContext
-                    if (renderContext != null && renderContext.getTexture() != null) {
-                        renderContext.getTexture().setMaterialColor(newVal);
+                    if (scene != null && scene.getTexture() != null) {
+                        scene.setMaterialColor(newVal);
                     }
                 } finally {
                     updatingColor = false;
@@ -369,8 +296,8 @@ public class RenderPanelController implements Initializable, PanelController {
             }
 
             // Сохраняем цвет в RenderContext
-            if (renderContext != null && renderContext.getTexture() != null) {
-                renderContext.getTexture().setMaterialColor(color);
+            if (scene != null && scene.getTexture() != null) {
+                scene.setMaterialColor(color);
             }
         } finally {
             updatingColor = false;
@@ -400,11 +327,7 @@ public class RenderPanelController implements Initializable, PanelController {
     }
 
     private void updateLightIntensityLabel(double intensity) {
-        lightIntensityValue.setText(String.format("%.1f", intensity));
-    }
-
-    public Parent getRenderPanel() {
-        return scrollPane;
+        lightIntensityValue.setText(String.format("%.0f%%", intensity));
     }
 
     @Override
@@ -413,35 +336,30 @@ public class RenderPanelController implements Initializable, PanelController {
     }
 
     private void refresh() {
-        if (renderContext == null) return;
+        if (scene == null) return;
         updateCheckboxesFromContext();
-        updateRadioButtonsFromFlags();
 
-        if (renderContext.getTexture() != null) {
-            Color materialColor = renderContext.getMaterialColor();
-            if (!updatingColor) {
-                updatingColor = true;
-                try {
-                    faceColorPicker.setValue(materialColor);
-                    updateRGBFromColor(materialColor);
+        Color materialColor = scene.getMaterialColor();
+        if (!updatingColor) {
+            updatingColor = true;
+            try {
+                faceColorPicker.setValue(materialColor);
+                updateRGBFromColor(materialColor);
 
-                    if (colorPalette != null) {
-                        colorPalette.setSelectedColor(materialColor);
-                    }
-                    if (hueSlider != null) {
-                        hueSlider.setHue(materialColor.getHue());
-                    }
-                } finally {
-                    updatingColor = false;
+                if (colorPalette != null) {
+                    colorPalette.setSelectedColor(materialColor);
                 }
+                if (hueSlider != null) {
+                    hueSlider.setHue(materialColor.getHue());
+                }
+            } finally {
+                updatingColor = false;
             }
         }
 
-        lightIntensitySlider.setValue(renderContext.getAmbientLight());
-        updateLightIntensityLabel(renderContext.getAmbientLight());
+        lightIntensitySlider.setValue(scene.getLightIntensity() * 100.0f);
+        updateLightIntensityLabel(scene.getLightIntensity() * 100.0f);
 
-        if (renderContext.getLightColor() != null) {
-            lightColorPicker.setValue(renderContext.getLightColor());
-        }
+        lightColorPicker.setValue(scene.getLightColor());
     }
 }
