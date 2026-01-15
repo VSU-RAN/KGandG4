@@ -55,7 +55,7 @@ public class MainController {
     private PanelManager panelManager;
 
     @Autowired
-    private KeyboardController keyboardController;
+    private KeyboardAndMouseController keyboardAndMouseController;
 
     @Autowired
     private AlertService alertService;
@@ -66,7 +66,7 @@ public class MainController {
     private void initialize() {
         Platform.runLater(() -> {
             panelManager.initializeMainWindow(mainContainer.getScene().getWindow());
-            keyboardController.attachToScene(mainContainer.getScene());
+            keyboardAndMouseController.attachToScene(mainContainer.getScene());
         });
 
         panelManager.preloadAll();
@@ -121,7 +121,7 @@ public class MainController {
 
         mainContainer.sceneProperty().addListener((obs, oldScene, newScene) -> {
             if (newScene != null) {
-                keyboardController.attachToScene(newScene);
+                keyboardAndMouseController.attachToScene(newScene);
             }
         });
     }

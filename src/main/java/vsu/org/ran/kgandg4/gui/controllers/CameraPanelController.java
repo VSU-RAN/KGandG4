@@ -31,13 +31,13 @@ public class CameraPanelController implements Initializable, PanelController {
     @Autowired
     private CameraManager cameraManager;
 
-    @Value("${camera.pan_speed:0.5}")
+    @Value("${camera.keyboard.pan_speed:0.5}")
     private float PAN_SPEED;
 
-    @Value("${camera.orbit_speed:0.05}")
+    @Value("${camera.keyboard.orbit_speed:0.05}")
     private float ORBIT_SPEED;
 
-    @Value("${camera.zoom_speed:0.5}")
+    @Value("${camera.keyboard.zoom_speed:0.5}")
     private float ZOOM_SPEED;
 
     private boolean isUpdatingFields = false;
@@ -46,12 +46,10 @@ public class CameraPanelController implements Initializable, PanelController {
     public void initialize(URL location, ResourceBundle resources) {
         initListView();
         initSpinners();
-
         if (cameraManager != null) {
             initCameraManager();
         }
     }
-
 
     public void initCameraManager() {
         cameraListView.setItems(cameraManager.getCameras());

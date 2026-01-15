@@ -2,7 +2,8 @@ module vsu.org.ran.kgandg4 {
     requires javafx.controls;
     requires javafx.fxml;
     requires java.desktop;
-    requires MathLibrary;
+    requires transitive KGandG3;
+//    requires transitive MathLibrary;
 
     opens vsu.org.ran.kgandg4 to javafx.fxml;
     opens vsu.org.ran.kgandg4.gui to javafx.fxml;
