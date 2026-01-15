@@ -4,11 +4,13 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
+import math.vector.Vector3f;
 import vsu.org.ran.kgandg4.dependecyIndjection.annotations.Autowired;
 import vsu.org.ran.kgandg4.dependecyIndjection.annotations.Component;
 import vsu.org.ran.kgandg4.gui.PanelController;
 import vsu.org.ran.kgandg4.gui.ConstantsAndStyles;
 import vsu.org.ran.kgandg4.model.ModelManager;
+import vsu.org.ran.kgandg4.model.modelEdit.ModelTools;
 import vsu.org.ran.kgandg4.model.models.TriangulatedModel;
 
 import java.net.URL;
@@ -56,19 +58,18 @@ public class EditPanelController implements Initializable, PanelController {
         TriangulatedModel model = modelManager.getCurrentModel();
 
 
-        // TODO: Временно - пока не реализован ModelTools
-        // Vector3f clickPoint = new Vector3f((float)x, (float)y, (float)z);
-        // selectedVertexIndex = ModelTools.findNearestVertex(model, clickPoint, 0.1f);
+         Vector3f clickPoint = new Vector3f((float)x, (float)y, (float)z);
+         selectedVertexIndex = ModelTools.findNearestVertex(model, clickPoint, 0.1f);
 
-//        if (selectedVertexIndex != null) {
-//            selectedPolygonIndex = null;
-//        } else {
-//            // Если не нашли вершину, ищем полигон
-//            selectedPolygonIndex = ModelTools.findNearestPolygon(model, clickPoint, 0.1f);
-//            if (selectedPolygonIndex != null) {
-//                selectedVertexIndex = null;
-//            }
-//        }
+        if (selectedVertexIndex != null) {
+            selectedPolygonIndex = null;
+        } else {
+            // Если не нашли вершину, ищем полигон
+            selectedPolygonIndex = ModelTools.findNearestPolygon(model, clickPoint, 0.1f);
+            if (selectedPolygonIndex != null) {
+                selectedVertexIndex = null;
+            }
+        }
 
         updateSelectionInfo();
         updateModelStats();
@@ -87,7 +88,7 @@ public class EditPanelController implements Initializable, PanelController {
 
         if (selectedVertexIndex != null) {
             System.out.println("Would delete vertex #" + selectedVertexIndex);
-            // TODO: ModelTools.removeVertex(model, selectedVertexIndex);
+            TODO: ModelTools.removeVertex(model, selectedVertexIndex);
             selectedVertexIndex = null;
 
             // Показываем уведомление
@@ -95,7 +96,7 @@ public class EditPanelController implements Initializable, PanelController {
 
         } else if (selectedPolygonIndex != null) {
             System.out.println("Would delete polygon #" + selectedPolygonIndex);
-            // TODO: ModelTools.removePolygon(model, selectedPolygonIndex);
+            TODO: ModelTools.removePolygon(model, selectedPolygonIndex);
             selectedPolygonIndex = null;
 
             // Показываем уведомление
@@ -125,9 +126,8 @@ public class EditPanelController implements Initializable, PanelController {
             // Временная заглушка
             System.out.println("Deleting all vertices and polygons...");
 
-            // TODO: Реальная очистка
-            // model.vertices.clear();
-            // model.polygons.clear();
+            model.vertices.clear();
+            model.polygons.clear();
 
             alertService.showInfo("Успех", "Все вершины и полигоны удалены");
 
@@ -157,13 +157,13 @@ public class EditPanelController implements Initializable, PanelController {
             // Пробуем сначала удалить вершину
             if (index >= 0 && index < model.vertices.size()) {
                 // TODO: Реальная реализация удаления вершины
-                // ModelTools.removeVertex(model, index);
+                ModelTools.removeVertex(model, index);
                 alertService.showInfo("Успех", "Вершина #" + index + " удалена");
             }
             // Если не вершина, пробуем полигон
             else if (index >= 0 && index < model.polygons.size()) {
                 // TODO: Реальная реализация удаления полигона
-                // ModelTools.removePolygon(model, index);
+                ModelTools.removePolygon(model, index);
                 alertService.showInfo("Успех", "Полигон #" + index + " удален");
             } else {
                 alertService.showError("Ошибка", "Неверный индекс");
