@@ -1,12 +1,13 @@
 package vsu.org.ran.kgandg4.model;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
 
 import vsu.org.ran.kgandg4.IO.ObjWriter;
 import vsu.org.ran.kgandg4.model.models.Model;
@@ -54,8 +55,6 @@ public class ModelManager {
 
         return triangulatedModel;
     }
-
-
 
 
     public void removeModel(TriangulatedModel model) {
