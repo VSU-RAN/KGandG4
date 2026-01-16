@@ -47,6 +47,7 @@ public class KeyboardAndMouseController {
     @Value("${camera.mouse.zoom_speed:0.075}")
     private float MOUSE_ZOOM_SENSITIVITY;
 
+
     private double mouseX, mouseY;
     private double prevMouseX, prevMouseY;
 
@@ -90,20 +91,6 @@ public class KeyboardAndMouseController {
 
         // Устанавливаем фокус на канвас при клике
         canvas.setOnMouseClicked(e -> canvas.requestFocus());
-
-        canvas.addEventFilter(MouseEvent.ANY, event -> {
-            // Для событий мыши на канвасе - останавливаем всплытие
-            if (event.getEventType() == MouseEvent.MOUSE_PRESSED ||
-                    event.getEventType() == MouseEvent.MOUSE_DRAGGED ||
-                    event.getEventType() == MouseEvent.MOUSE_RELEASED ||
-                    event.getEventType() == MouseEvent.MOUSE_CLICKED) {
-
-                // Пропускаем только если это наш канвас
-                if (event.getTarget().equals(canvas)) {
-                    event.consume();
-                }
-            }
-        });
     }
 
     private void handleKeyPressed(KeyEvent event) {
@@ -220,41 +207,54 @@ public class KeyboardAndMouseController {
 
         prevMouseX = mouseX;
         prevMouseY = mouseY;
+
+
         // Определяем, какая кнопка нажата
         leftMouseButtonPressed = event.isPrimaryButtonDown();
         rightMouseButtonPressed = event.isSecondaryButtonDown();
         middleMouseButtonPressed = event.isMiddleButtonDown();
-        // Начинаем перетаскивание, если нажата любая кнопка
-        isDragging = leftMouseButtonPressed || rightMouseButtonPressed ||
-                middleMouseButtonPressed;
-    }
 
-    private void handleMouseDragged(MouseEvent event) {
-        if (cameraManager == null || cameraManager.getActiveCamera() == null) {
+        if (leftMouseButtonPressed && !event.isAltDown() && !event.isControlDown()) {
+            System.out.println("ЛКМ нажата (возможно для выделения)");
+            // НЕ event.consume() - пусть событие идет дальше
             return;
         }
 
-        Camera activeCamera = cameraManager.getActiveCamera();
+        // Начинаем перетаскивание, если нажата любая кнопка
+        if (rightMouseButtonPressed || middleMouseButtonPressed || leftMouseButtonPressed) {
+            event.consume();
+        }
+    }
 
-        double dx = event.getSceneX() - prevMouseX;
-        double dy = event.getSceneY() - prevMouseY;
+    private void handleMouseDragged(MouseEvent event) {
+        if (leftMouseButtonPressed || rightMouseButtonPressed || middleMouseButtonPressed) {
+            if (cameraManager == null || cameraManager.getActiveCamera() == null) {
+                return;
+            }
 
-        prevMouseX = event.getSceneX();
-        prevMouseY = event.getSceneY();
+            Camera activeCamera = cameraManager.getActiveCamera();
 
-        if (leftMouseButtonPressed) {
-            float orbitX = (float) dx * MOUSE_ORBIT_SENSITIVITY;
-            float orbitY = (float) dy * MOUSE_ORBIT_SENSITIVITY;
-            activeCamera.orbit(orbitX, orbitY);
+            double dx = event.getSceneX() - prevMouseX;
+            double dy = event.getSceneY() - prevMouseY;
 
-        } else if (rightMouseButtonPressed) {
-            activeCamera.movePositionAndTarget(new Vector3f(
-                    (float) dx * MOUSE_PAN_SENSITIVITY,
-                    (float) -dy * MOUSE_PAN_SENSITIVITY,
-                    0
-            ));
-        } else if (middleMouseButtonPressed) {
-            performCameraInversion(activeCamera);
+            prevMouseX = event.getSceneX();
+            prevMouseY = event.getSceneY();
+
+            if (leftMouseButtonPressed) {
+                float orbitX = (float) dx * MOUSE_ORBIT_SENSITIVITY;
+                float orbitY = (float) dy * MOUSE_ORBIT_SENSITIVITY;
+                activeCamera.orbit(orbitX, orbitY);
+
+            } else if (rightMouseButtonPressed) {
+                activeCamera.movePositionAndTarget(new Vector3f(
+                        (float) dx * MOUSE_PAN_SENSITIVITY,
+                        (float) -dy * MOUSE_PAN_SENSITIVITY,
+                        0
+                ));
+            } else if (middleMouseButtonPressed) {
+                performCameraInversion(activeCamera);
+            }
+            event.consume();
         }
     }
 

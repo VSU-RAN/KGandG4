@@ -21,13 +21,6 @@ public class Zbuffer {
         }
     }
 
-    public Zbuffer(int width, int height) {
-        this.width = width;
-        this.height = height;
-        this.buffer = new float[width * height];
-        clear();
-    }
-
 
     public void clear() {
         if (buffer != null) {
@@ -54,5 +47,24 @@ public class Zbuffer {
 
     public int getHeight() {
         return height;
+    }
+
+    public float readDepth(double x, double y) {
+        int intX = (int)Math.floor(x);
+        int intY = (int)Math.floor(y);
+
+        if (intX < 0 || intY < 0 || intX >= width || intY >= height) {
+            return Float.POSITIVE_INFINITY;
+        }
+
+        float z = buffer[intY * width + intX];
+
+        if (z >= Float.POSITIVE_INFINITY) {
+            return 1.0f;
+        }
+
+        float normalizedZ = (z + 1.0f) / 2.0f; // [-1,1] → [0,1]
+
+        return Math.max(0, Math.min(1, normalizedZ));
     }
 }

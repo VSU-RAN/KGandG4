@@ -4,7 +4,6 @@ import math.vector.Vector2f;
 import math.vector.Vector3f;
 
 public class Triangle extends Polygon {
-    private Vector3f[] worldVertices;
 
     public Triangle(Polygon polygon) {
         if (polygon.getVertexIndices().size() != 3) {
@@ -17,13 +16,11 @@ public class Triangle extends Polygon {
     }
 
     public Vector3f[] getWorldVertices(Model model) {
-        if (worldVertices == null) {
-            worldVertices = new Vector3f[3];
-            for (int i = 0; i < 3; i++) {
-                worldVertices[i] = model.vertices.get(vertexIndices.get(i));
-            }
+        Vector3f[] vertices = new Vector3f[3];
+        for (int i = 0; i < 3; i++) {
+            vertices[i] = model.vertices.get(vertexIndices.get(i));
         }
-        return worldVertices;
+        return vertices;
     }
 
     public Vector3f getWorldVertex(int index, Model model) {

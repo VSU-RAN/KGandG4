@@ -1,6 +1,9 @@
 package vsu.org.ran.kgandg4.model.models;
 
 
+
+import math.vector.Vector3f;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,6 +25,26 @@ public class TriangulatedModel extends Model {
         }
         return true;
     }
+
+    public Integer findPolygonContainingPoint(Vector3f point) {
+        for (int i = 0; i < polygons.size(); i++) {
+            Polygon polygon = polygons.get(i);
+
+            if (polygon.getVertexIndices().size() != 3) {
+                continue;
+            }
+
+            Triangle triangle = new Triangle(polygon);
+
+            if (triangle.isInsideTriangle(point, this)) {
+                return i;
+            }
+        }
+
+        return null;
+    }
+
+
 
     @Override
     public String toString() {

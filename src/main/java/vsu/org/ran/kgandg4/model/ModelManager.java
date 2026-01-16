@@ -1,16 +1,19 @@
 package vsu.org.ran.kgandg4.model;
 
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.ReadOnlyObjectWrapper;
+import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 
+import math.vector.Vector3f;
 import vsu.org.ran.kgandg4.IO.ObjWriter;
+import vsu.org.ran.kgandg4.dependecyIndjection.annotations.Value;
 import vsu.org.ran.kgandg4.model.models.Model;
 import vsu.org.ran.kgandg4.IO.objReader.ObjReader;
+import vsu.org.ran.kgandg4.model.models.Polygon;
+import vsu.org.ran.kgandg4.model.models.Triangle;
 import vsu.org.ran.kgandg4.normals.NormalCalculator;
 import vsu.org.ran.kgandg4.triangulation.Triangulator;
 import vsu.org.ran.kgandg4.model.models.TriangulatedModel;
@@ -25,9 +28,16 @@ public class ModelManager {
     @Autowired
     private NormalCalculator normalCalculator;
 
+    @Value("${model.default.threshold:0.3}")
+    private float modelDefaultThreshold;
+
     private ObservableList<Model> modelList = FXCollections.observableArrayList();
     private int nextId = 0;
     private final ReadOnlyObjectWrapper<Model> activeModelProperty = new ReadOnlyObjectWrapper<>();
+
+    private final ObjectProperty<Integer> selectedVertexIndex = new SimpleObjectProperty<>();
+    private final ObjectProperty<Integer> selectedPolygonIndex = new SimpleObjectProperty<>();
+    private final ReadOnlyObjectWrapper<String> selectionInfoProperty = new ReadOnlyObjectWrapper<>("Ничего не выбрано");
 
     public Model loadModel(File file) throws IOException {
         String content = Files.readString(file.toPath());
@@ -55,8 +65,6 @@ public class ModelManager {
 
         return triangulatedModel;
     }
-
-
 
 
     public void removeModel(TriangulatedModel model) {
@@ -143,5 +151,192 @@ public class ModelManager {
         if (model != null && modelList.contains(model)) {
             activeModelProperty.set(model);
         }
+    }
+
+    public void handleClickInModel(Vector3f pointInModelSpace) {
+        TriangulatedModel activeModel = (TriangulatedModel) getCurrentModel();
+        if (activeModel == null) {
+            clearSelection();
+            return;
+        }
+        float threshold = activeModel.calculateAutoThreshold(modelDefaultThreshold);
+
+        // Ищем ближайшую вершину
+        Integer vertexIndex = activeModel.findNearestVertex(pointInModelSpace, threshold);
+        if (vertexIndex != null) {
+            selectVertex(vertexIndex);
+            return;
+        }
+
+        Integer polygonIndex = activeModel.findPolygonContainingPoint(pointInModelSpace);
+        if (polygonIndex != null) {
+            selectPolygon(polygonIndex);
+            return;
+        }
+
+        // Ничего не нашли - очищаем выбор
+        clearSelection();
+    }
+
+    public void selectVertex(int vertexIndex) {
+        Model activeModel = getCurrentModel();
+        if (activeModel != null && vertexIndex >= 0 && vertexIndex < activeModel.getVertices().size()) {
+            selectedVertexIndex.set(vertexIndex);
+            System.out.println("Выбрана вершина: " + selectedVertexIndex.get());
+            selectedPolygonIndex.set(null);
+            updateSelectionInfo();
+        } else {
+            clearSelection();
+        }
+    }
+
+    public void selectPolygon(int polygonIndex) {
+        Model activeModel = getCurrentModel();
+        if (activeModel != null && polygonIndex >= 0 && polygonIndex < activeModel.getPolygons().size()) {
+            selectedPolygonIndex.set(polygonIndex);
+            System.out.println("Выбран полигон: " + selectedPolygonIndex.get());
+            selectedVertexIndex.set(null);
+            updateSelectionInfo();
+        } else {
+            clearSelection();
+        }
+    }
+
+    public void clearSelection() {
+        selectedVertexIndex.set(null);
+        selectedPolygonIndex.set(null);
+        updateSelectionInfo();
+    }
+
+    public boolean deleteSelected() {
+        Model activeModel = getCurrentModel();
+        if (activeModel == null) return false;
+
+        if (selectedVertexIndex.get() != null) {
+            int index = selectedVertexIndex.get();
+            activeModel.removeVertex(index);
+            clearSelection();
+            return true;
+
+        } else if (selectedPolygonIndex.get() != null) {
+            int index = selectedPolygonIndex.get();
+            activeModel.removePolygon(index);
+            clearSelection();
+            return true;
+        }
+
+        return false;
+    }
+
+    public boolean deleteAllFromCurrentModel() {
+        Model activeModel = getCurrentModel();
+        if (activeModel == null) {
+            return false;
+        }
+
+        activeModel.deleteVertices();
+        activeModel.deletePolygons();
+        activeModel.deleteTextureVertices();
+        activeModel.deleteNormals();
+
+        clearSelection();
+        return true;
+    }
+
+    public boolean deleteByIndex(int index) {
+        Model activeModel = getCurrentModel();
+        if (activeModel == null) {
+            return false;
+        }
+
+        if (index >= 0 && index < activeModel.getVertices().size()) {
+            activeModel.removeVertex(index);
+            clearSelection();
+            return true;
+        }
+
+        if (index >= 0 && index < activeModel.getPolygons().size()) {
+            activeModel.removePolygon(index);
+            clearSelection();
+            return true;
+        }
+
+        return false;
+    }
+
+    private void updateSelectionInfo() {
+        if (getCurrentModel() == null) {
+            selectionInfoProperty.set("Нет активной модели");
+            return;
+        }
+
+        if (selectedVertexIndex.get() != null) {
+            Vector3f vertex = getSelectedVertex();
+            if (vertex != null) {
+                selectionInfoProperty.set(String.format("Вершина #%d (%.2f, %.2f, %.2f)",
+                        selectedVertexIndex.get(), vertex.getX(), vertex.getY(), vertex.getZ()));
+            } else {
+                selectionInfoProperty.set("Вершина #" + selectedVertexIndex.get());
+            }
+        } else if (selectedPolygonIndex.get() != null) {
+            Polygon polygon = getSelectedPolygon();
+            if (polygon != null) {
+                selectionInfoProperty.set(String.format("Полигон #%d (%d вершин)",
+                        selectedPolygonIndex.get(), polygon.getVertexIndices().size()));
+            } else {
+                selectionInfoProperty.set("Полигон #" + selectedPolygonIndex.get());
+            }
+        } else {
+            selectionInfoProperty.set("Ничего не выбрано");
+        }
+    }
+
+
+    // === Геттеры ===
+
+    public boolean isVertexSelected() {
+        return selectedVertexIndex.get() != null;
+    }
+
+    public boolean isPolygonSelected() {
+        return selectedPolygonIndex.get() != null;
+    }
+
+    public Integer getSelectedVertexIndex() {
+        return selectedVertexIndex.get();
+    }
+
+    public Integer getSelectedPolygonIndex() {
+        return selectedPolygonIndex.get();
+    }
+
+    public Vector3f getSelectedVertex() {
+        Model activeModel = getCurrentModel();
+        Integer index = selectedVertexIndex.get();
+        if (activeModel != null && index != null && index < activeModel.getVertices().size()) {
+            return activeModel.getVertices().get(index);
+        }
+        return null;
+    }
+
+    public Polygon getSelectedPolygon() {
+        Model activeModel = getCurrentModel();
+        Integer index = selectedPolygonIndex.get();
+        if (activeModel != null && index != null && index < activeModel.getPolygons().size()) {
+            return activeModel.getPolygons().get(index);
+        }
+        return null;
+    }
+
+    public ObjectProperty<Integer> selectedVertexIndexProperty() {
+        return selectedVertexIndex;
+    }
+
+    public ObjectProperty<Integer> selectedPolygonIndexProperty() {
+        return selectedPolygonIndex;
+    }
+
+    public ReadOnlyObjectProperty<String> selectionInfoProperty() {
+        return selectionInfoProperty.getReadOnlyProperty();
     }
 }

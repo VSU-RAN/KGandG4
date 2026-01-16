@@ -4,100 +4,7 @@ import math.vector.Vector3f;
 import vsu.org.ran.kgandg4.model.models.Model;
 import vsu.org.ran.kgandg4.model.models.Polygon;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
 public class ModelTools {
-
-    /**
-     * Удаляет вершину по индексу и все связанные с ней полигоны
-     */
-    public static void removeVertex(Model model, int vertexIndex) {
-        if (model == null || vertexIndex < 0 || vertexIndex >= model.getVertices().size()) {
-            return;
-        }
-
-        // Находим все полигоны, которые используют эту вершину
-        Set<Integer> polygonsToRemove = new HashSet<>();
-        for (int i = 0; i < model.getPolygons().size(); i++) {
-            Polygon polygon = model.getPolygons().get(i);
-            if (polygon.getVertexIndices().contains(vertexIndex)) {
-                polygonsToRemove.add(i);
-            }
-        }
-
-        // Удаляем полигоны (в обратном порядке чтобы индексы не сдвигались)
-        List<Integer> sorted = new ArrayList<>(polygonsToRemove);
-        sorted.sort((a, b) -> Integer.compare(b, a)); // сортируем по убыванию
-        for (int polyIndex : sorted) {
-            model.getPolygons().remove(polyIndex);
-        }
-
-        // Удаляем вершину
-        model.getVertices().remove(vertexIndex);
-
-        // Обновляем индексы вершин в оставшихся полигонах
-        for (Polygon polygon : model.getPolygons()) {
-            List<Integer> newIndices = new ArrayList<>();
-            for (int idx : polygon.getVertexIndices()) {
-                if (idx > vertexIndex) {
-                    newIndices.add(idx - 1); // уменьшаем индекс
-                } else if (idx < vertexIndex) {
-                    newIndices.add(idx); // оставляем как есть
-                }
-                // idx == vertexIndex - уже удален, не добавляем
-            }
-            polygon.setVertexIndices(newIndices);
-        }
-        model.markTransformDirty();
-
-        // Также нужно обновить нормали и текстуры если они есть
-        updateNormalsAndTextures(model);
-    }
-
-    /**
-     * Удаляет полигон по индексу
-     */
-    public static void removePolygon(Model model, int polygonIndex) {
-        if (model == null || polygonIndex < 0 || polygonIndex >= model.getPolygons().size()) {
-            return;
-        }
-
-        model.getPolygons().remove(polygonIndex);
-        model.markTransformDirty();
-
-        updateNormalsAndTextures(model);
-    }
-
-    /**
-     * Находит ближайшую вершину к точке в мировых координатах
-     */
-    public static Integer findNearestVertex(Model model, Vector3f point, float threshold) {
-        if (model == null || model.getVertices().isEmpty()) {
-            return null;
-        }
-
-        int nearestIndex = -1;
-        float minDistance = Float.MAX_VALUE;
-
-        for (int i = 0; i < model.getVertices().size(); i++) {
-            Vector3f vertex = model.getVertices().get(i);
-            float distance = calculateDistance(vertex, point);
-
-            if (distance < minDistance && distance < threshold) {
-                minDistance = distance;
-                nearestIndex = i;
-            }
-        }
-
-        return nearestIndex >= 0 ? nearestIndex : null;
-    }
-
-    /**
-     * Находит ближайший полигон к точке
-     */
     public static Integer findNearestPolygon(Model model, Vector3f point, float threshold) {
         if (model == null || model.getPolygons().isEmpty()) {
             return null;
@@ -107,7 +14,7 @@ public class ModelTools {
         float minDistance = Float.MAX_VALUE;
 
         for (int i = 0; i < model.getPolygons().size(); i++) {
-            var polygon = model.getPolygons().get(i);
+            Polygon polygon = model.getPolygons().get(i);
             Vector3f center = calculatePolygonCenter(model, polygon);
 
             float distance = calculateDistance(center, point);
@@ -142,7 +49,7 @@ public class ModelTools {
         int count = 0;
 
         for (int vertexIndex : polygon.getVertexIndices()) {
-            if (vertexIndex >= 0 && vertexIndex < model.getPolygons().size()) {
+            if (vertexIndex >= 0 && vertexIndex < model.getVertices().size()) {
                 Vector3f vertex = model.getVertices().get(vertexIndex);
                 x += vertex.getX();
                 y += vertex.getY();
@@ -152,16 +59,5 @@ public class ModelTools {
         }
 
         return count > 0 ? new Vector3f(x / count, y / count, z / count) : new Vector3f(0, 0, 0);
-    }
-
-    /**
-     * Обновляет нормали и текстурные координаты после удаления элементов
-     */
-    private static void updateNormalsAndTextures(Model model) {
-        // Здесь можно добавить перерасчет нормалей
-        // Пока просто очищаем если они есть
-        if (!model.getNormals().isEmpty()) {
-            model.getNormals().clear();
-        }
     }
 }

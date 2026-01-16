@@ -42,6 +42,9 @@ public class RenderContext {
     /// Настройки рендеринга ///
     private RenderMode mode;
     private Color wireframeColor;
+    private Matrix4f modelMatrix;
+    private Matrix4f viewMatrix;
+    private Matrix4f projectionMatrix;
     private Matrix4f pvmMatrix;
     private Vector3f cameraDirectionNormalized;
 
@@ -81,9 +84,9 @@ public class RenderContext {
     }
 
     private void calculatePVMMatrix() {
-        Matrix4f modelMatrix = rotateScaleTranslate();
-        Matrix4f viewMatrix = camera.getViewMatrix();
-        Matrix4f projectionMatrix = camera.getProjectionMatrix();
+        this.modelMatrix = rotateScaleTranslate();
+        this.viewMatrix = camera.getViewMatrix();
+        this.projectionMatrix = camera.getProjectionMatrix();
 
         // PVM матрица как в методичке
         this.pvmMatrix = new Matrix4f(projectionMatrix.copy());
@@ -92,6 +95,9 @@ public class RenderContext {
 
     }
 
+    public Matrix4f getModelMatrix() { return modelMatrix; }
+    public Matrix4f getViewMatrix() { return viewMatrix; }
+    public Matrix4f getProjectionMatrix() { return projectionMatrix; }
     public Matrix4f getPVMMatrix() {
         calculatePVMMatrix();
         return this.pvmMatrix;

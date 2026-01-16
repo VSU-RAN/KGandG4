@@ -46,6 +46,8 @@ public class RenderEngine {
         if(model == null) {
             return;
         }
+        Matrix4f viewMatrix = context.getViewMatrix();
+        Matrix4f projectionMatrix = context.getProjectionMatrix();
 
         Lightning lightning = context.getLightning();
         Vector3f ray = context.getCameraDirectionNormalized();

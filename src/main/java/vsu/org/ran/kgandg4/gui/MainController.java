@@ -10,14 +10,20 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.control.SplitPane;
 import javafx.scene.layout.AnchorPane;
 
+import math.matrix.Matrix4f;
 import math.vector.Vector3f;
 
+import vsu.org.ran.kgandg4.camera.Camera;
 import vsu.org.ran.kgandg4.gui.controllers.*;
 import vsu.org.ran.kgandg4.model.ModelManager;
 import vsu.org.ran.kgandg4.camera.CameraManager;
+import vsu.org.ran.kgandg4.model.models.Model;
+import vsu.org.ran.kgandg4.render_engine.GraphicConveyor;
+import vsu.org.ran.kgandg4.render_engine.render.RenderContext;
 import vsu.org.ran.kgandg4.render_engine.render.RenderLoopService;
 import vsu.org.ran.kgandg4.dependecyIndjection.annotations.Autowired;
 import vsu.org.ran.kgandg4.dependecyIndjection.annotations.Component;
+import vsu.org.ran.kgandg4.render_engine.render.Scene;
 
 @Component
 public class MainController {
@@ -61,6 +67,12 @@ public class MainController {
 
     @Autowired
     private AlertService alertService;
+
+    @Autowired
+    private Scene scene;
+
+    @Autowired
+    private RenderContext renderContext;
 
 
 
@@ -138,11 +150,39 @@ public class MainController {
                 if (panelManager.isPanelOpen("edit")) {
                     EditPanelController editController = panelManager.getController("edit", EditPanelController.class);
 
-                    double x = (event.getX() / canvas.getWidth()) * 2 - 1;
-                    double y = -((event.getY() / canvas.getHeight()) * 2 - 1);
-                    double z = 0; // Для простоты пока используем 0
+                    // 1. Получаем глубину из Z-буфера
+                    float screenX = (float)event.getX();
+                    float screenY = (float)event.getY();
+                    float depth = scene.getZbuffer().readDepth(screenX, screenY);
 
-                    editController.handleModelClick(x, y, z);
+                    if (depth >= 0.999f) {
+                        System.out.println("Клик в пустоту - очищаем выбор");
+                        editController.clearSelection();
+                        return;
+                    }
+
+                    // 2. Преобразуем экранные координаты в координаты модели
+                    Camera camera = scene.getActiveCamera();
+                    int width = (int)canvas.getWidth();
+                    int height = (int)canvas.getHeight();
+
+                    Matrix4f viewMatrix = camera.getViewMatrix();
+                    Matrix4f projectionMatrix = camera.getProjectionMatrix();
+                    Matrix4f modelMatrix = GraphicConveyor.rotateScaleTranslate();
+                    float near = camera.getNearPlane();
+                    float far = camera.getFarPlane();
+
+                    Vector3f modelCoords = GraphicConveyor.screenToModel(
+                            screenX, screenY, depth,
+                            width, height,
+                            viewMatrix, projectionMatrix, modelMatrix,
+                            near, far
+                    );
+
+                    if (modelCoords != null) {
+                        // 3. Передаем координаты в пространстве модели
+                        editController.handleModelClick(modelCoords);
+                    }
                 }
             }
         });

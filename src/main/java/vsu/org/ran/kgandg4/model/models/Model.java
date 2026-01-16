@@ -3,9 +3,11 @@ package vsu.org.ran.kgandg4.model.models;
 import math.matrix.Matrix4f;
 import math.vector.Vector2f;
 import math.vector.Vector3f;
+import vsu.org.ran.kgandg4.dependecyIndjection.annotations.Component;
+import vsu.org.ran.kgandg4.dependecyIndjection.annotations.Value;
 
-import java.util.ArrayList;
-import java.util.Objects;
+import java.util.*;
+
 
 public class Model {
     protected int id;
@@ -23,6 +25,7 @@ public class Model {
     protected ArrayList<Vector2f> textureVertices = new ArrayList<>();
     protected ArrayList<Vector3f> normals = new ArrayList<>();
     protected ArrayList<Polygon> polygons = new ArrayList<>();
+
 
 
     public String getName() {
@@ -130,6 +133,134 @@ public class Model {
         this.normals.clear();
         this.isTransformDirty = true;
     }
+
+    public void removeVertex(int vertexIndex) {
+        if (vertexIndex < 0 || vertexIndex >= vertices.size()) {
+            return;
+        }
+
+        // Находим все полигоны, которые используют эту вершину
+        Set<Integer> polygonsToRemove = new HashSet<>();
+        for (int i = 0; i < polygons.size(); i++) {
+            Polygon polygon = polygons.get(i);
+            if (polygon.getVertexIndices().contains(vertexIndex)) {
+                polygonsToRemove.add(i);
+            }
+        }
+
+        // Удаляем полигоны (в обратном порядке чтобы индексы не сдвигались)
+        List<Integer> sorted = new ArrayList<>(polygonsToRemove);
+        sorted.sort((a, b) -> Integer.compare(b, a)); // сортируем по убыванию
+        for (int polyIndex : sorted) {
+            polygons.remove(polyIndex);
+        }
+
+        // Удаляем вершину
+        vertices.remove(vertexIndex);
+
+        // Обновляем индексы вершин в оставшихся полигонах
+        for (Polygon polygon : polygons) {
+            List<Integer> newIndices = new ArrayList<>();
+            for (int idx : polygon.getVertexIndices()) {
+                if (idx > vertexIndex) {
+                    newIndices.add(idx - 1); // уменьшаем индекс
+                } else if (idx < vertexIndex) {
+                    newIndices.add(idx); // оставляем как есть
+                }
+                // idx == vertexIndex - уже удален, не добавляем
+            }
+            polygon.setVertexIndices(newIndices);
+        }
+
+        markTransformDirty();
+        clearNormalsAndTexturesIfNeeded();
+    }
+
+    public void removePolygon(int polygonIndex) {
+        if (polygonIndex < 0 || polygonIndex >= polygons.size()) {
+            return;
+        }
+
+        polygons.remove(polygonIndex);
+        markTransformDirty();
+        clearNormalsAndTexturesIfNeeded();
+    }
+
+    public Integer findNearestVertex(Vector3f point, float threshold) {
+        if (vertices.isEmpty()) {
+            return null;
+        }
+
+        int nearestIndex = -1;
+        float minDistance = Float.MAX_VALUE;
+
+        for (int i = 0; i < vertices.size(); i++) {
+            Vector3f vertex = vertices.get(i);
+            float distance = calculateDistance(vertex, point);
+
+            if (distance < minDistance && distance < threshold) {
+                minDistance = distance;
+                nearestIndex = i;
+            }
+        }
+
+        return nearestIndex >= 0 ? nearestIndex : null;
+    }
+
+    public Integer findPolygonContainingPoint(Vector3f point) {
+        return null;
+    }
+
+
+    public float calculateSize() {
+        if (vertices.isEmpty()) return 0.0f;
+
+        Vector3f min = new Vector3f(Float.MAX_VALUE, Float.MAX_VALUE, Float.MAX_VALUE);
+        Vector3f max = new Vector3f(-Float.MAX_VALUE, -Float.MAX_VALUE, -Float.MAX_VALUE);
+
+        for (Vector3f vertex : vertices) {
+            min = new Vector3f(
+                    Math.min(min.getX(), vertex.getX()),
+                    Math.min(min.getY(), vertex.getY()),
+                    Math.min(min.getZ(), vertex.getZ())
+            );
+            max = new Vector3f(
+                    Math.max(max.getX(), vertex.getX()),
+                    Math.max(max.getY(), vertex.getY()),
+                    Math.max(max.getZ(), vertex.getZ())
+            );
+        }
+
+        float dx = max.getX() - min.getX();
+        float dy = max.getY() - min.getY();
+        float dz = max.getZ() - min.getZ();
+
+        return (float)Math.sqrt(dx*dx + dy*dy + dz*dz);
+    }
+
+    public float calculateAutoThreshold(float modelDefaultThreshold) {
+        float size = calculateSize();
+        if (size < 0.001f) return modelDefaultThreshold;
+        return size * modelDefaultThreshold;
+    }
+
+    private float calculateDistance(Vector3f v1, Vector3f v2) {
+        float dx = v1.getX() - v2.getX();
+        float dy = v1.getY() - v2.getY();
+        float dz = v1.getZ() - v2.getZ();
+        return (float) Math.sqrt(dx * dx + dy * dy + dz * dz);
+    }
+
+
+    private void clearNormalsAndTexturesIfNeeded() {
+        if (!normals.isEmpty()) {
+            normals.clear();
+        }
+        if (!textureVertices.isEmpty()) {
+            textureVertices.clear();
+        }
+    }
+
 
     //todo: Можно добавить реализацию доставания TRS матрицы прямо отсюда
 

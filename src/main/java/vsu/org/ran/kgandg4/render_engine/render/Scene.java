@@ -3,6 +3,7 @@ package vsu.org.ran.kgandg4.render_engine.render;
 import javafx.scene.paint.Color;
 import javafx.scene.canvas.GraphicsContext;
 
+import math.matrix.Matrix4f;
 import vsu.org.ran.kgandg4.camera.Camera;
 import vsu.org.ran.kgandg4.camera.CameraManager;
 import vsu.org.ran.kgandg4.model.models.Model;
@@ -37,12 +38,39 @@ public class Scene {
     @Autowired
     private Lightning lightning;
 
+    private Matrix4f viewMatrix;
+    private Matrix4f projectionMatrix;
+
+    public Matrix4f getViewMatrix() {
+        return viewMatrix;
+    }
+
+    public void setViewMatrix(Matrix4f viewMatrix) {
+        this.viewMatrix = viewMatrix;
+    }
+
+    public Matrix4f getProjectionMatrix() {
+        return projectionMatrix;
+    }
+
+    public void setProjectionMatrix(Matrix4f projectionMatrix) {
+        this.projectionMatrix = projectionMatrix;
+    }
+
     public Texture getTexture() {
         return texture;
     }
 
     public Lightning getLightning() {
         return lightning;
+    }
+
+    public Zbuffer getZbuffer() {
+        return zbuffer;
+    }
+
+    public Camera getActiveCamera() {
+        return cameraManager.getActiveCamera();
     }
 
     public Color getMaterialColor() {
