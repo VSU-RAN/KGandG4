@@ -1,5 +1,7 @@
 package vsu.org.ran.kgandg4.affineTransformations;
 
+import math.matrix.Matrix4f;
+
 import vsu.org.ran.kgandg4.affineTransformations.transformations.*;
 
 public class AffineBuilder implements AffineBuilderInterface {
@@ -158,7 +160,7 @@ public class AffineBuilder implements AffineBuilderInterface {
     /**
      * Строит матрицу преобразования напрямую
      */
-    public math.matrix.Matrix4f buildMatrix() {
+    public Matrix4f buildMatrix() {
         return composite.getMatrix();
     }
 
