@@ -81,10 +81,10 @@ class FaceNormalCalculatorTest {
     @Test
     void testCalculateNormals_FullModel() {
         Model model = new Model();
-        model.vertices.add(new Vector3f(0, 0, 0));
-        model.vertices.add(new Vector3f(1, 0, 0));
-        model.vertices.add(new Vector3f(0, 1, 0));
-        model.vertices.add(new Vector3f(0, 0, 1));
+        model.getVertices().add(new Vector3f(0, 0, 0));
+        model.getVertices().add(new Vector3f(1, 0, 0));
+        model.getVertices().add(new Vector3f(0, 1, 0));
+        model.getVertices().add(new Vector3f(0, 0, 1));
 
         Polygon face1 = new Polygon();
         face1.setVertexIndices(new ArrayList<>(Arrays.asList(0, 1, 2)));
@@ -98,23 +98,23 @@ class FaceNormalCalculatorTest {
         Polygon face4 = new Polygon();
         face4.setVertexIndices(new ArrayList<>(Arrays.asList(1, 2, 3)));
 
-        model.polygons.add(face1);
-        model.polygons.add(face2);
-        model.polygons.add(face3);
-        model.polygons.add(face4);
+        model.getPolygons().add(face1);
+        model.getPolygons().add(face2);
+        model.getPolygons().add(face3);
+        model.getPolygons().add(face4);
 
         FaceNormalCalculator calculator = new FaceNormalCalculator();
         calculator.calculateNormals(model);
 
-        assertEquals(4, model.normals.size(), "Должно быть 4 нормали (по одной на грань)");
+        assertEquals(4, model.getNormals().size(), "Должно быть 4 нормали (по одной на грань)");
 
-        for (int i = 0; i < model.normals.size(); i++) {
-            Vector3f normal = model.normals.get(i);
+        for (int i = 0; i < model.getNormals().size(); i++) {
+            Vector3f normal = model.getNormals().get(i);
             assertEquals(1.0f, normal.length(), 0.001f,
                     "Нормаль #" + i + " должна быть единичной. Длина: " + normal.length());
         }
 
-        for (Polygon polygon : model.polygons) {
+        for (Polygon polygon : model.getPolygons()) {
             assertNotNull(polygon.getNormalIndices(), "Полигон должен иметь индексы нормалей");
             assertEquals(3, polygon.getNormalIndices().size(), "Должно быть 3 индекса нормалей");
 
@@ -127,14 +127,14 @@ class FaceNormalCalculatorTest {
     @Test
     void testCalculateNormals_NonTriangleThrowsException() {
         Model model = new Model();
-        model.vertices.add(new Vector3f(0, 0, 0));
-        model.vertices.add(new Vector3f(1, 0, 0));
-        model.vertices.add(new Vector3f(1, 1, 0));
-        model.vertices.add(new Vector3f(0, 1, 0));
+        model.getVertices().add(new Vector3f(0, 0, 0));
+        model.getVertices().add(new Vector3f(1, 0, 0));
+        model.getVertices().add(new Vector3f(1, 1, 0));
+        model.getVertices().add(new Vector3f(0, 1, 0));
 
         Polygon quad = new Polygon();
         quad.setVertexIndices(new ArrayList<>(Arrays.asList(0, 1, 2, 3)));
-        model.polygons.add(quad);
+        model.getPolygons().add(quad);
 
         FaceNormalCalculator calculator = new FaceNormalCalculator();
 

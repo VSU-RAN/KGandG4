@@ -89,46 +89,57 @@ public class ModelManager {
             throw new IllegalArgumentException("Нельзя удалить последнюю модель");
         }
 
+        // Находим модель для удаления
         Model modelToRemove = null;
-        try {
-            modelToRemove = this.getModelById(id);
-        } catch (IllegalArgumentException e) {
-            throw e;
-        }
-
-        // ВАЖНО: Сначала убираем модель из активных, чтобы рендер не пытался ее рисовать
-        boolean wasActive = activeModelProperty.get() != null &&
-                activeModelProperty.get().equals(modelToRemove);
-
-        if (wasActive) {
-            activeModelProperty.set(null);
-
-            // Очищаем выбор В САМОМ НАЧАЛЕ
-            clearSelection();
-            selectionInfoProperty.set("Нет активной модели");
-
-            // Даем немного времени, чтобы рендер успел обработать null
-            try {
-                Thread.sleep(50);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
+        int modelIndex = -1;
+        for (int i = 0; i < modelList.size(); i++) {
+            if (modelList.get(i).getId() == id) {
+                modelToRemove = modelList.get(i);
+                modelIndex = i;
+                break;
             }
         }
-        // Если удалили активную модель, нужно выбрать новую
-        if (wasActive) {
 
-            // Выбираем новую активную модель (если есть)
+        if (modelToRemove == null) {
+            throw new IllegalArgumentException("Нет модели с таким ID: " + id);
+        }
+
+        // Проверяем, является ли модель активной
+        boolean wasActive = activeModelProperty.get() != null &&
+                activeModelProperty.get().getId() == id;
+
+        // Если удаляемая модель активна, очищаем выбор
+        if (wasActive) {
+            clearSelection();
+
+            // Находим новую модель для активации
             Model newActiveModel = null;
-            if (!modelList.isEmpty()) {
-                // Берем первую модель в списке
-                newActiveModel = modelList.get(0);
+            if (modelIndex > 0) {
+                // Если не первая, берем предыдущую
+                newActiveModel = modelList.get(modelIndex - 1);
+            } else {
+                // Если первая, берем следующую
+                newActiveModel = modelList.get(1);
             }
 
             // Устанавливаем новую активную модель
             activeModelProperty.set(newActiveModel);
+        }
 
-            if (newActiveModel != null) {
-                selectionInfoProperty.set("Активна модель: " + newActiveModel.getName());
+        // Удаляем модель из списка
+        boolean removed = modelList.remove(modelToRemove);
+
+        if (!removed) {
+            throw new IllegalStateException("Не удалось удалить модель из списка");
+        }
+
+        // Обновляем информацию о выборе
+        if (wasActive) {
+            Model current = getCurrentModel();
+            if (current != null) {
+                selectionInfoProperty.set("Активна модель: " + current.getName());
+            } else {
+                selectionInfoProperty.set("Нет активной модели");
             }
         }
     }

@@ -65,12 +65,12 @@ public class EarClippingTriangulatorTest {
     @Test
     public void testTriangulationAllTriangles() {
         earClippingTriangulator.triangulateModel(cubeModel);
-        for (Polygon polygon : cubeModel.polygons) {
+        for (Polygon polygon : cubeModel.getPolygons()) {
             Assertions.assertEquals(3, polygon.getVertexIndices().size());
         }
 
         earClippingTriangulator.triangulateModel(oneSimplePolygonModel);
-        for (Polygon polygon : oneSimplePolygonModel.polygons) {
+        for (Polygon polygon : oneSimplePolygonModel.getPolygons()) {
             Assertions.assertEquals(3, polygon.getVertexIndices().size());
         }
     }
@@ -79,16 +79,16 @@ public class EarClippingTriangulatorTest {
     public void testTriangulatedModelTextures() {
         Model model1 = earClippingTriangulator.createTriangulatedModel(cubeModel);
         Model model2 = earClippingTriangulator.createTriangulatedModel(oneSimplePolygonModel);
-        Assertions.assertEquals(cubeModel.textureVertices, model1.textureVertices);
-        Assertions.assertEquals(oneSimplePolygonModel.textureVertices, model2.textureVertices);
+        Assertions.assertEquals(cubeModel.getTextureVertices(), model1.getTextureVertices());
+        Assertions.assertEquals(oneSimplePolygonModel.getTextureVertices(), model2.getTextureVertices());
     }
 
     @Test
     public void testTriangulatedModelNormals() {
         Model model1 = earClippingTriangulator.createTriangulatedModel(cubeModel);
         Model model2 = earClippingTriangulator.createTriangulatedModel(oneSimplePolygonModel);
-        Assertions.assertEquals(cubeModel.normals, model1.normals);
-        Assertions.assertEquals(oneSimplePolygonModel.normals, model2.normals);
+        Assertions.assertEquals(cubeModel.getNormals(), model1.getNormals());
+        Assertions.assertEquals(oneSimplePolygonModel.getNormals(), model2.getNormals());
     }
 
     @Test
@@ -100,27 +100,27 @@ public class EarClippingTriangulatorTest {
     @Test
     public void testTriangulatedModelChange() {
         Model model = earClippingTriangulator.createTriangulatedModel(cubeModel);
-        Assertions.assertEquals(cubeModel.normals, model.normals);
-        Assertions.assertEquals(cubeModel.textureVertices, model.textureVertices);
+        Assertions.assertEquals(cubeModel.getNormals(), model.getNormals());
+        Assertions.assertEquals(cubeModel.getTextureVertices(), model.getTextureVertices());
 
-        model.normals.addAll(List.of(
+        model.getNormals().addAll(List.of(
                 new Vector3f(5, 4, 3),
                 new Vector3f(5, 4, 3),
                 new Vector3f(5, 4, 3)
         ));
-        model.textureVertices.addAll(List.of(
+        model.getTextureVertices().addAll(List.of(
                 new Vector2f(1, 1),
                 new Vector2f(1, 2),
                 new Vector2f(1, 1)
         ));
-        Assertions.assertNotEquals(cubeModel.normals, model.normals);
-        Assertions.assertNotEquals(cubeModel.textureVertices, model.textureVertices);
+        Assertions.assertNotEquals(cubeModel.getNormals(), model.getNormals());
+        Assertions.assertNotEquals(cubeModel.getTextureVertices(), model.getTextureVertices());
     }
 
     @Test
     public void testTriangulateAlreadyTriangulatedModel() {
         earClippingTriangulator.triangulateModel(alreadyTriangulatedModel);
-        for (Polygon polygon : alreadyTriangulatedModel.polygons) {
+        for (Polygon polygon : alreadyTriangulatedModel.getPolygons()) {
             Assertions.assertEquals(3, polygon.getVertexIndices().size());
         }
     }
@@ -128,23 +128,23 @@ public class EarClippingTriangulatorTest {
     @Test
     public void testTriangulateAlreadyTriangulatedNoPolygonsChanges() {
         Model model = earClippingTriangulator.createTriangulatedModel(alreadyTriangulatedModel);
-        Assertions.assertEquals(alreadyTriangulatedModel.polygons, model.polygons);
+        Assertions.assertEquals(alreadyTriangulatedModel.getPolygons(), model.getPolygons());
 
-        model.polygons.add(
+        model.getPolygons().add(
                 new Polygon(
                         List.of(0, 1, 2),
                         List.of(),
                         List.of()
                 )
         );
-        Assertions.assertNotEquals(alreadyTriangulatedModel.polygons, model.polygons);
+        Assertions.assertNotEquals(alreadyTriangulatedModel.getPolygons(), model.getPolygons());
     }
 
     @Test
     public void testTriangulatingSquareTheSame() {
         Model model = earClippingTriangulator.createTriangulatedModel(cubeModel);
         float squareAfterTriangulation = 0;
-        for (Polygon polygon : model.polygons) {
+        for (Polygon polygon : model.getPolygons()) {
             squareAfterTriangulation += PolygonUtil.calcTrianglePolygonSquare(polygon, model);
         }
         Assertions.assertEquals(24, squareAfterTriangulation, Constants.EPS);
@@ -153,7 +153,7 @@ public class EarClippingTriangulatorTest {
     @Test
     public void testTriangulationPerformance() {
         Assertions.assertTimeout(Duration.ofSeconds(2), () -> earClippingTriangulator.triangulateModel(bigPlaneModel));
-        for (Polygon polygon : bigPlaneModel.polygons) {
+        for (Polygon polygon : bigPlaneModel.getPolygons()) {
             Assertions.assertEquals(3, polygon.getVertexIndices().size());
         }
     }

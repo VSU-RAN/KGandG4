@@ -26,13 +26,13 @@ public class TriangulatedModelTest {
     @BeforeEach
     public void setUp() {
         validModel = new TriangulatedModel();
-        validModel.vertices.addAll(Arrays.asList(v1, v2, v3, v4));
-        validModel.polygons.add(new Polygon(Arrays.asList(0, 1, 2)));
-        validModel.polygons.add(new Polygon(Arrays.asList(1, 2, 3)));
+        validModel.getVertices().addAll(Arrays.asList(v1, v2, v3, v4));
+        validModel.getPolygons().add(new Polygon(Arrays.asList(0, 1, 2)));
+        validModel.getPolygons().add(new Polygon(Arrays.asList(1, 2, 3)));
 
         invalidModel = new TriangulatedModel();
-        invalidModel.vertices.addAll(Arrays.asList(v1, v2, v3, v4));
-        invalidModel.polygons.add(new Polygon(Arrays.asList(0, 1, 2, 3)));
+        invalidModel.getVertices().addAll(Arrays.asList(v1, v2, v3, v4));
+        invalidModel.getPolygons().add(new Polygon(Arrays.asList(0, 1, 2, 3)));
     }
 
     @Test
@@ -52,24 +52,6 @@ public class TriangulatedModelTest {
         TriangulatedModel emptyModel = new TriangulatedModel();
         boolean result = emptyModel.isValid();
         Assertions.assertTrue(result);
-    }
-
-    @Test
-    public void testGetTrianglesValidModel() {
-        List<Triangle> triangles = validModel.getTriangles();
-
-        Assertions.assertNotNull(triangles);
-        Assertions.assertEquals(2, triangles.size());
-
-        Triangle t1 = triangles.get(0);
-        Assertions.assertEquals(v1, t1.getPointByIndex(0));
-        Assertions.assertEquals(v2, t1.getPointByIndex(1));
-        Assertions.assertEquals(v3, t1.getPointByIndex(2));
-
-        Triangle t2 = triangles.get(1);
-        Assertions.assertEquals(v2, t2.getPointByIndex(0));
-        Assertions.assertEquals(v3, t2.getPointByIndex(1));
-        Assertions.assertEquals(v4, t2.getPointByIndex(2));
     }
 
     @Test

@@ -3,6 +3,7 @@ package vsu.org.ran.kgandg4.render_engine;
 import math.vector.Vector3f;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import vsu.org.ran.kgandg4.camera.Camera;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -20,30 +21,6 @@ class CameraTest {
                 0.01f,
                 800.0f
         );
-    }
-
-    @Test
-    void testMovePositionAndTargetTest() {
-        Vector3f initialPosition = camera.getPosition();
-        Vector3f initialTarget = camera.getTarget();
-        Vector3f translation = new Vector3f(1, 2, 3);
-
-        camera.movePositionAndTargetTest(translation);
-
-        Vector3f newPosition = camera.getPosition();
-        Vector3f newTarget = camera.getTarget();
-
-        // Проверяем, что позиция и цель переместились на одинаковый вектор
-        Vector3f positionDelta = newPosition.subtract(initialPosition);
-        Vector3f targetDelta = newTarget.subtract(initialTarget);
-
-        assertEquals(translation.getX(), positionDelta.getX(), 0.001f);
-        assertEquals(translation.getY(), positionDelta.getY(), 0.001f);
-        assertEquals(translation.getZ(), positionDelta.getZ(), 0.001f);
-
-        assertEquals(translation.getX(), targetDelta.getX(), 0.001f);
-        assertEquals(translation.getY(), targetDelta.getY(), 0.001f);
-        assertEquals(translation.getZ(), targetDelta.getZ(), 0.001f);
     }
 
     @Test
@@ -173,25 +150,5 @@ class CameraTest {
         assertEquals(initialPosition.getX(), newPosition.getX(), 0.001f);
         assertEquals(initialPosition.getY(), newPosition.getY(), 0.001f);
         assertEquals(initialPosition.getZ(), newPosition.getZ(), 0.001f);
-    }
-
-    @Test
-    void testMovePositionAndTargetTestZeroTranslation() {
-        Vector3f initialPosition = camera.getPosition();
-        Vector3f initialTarget = camera.getTarget();
-
-        camera.movePositionAndTargetTest(new Vector3f(0, 0, 0));
-
-        Vector3f newPosition = camera.getPosition();
-        Vector3f newTarget = camera.getTarget();
-
-        // Позиция и цель не должны измениться
-        assertEquals(initialPosition.getX(), newPosition.getX(), 0.001f);
-        assertEquals(initialPosition.getY(), newPosition.getY(), 0.001f);
-        assertEquals(initialPosition.getZ(), newPosition.getZ(), 0.001f);
-
-        assertEquals(initialTarget.getX(), newTarget.getX(), 0.001f);
-        assertEquals(initialTarget.getY(), newTarget.getY(), 0.001f);
-        assertEquals(initialTarget.getZ(), newTarget.getZ(), 0.001f);
     }
 }

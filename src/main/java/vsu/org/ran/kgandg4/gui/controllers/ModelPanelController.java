@@ -352,26 +352,33 @@ public class ModelPanelController implements Initializable, PanelController {
                     return;
                 }
 
-                try {
-                    // Удаляем модель
-                    modelManager.removeModel(selected.getId());
+                String modelName = selected.getName();
+                int modelId = selected.getId();
 
-                    Platform.runLater(() -> {
-                        alertService.showInfo("Успех", "Модель '" + selected.getName() + "' удалена");
-                        updateButtonsState();
-                    });
-                } catch (IllegalArgumentException e) {
-                    Platform.runLater(() -> {
-                        alertService.showError("Ошибка", e.getMessage());
-                    });
-                } catch (Exception e) {
-                    Platform.runLater(() -> {
-                        alertService.showError("Ошибка", "Не удалось удалить модель: " + e.getMessage());
-                    });
-                }
+                // Удаляем модель синхронно
+                modelManager.removeModel(modelId);
 
+                // Обновляем UI
+                Platform.runLater(() -> {
+                    alertService.showInfo("Успех", "Модель '" + modelName + "' удалена");
+                    updateButtonsState();
+
+                    // Обновляем ListView
+                    if (modelListView != null) {
+                        modelListView.refresh();
+                        modelListView.getSelectionModel().clearSelection();
+                    }
+                });
+
+            } catch (IllegalArgumentException e) {
+                Platform.runLater(() -> {
+                    alertService.showError("Ошибка", e.getMessage());
+                });
             } catch (Exception e) {
-                alertService.showError("Ошибка", "Не удалось удалить модель: " + e.getMessage());
+                Platform.runLater(() -> {
+                    alertService.showError("Ошибка", "Не удалось удалить модель: " + e.getMessage());
+                    e.printStackTrace();
+                });
             }
         } else {
             alertService.showInfo("Предупреждение", "Не выбрана модель для удаления");
