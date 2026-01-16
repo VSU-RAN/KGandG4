@@ -9,7 +9,6 @@ public class Triangle extends Polygon {
         if (polygon.getVertexIndices().size() != 3) {
             throw new IllegalArgumentException("Треугольник должен иметь 3 вершины");
         }
-
         this.vertexIndices = polygon.getVertexIndices();
         this.textureVertexIndices = polygon.getTextureVertexIndices();
         this.normalIndices = polygon.getNormalIndices();
@@ -28,11 +27,65 @@ public class Triangle extends Polygon {
     }
 
     public Vector2f getTextureCord(int index, Model model) {
-        return model.textureVertices.get(textureVertexIndices.get(index));
+        // Безопасный доступ с проверкой всех границ
+        if (model == null || model.textureVertices == null) {
+            return getDefaultTextureCoord(index);
+        }
+
+        if (textureVertexIndices == null || textureVertexIndices.isEmpty()) {
+            return getDefaultTextureCoord(index);
+        }
+
+        if (index < 0 || index >= textureVertexIndices.size()) {
+            System.err.println("Triangle.getTextureCord: индекс " + index +
+                    " вне границ textureVertexIndices");
+            return getDefaultTextureCoord(index);
+        }
+
+        int texIdx = textureVertexIndices.get(index);
+
+        if (texIdx < 0 || texIdx >= model.textureVertices.size()) {
+            System.err.println("Triangle.getTextureCord: индекс текстуры " + texIdx +
+                    " вне границ массива текстур (" +
+                    model.textureVertices.size() + ")");
+            return getDefaultTextureCoord(index);
+        }
+
+        return model.textureVertices.get(texIdx);
+    }
+
+    /**
+     * Возвращает дефолтные текстурные координаты
+     */
+    private Vector2f getDefaultTextureCoord(int index) {
+        switch (index) {
+            case 0: return new Vector2f(0, 0);
+            case 1: return new Vector2f(1, 0);
+            case 2: return new Vector2f(0, 1);
+            default: return new Vector2f(0, 0);
+        }
     }
 
     public Vector3f getNormal(int index, Model model) {
-        return model.normals.get(normalIndices.get(index));
+        // Безопасный доступ
+        if (model == null || model.normals == null) {
+            return null;
+        }
+
+        if (normalIndices == null || normalIndices.isEmpty()) {
+            return null;
+        }
+
+        if (index < 0 || index >= normalIndices.size()) {
+            return null;
+        }
+
+        int normIdx = normalIndices.get(index);
+        if (normIdx < 0 || normIdx >= model.normals.size()) {
+            return null;
+        }
+
+        return model.normals.get(normIdx);
     }
 
     public boolean isInsideTriangle(Vector3f point, Model model) {
@@ -57,5 +110,4 @@ public class Triangle extends Polygon {
 
         return (u >= 0) && (v >= 0) && (u + v < 1);
     }
-
 }
