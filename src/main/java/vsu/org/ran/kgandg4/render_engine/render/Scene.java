@@ -191,6 +191,14 @@ public class Scene {
         lightning.setIntensity(intensity);
     }
 
+    public float getAmbientStrength() {
+        return lightning.getAmbientStrength();
+    }
+
+    public void setAmbientStrength(float strength) {
+        lightning.setAmbientStrength(strength);
+    }
+
 
     public void renderFrame(GraphicsContext gc, int width, int height) {
         Camera camera = cameraManager.getActiveCamera();

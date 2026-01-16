@@ -34,6 +34,8 @@ public class RenderPanelController implements Initializable, PanelController {
     @FXML private Label greenValue;
     @FXML private Label blueValue;
     @FXML private Label lightIntensityValue;
+    @FXML private Slider ambientStrengthSlider;
+    @FXML private Label ambientStrengthValue;
 
     @FXML private CheckBox wireframeOnlyCheck;
     @FXML private CheckBox showWireframeCheck;
@@ -212,13 +214,17 @@ public class RenderPanelController implements Initializable, PanelController {
         // Настройка слайдера интенсивности освещения
         lightIntensitySlider.setMin(0.0);
         lightIntensitySlider.setMax(100.0);
+        ambientStrengthSlider.setMin(0.0);
+        ambientStrengthSlider.setMax(100.0);
 
         if (scene != null && scene.getLightning() != null) {
             lightIntensitySlider.setValue(scene.getLightIntensity() * 100.0f);
+            ambientStrengthSlider.setValue(scene.getAmbientStrength() * 100.0f);
         }
 
         // Обновляем лейбл
         updateLightIntensityLabel(lightIntensitySlider.getValue());
+        updateAmbientStrengthLabel(ambientStrengthSlider.getValue());
 
         // Обработчик слайдера интенсивности
         lightIntensitySlider.valueProperty().addListener((obs, oldVal, newVal) -> {
@@ -226,6 +232,13 @@ public class RenderPanelController implements Initializable, PanelController {
             updateLightIntensityLabel(intensity);
 
             scene.setLightIntensity((float) (intensity / 100));
+        });
+
+        ambientStrengthSlider.valueProperty().addListener((obs, oldVal, newVal) -> {
+            double strength = Math.round(newVal.doubleValue());
+            updateAmbientStrengthLabel(strength);
+
+            scene.setAmbientStrength((float) (strength / 100.0));
         });
 
         // Настройка ColorPicker для цвета света
@@ -394,6 +407,10 @@ public class RenderPanelController implements Initializable, PanelController {
         lightIntensityValue.setText(String.format("%.0f%%", intensity));
     }
 
+    private void updateAmbientStrengthLabel(double strength) {
+        ambientStrengthValue.setText(String.format("%.0f%%", strength));
+    }
+
     @Override
     public void onPanelShow() {
         refresh();
@@ -423,6 +440,9 @@ public class RenderPanelController implements Initializable, PanelController {
 
         lightIntensitySlider.setValue(scene.getLightIntensity() * 100.0f);
         updateLightIntensityLabel(scene.getLightIntensity() * 100.0f);
+
+        ambientStrengthSlider.setValue(scene.getAmbientStrength() * 100.0f);
+        updateAmbientStrengthLabel(scene.getAmbientStrength() * 100.0f);
 
         lightColorPicker.setValue(scene.getLightColor());
     }

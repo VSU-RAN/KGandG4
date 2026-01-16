@@ -9,6 +9,7 @@ import vsu.org.ran.kgandg4.dependecyIndjection.annotations.Component;
 import vsu.org.ran.kgandg4.dependecyIndjection.annotations.PostConstruct;
 
 import static math.vector.Vector3f.dotProduct;
+import static math.vector.Vector3f.normalized;
 
 @Component
 public class Lightning {
@@ -22,6 +23,9 @@ public class Lightning {
     @Value("${render.default.lightning.intensity:0.9}")
     private float intensity;
 
+    @Value("${render.default.lightning.ambient_strength:0.3}")
+    private float ambientStrength;
+
     @PostConstruct
     public void init() {
         this.lightColor = Color.web(defaultLightColor);
@@ -32,42 +36,63 @@ public class Lightning {
             return baseColor;
         }
 
-        float l = Math.max(0, -dotProduct(normal, rayLight));
+        Vector3f N = normalized(normal);
+        Vector3f L = normalized(rayLight);
 
-        float factor = (1 - intensity) + (intensity * l);
+        //diffuse = max(0, N·L)
+        float diffuse = Math.max(0.0f, -dotProduct(N, L));
 
-        float r = (float) (baseColor.getRed() * factor);
-        float b = (float) (baseColor.getBlue() * factor);
-        float g = (float) (baseColor.getGreen() * factor);
 
-        Color colorWithIntensity = new Color(r, g, b, baseColor.getOpacity());
+        //  lighting = ambient + diffuse * intensity
+        float lighting = ambientStrength + (diffuse * intensity);
 
-        return applyToColor(colorWithIntensity);
+        lighting = Math.min(1.0f, Math.max(0.0f, lighting));
+
+        Color illuminated = applyToColor(baseColor, lighting);
+
+        if (!lightColor.equals(Color.WHITE)) {
+            illuminated = multiplyColors(illuminated, lightColor);
+        }
+
+        return illuminated;
     }
 
-
-    public Color applyToColor(Color baseColor) {
-        float r = (float) (baseColor.getRed() * lightColor.getRed());
-        float g = (float) (baseColor.getGreen() * lightColor.getGreen());
-        float b = (float) (baseColor.getBlue() * lightColor.getBlue());
-
-        r = Math.min(1.0f, Math.max(0.0f, r));
-        g = Math.min(1.0f, Math.max(0.0f, g));
-        b = Math.min(1.0f, Math.max(0.0f, b));
-
-        return new Color(r, g, b, baseColor.getOpacity());
+    private Color applyToColor(Color color, float lighting) {
+        return new Color(
+                (float) (color.getRed() * lighting),
+                (float) (color.getGreen() * lighting),
+                (float) (color.getBlue() * lighting),
+                (float) color.getOpacity()
+        );
     }
 
-    public Color getLightColor() {
-        return lightColor;
+    private Color multiplyColors(Color a, Color b) {
+        return new Color(
+                a.getRed() * b.getRed(),
+                a.getGreen() * b.getGreen(),
+                a.getBlue() * b.getBlue(),
+                a.getOpacity() * b.getOpacity()
+        );
     }
 
-    public boolean isEnabled() {
-        return enabled;
+    public float getAmbientStrength() {
+        return ambientStrength;
+    }
+
+    public void setAmbientStrength(float ambientStrength) {
+        this.ambientStrength = Math.max(0.05f, Math.min(0.5f, ambientStrength));
     }
 
     public float getIntensity() {
         return intensity;
+    }
+
+    public void setIntensity(float intensity) {
+        this.intensity = Math.max(0, Math.min(1, intensity));
+    }
+
+    public Color getLightColor() {
+        return lightColor;
     }
 
     public void setLightColor(Color lightColor) {
@@ -76,9 +101,5 @@ public class Lightning {
 
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
-    }
-
-    public void setIntensity(float intensity) {
-        this.intensity = Math.max(0, Math.min(1, intensity));
     }
 }
