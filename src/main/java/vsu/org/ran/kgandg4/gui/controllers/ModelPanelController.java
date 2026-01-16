@@ -47,6 +47,7 @@ public class ModelPanelController implements Initializable, PanelController {
     @FXML private Label activeModelLabel;
     @FXML private Button switchModelButton;
     @FXML private Button nextModelButton;
+    @FXML private Button removeModelButton; // НОВАЯ КНОПКА
     @FXML private CheckBox showAllCheckbox;
 
     // Элементы для информации о модели
@@ -239,6 +240,7 @@ public class ModelPanelController implements Initializable, PanelController {
 
         boolean hasModels = !modelManager.getModels().isEmpty();
         boolean hasSelectedModel = selected != null;
+        boolean canRemove = modelManager.getModels().size() > 1; // Можно удалять если есть хотя бы 2 модели
 
         if (switchModelButton != null) {
             if (hasSelectedModel) {
@@ -253,6 +255,11 @@ public class ModelPanelController implements Initializable, PanelController {
 
         if (nextModelButton != null) {
             nextModelButton.setDisable(!hasModels);
+        }
+
+        // НОВАЯ КНОПКА УДАЛЕНИЯ
+        if (removeModelButton != null) {
+            removeModelButton.setDisable(!hasSelectedModel || !canRemove);
         }
 
         if (saveModelButton != null) {
@@ -330,6 +337,42 @@ public class ModelPanelController implements Initializable, PanelController {
             } catch (Exception e) {
                 alertService.showError("Ошибка", "Не удалось переключить модель: " + e.getMessage());
             }
+        }
+    }
+
+    // НОВЫЙ МЕТОД: Удаление выбранной модели
+    @FXML
+    private void onRemoveModelClick() {
+        Model selected = modelListView != null ? modelListView.getSelectionModel().getSelectedItem() : null;
+        if (selected != null && modelManager != null) {
+            try {
+                // Проверяем, можно ли удалить (не последнюю модель)
+                if (modelManager.getModels().size() <= 1) {
+                    alertService.showError("Ошибка", "Нельзя удалить последнюю модель");
+                    return;
+                }
+
+                // Подтверждение удаления
+                boolean confirmed = alertService.showConfirmation("Подтверждение",
+                        "Вы действительно хотите удалить модель '" + selected.getName() + "'?\n\n" +
+                                "Это действие необратимо.");
+
+                if (confirmed) {
+                    // Удаляем модель
+                    modelManager.removeModel(selected.getId());
+
+                    alertService.showInfo("Успех", "Модель '" + selected.getName() + "' удалена");
+
+                    // Обновляем состояние кнопок
+                    updateButtonsState();
+                }
+            } catch (IllegalArgumentException e) {
+                alertService.showError("Ошибка", e.getMessage());
+            } catch (Exception e) {
+                alertService.showError("Ошибка", "Не удалось удалить модель: " + e.getMessage());
+            }
+        } else {
+            alertService.showInfo("Предупреждение", "Не выбрана модель для удаления");
         }
     }
 
