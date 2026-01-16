@@ -21,6 +21,9 @@ public class EditPanelController implements Initializable, PanelController {
     @FXML private Label modelStatsLabel;
     @FXML private Label selectionInfoLabel;
     @FXML private TextField selectedIndexField;
+    @FXML private ToggleGroup deleteTypeToggleGroup;
+    @FXML private RadioButton deleteVertexRadio;
+    @FXML private RadioButton deletePolygonRadio;
 
     @Autowired
     private ModelManager modelManager;
@@ -44,7 +47,14 @@ public class EditPanelController implements Initializable, PanelController {
         modelManager.activeModelProperty().addListener((obs, oldModel, newModel) -> {
             updateModelStats();
             updateSelectionStyle();
+            updateElementCounts();
         });
+
+        // Устанавливаем вершину по умолчанию как выбранную
+        deleteVertexRadio.setSelected(true);
+
+        // Обновляем информацию о количестве элементов при изменении модели
+        updateElementCounts();
     }
 
     private void updateSelectionStyle() {
@@ -57,12 +67,24 @@ public class EditPanelController implements Initializable, PanelController {
         }
     }
 
+    private void updateElementCounts() {
+        Model currentModel = modelManager.getCurrentModel();
+        if (currentModel != null) {
+            deleteVertexRadio.setText("Вершина (всего: " + currentModel.getVertices().size() + ")");
+            deletePolygonRadio.setText("Полигон (всего: " + currentModel.getPolygons().size() + ")");
+        } else {
+            deleteVertexRadio.setText("Вершина");
+            deletePolygonRadio.setText("Полигон");
+        }
+    }
+
     /**
      * Обработка клика по модели
      */
     public void handleModelClick(Vector3f clickPoint) {
         modelManager.handleClickInModel(clickPoint);
         updateModelStats();
+        updateElementCounts();
     }
 
     /**
@@ -70,19 +92,24 @@ public class EditPanelController implements Initializable, PanelController {
      */
     @FXML
     public void deleteSelected() {
-        boolean deleted = modelManager.deleteSelected();
+        try {
+            boolean deleted = modelManager.deleteSelected();
 
-        if (deleted) {
-            alertService.showInfo("Успех", "Элемент удален");
-        } else {
-            alertService.showInfo("Предупреждение", "Не выбран элемент для удаления");
+            if (deleted) {
+                alertService.showInfo("Успех", "Элемент удален");
+            } else {
+                alertService.showInfo("Предупреждение", "Не выбран элемент для удаления");
+            }
+
+            updateModelStats();
+            updateElementCounts();
+        } catch (Exception e) {
+            showError("Ошибка при удалении выбранного элемента", e);
         }
-
-        updateModelStats();
     }
 
     /**
-     * Удаляет все вершины и полигоны
+     * Удаляет всю модель
      */
     @FXML
     public void deleteAll() {
@@ -91,20 +118,26 @@ public class EditPanelController implements Initializable, PanelController {
             return;
         }
 
-        boolean confirmed = alertService.showConfirmation("Подтверждение",
-                "Вы действительно хотите удалить ВСЕ вершины и полигоны?");
+        Model currentModel = modelManager.getCurrentModel();
+
+        // Временный вариант - без подтверждения
+        boolean confirmed = true; // Всегда подтверждаем для теста
+
+        // Если нужны подтверждения позже:
+        // boolean confirmed = alertService.showConfirmation("Подтверждение", "...");
 
         if (confirmed) {
-            boolean deleted = modelManager.deleteAllFromCurrentModel();
+            boolean deleted = modelManager.deleteCurrentModel();
 
             if (deleted) {
-                alertService.showInfo("Успех", "Все вершины и полигоны удалены");
+                alertService.showInfo("Успех", "Модель '" + currentModel.getName() + "' успешно удалена");
             } else {
-                alertService.showError("Ошибка", "Не удалось очистить модель");
+                alertService.showError("Ошибка", "Не удалось удалить модель");
             }
         }
 
         updateModelStats();
+        updateElementCounts();
     }
 
     /**
@@ -113,13 +146,60 @@ public class EditPanelController implements Initializable, PanelController {
     @FXML
     public void deleteByIndex() {
         try {
-            int index = Integer.parseInt(selectedIndexField.getText().trim());
-            boolean deleted = modelManager.deleteByIndex(index);
+            String indexText = selectedIndexField.getText().trim();
+            if (indexText.isEmpty()) {
+                alertService.showError("Ошибка", "Введите индекс");
+                return;
+            }
+
+            int index = Integer.parseInt(indexText);
+
+            // Проверяем, есть ли модель
+            if (modelManager.getCurrentModel() == null) {
+                alertService.showError("Ошибка", "Нет активной модели");
+                return;
+            }
+
+            Model currentModel = modelManager.getCurrentModel();
+
+            // Определяем тип элемента из RadioButton
+            boolean isVertex = deleteVertexRadio.isSelected();
+
+            boolean deleted = false;
+            String successMessage = "";
+
+            if (isVertex) {
+                // Проверяем, существует ли такая вершина
+                if (index < 0 || index >= currentModel.getVertices().size()) {
+                    alertService.showError("Ошибка",
+                            String.format("Вершина #%d не существует. Всего вершин: %d",
+                                    index, currentModel.getVertices().size()));
+                    return;
+                }
+
+                // Без подтверждения для теста
+                deleted = modelManager.deleteVertexByIndex(index);
+                successMessage = "Вершина #" + index + " удалена";
+
+            } else {
+                // Удаление полигона
+                if (index < 0 || index >= currentModel.getPolygons().size()) {
+                    alertService.showError("Ошибка",
+                            String.format("Полигон #%d не существует. Всего полигонов: %d",
+                                    index, currentModel.getPolygons().size()));
+                    return;
+                }
+
+                // Без подтверждения для теста
+                deleted = modelManager.deletePolygonByIndex(index);
+                successMessage = "Полигон #" + index + " удален";
+            }
 
             if (deleted) {
-                alertService.showInfo("Успех", "Элемент #" + index + " удален");
+                alertService.showInfo("Успех", successMessage);
+                updateElementCounts(); // Обновляем счетчики
             } else {
-                alertService.showError("Ошибка", "Неверный индекс");
+                alertService.showError("Ошибка", "Не удалось удалить элемент");
             }
 
             selectedIndexField.clear();
@@ -128,7 +208,7 @@ public class EditPanelController implements Initializable, PanelController {
         } catch (NumberFormatException e) {
             alertService.showError("Ошибка", "Введите корректный числовой индекс");
         } catch (Exception e) {
-            alertService.showError("Ошибка", "Не удалось удалить элемент: " + e.getMessage());
+            showError("Ошибка при удалении по индексу", e);
         }
     }
 
@@ -137,23 +217,42 @@ public class EditPanelController implements Initializable, PanelController {
      */
     @FXML
     public void clearSelection() {
-        modelManager.clearSelection();
+        try {
+            modelManager.clearSelection();
+        } catch (Exception e) {
+            showError("Ошибка при очистке выбора", e);
+        }
     }
 
     /**
      * Обновляет статистику модели
      */
     public void updateModelStats() {
-        if (modelManager.getCurrentModel() != null) {
-            Model currentModel = modelManager.getCurrentModel();
-            modelStatsLabel.setText(currentModel.toString());
-        } else {
-            modelStatsLabel.setText(ConstantsAndStyles.DEFAULT_MODEL_TEXT);
+        try {
+            if (modelManager.getCurrentModel() != null) {
+                Model currentModel = modelManager.getCurrentModel();
+                modelStatsLabel.setText(currentModel.toString());
+            } else {
+                modelStatsLabel.setText(ConstantsAndStyles.DEFAULT_MODEL_TEXT);
+            }
+        } catch (Exception e) {
+            modelStatsLabel.setText("Ошибка загрузки статистики");
+            e.printStackTrace();
         }
     }
 
     @Override
     public void onPanelShow() {
         updateModelStats();
+        updateElementCounts();
+    }
+
+    /**
+     * Показывает ошибку в консоли
+     */
+    private void showError(String message, Exception e) {
+        System.err.println(message + ": " + e.getMessage());
+        e.printStackTrace();
+        alertService.showError("Ошибка", message + ": " + e.getMessage());
     }
 }

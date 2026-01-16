@@ -92,14 +92,15 @@
 
         <!-- Удаление по индексу -->
         <VBox spacing="8" style="-fx-padding: 12;
-                                 -fx-background-color: #f8f9fa;
-                                 -fx-border-color: #e9ecef;
-                                 -fx-border-width: 1;
-                                 -fx-border-radius: 6;
-                                 -fx-background-radius: 6;">
+                         -fx-background-color: #f8f9fa;
+                         -fx-border-color: #e9ecef;
+                         -fx-border-width: 1;
+                         -fx-border-radius: 6;
+                         -fx-background-radius: 6;">
             <Label style="-fx-font-weight: 600; -fx-font-size: 14px; -fx-text-fill: #495057;"
                    text="Удаление по индексу:"/>
 
+            <!-- Поле ввода индекса -->
             <HBox spacing="8" alignment="CENTER_LEFT">
                 <Label text="Индекс:" style="-fx-min-width: 50; -fx-font-size: 13px; -fx-text-fill: #495057;"/>
                 <TextField fx:id="selectedIndexField" prefWidth="100"
@@ -107,39 +108,55 @@
                 <Button fx:id="deleteByIndexButton" onAction="#deleteByIndex"
                         prefWidth="100" prefHeight="32"
                         style="-fx-font-size: 13px;
-                               -fx-font-weight: 500;
-                               -fx-background-color: #fd7e14;
-                               -fx-text-fill: white;
-                               -fx-border-radius: 4;
-                               -fx-background-radius: 4;
-                               -fx-cursor: hand;"
+                       -fx-font-weight: 500;
+                       -fx-background-color: #fd7e14;
+                       -fx-text-fill: white;
+                       -fx-border-radius: 4;
+                       -fx-background-radius: 4;
+                       -fx-cursor: hand;"
                         text="Удалить" />
             </HBox>
-            <Label text="Введите индекс вершины или полигона"
+
+            <!-- Выбор типа элемента -->
+            <VBox spacing="4" style="-fx-padding: 8 0 0 0;">
+                <Label text="Тип элемента:" style="-fx-font-size: 12px; -fx-font-weight: 500; -fx-text-fill: #495057;"/>
+                <HBox spacing="16" style="-fx-padding: 4 0;">
+                    <RadioButton fx:id="deleteVertexRadio" text="Вершина"
+                                 style="-fx-font-size: 12px; -fx-text-fill: #495057;">
+                        <toggleGroup>
+                            <ToggleGroup fx:id="deleteTypeToggleGroup"/>
+                        </toggleGroup>
+                    </RadioButton>
+                    <RadioButton fx:id="deletePolygonRadio" text="Полигон" toggleGroup="$deleteTypeToggleGroup"
+                                 style="-fx-font-size: 12px; -fx-text-fill: #495057;"/>
+                </HBox>
+            </VBox>
+
+            <Label text="Введите индекс элемента для удаления"
                    style="-fx-font-size: 11px; -fx-text-fill: #6c757d;"/>
         </VBox>
 
-        <!-- Удаление всех -->
+        <!-- Удаление всей модели -->
         <VBox spacing="8" style="-fx-padding: 12;
-                                 -fx-background-color: #f8f9fa;
-                                 -fx-border-color: #e9ecef;
-                                 -fx-border-width: 1;
-                                 -fx-border-radius: 6;
-                                 -fx-background-radius: 6;">
+                         -fx-background-color: #f8f9fa;
+                         -fx-border-color: #e9ecef;
+                         -fx-border-width: 1;
+                         -fx-border-radius: 6;
+                         -fx-background-radius: 6;">
             <Label style="-fx-font-weight: 600; -fx-font-size: 14px; -fx-text-fill: #495057;"
-                   text="Удаление всех:"/>
+                   text="Удаление всей модели:"/>
 
             <Button fx:id="deleteAllButton" onAction="#deleteAll"
                     prefWidth="280" prefHeight="36"
                     style="-fx-font-size: 13px;
-                           -fx-font-weight: 500;
-                           -fx-background-color: #721c24;
-                           -fx-text-fill: white;
-                           -fx-border-radius: 4;
-                           -fx-background-radius: 4;
-                           -fx-cursor: hand;"
-                    text="Удалить ВСЕ" />
-            <Label text="Удалит все вершины и полигоны"
+                   -fx-font-weight: 500;
+                   -fx-background-color: #721c24;
+                   -fx-text-fill: white;
+                   -fx-border-radius: 4;
+                   -fx-background-radius: 4;
+                   -fx-cursor: hand;"
+                    text="Удалить всю модель" />
+            <Label text="Удалит модель полностью (все вершины, полигоны, текстуры, нормали)"
                    style="-fx-font-size: 11px; -fx-text-fill: #6c757d; -fx-font-style: italic;"/>
         </VBox>
 
