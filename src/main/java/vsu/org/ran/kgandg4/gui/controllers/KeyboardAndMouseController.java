@@ -215,7 +215,8 @@ public class KeyboardAndMouseController {
         middleMouseButtonPressed = event.isMiddleButtonDown();
 
         if (leftMouseButtonPressed && !event.isAltDown() && !event.isControlDown()) {
-            System.out.println("ЛКМ нажата (возможно для выделения)");
+            //todo:
+            //System.out.println("ЛКМ нажата (возможно для выделения)");
             // НЕ event.consume() - пусть событие идет дальше
             return;
         }

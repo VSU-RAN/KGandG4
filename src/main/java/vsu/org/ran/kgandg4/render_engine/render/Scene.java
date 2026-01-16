@@ -38,25 +38,6 @@ public class Scene {
     @Autowired
     private Lightning lightning;
 
-    private Matrix4f viewMatrix;
-    private Matrix4f projectionMatrix;
-
-    public Matrix4f getViewMatrix() {
-        return viewMatrix;
-    }
-
-    public void setViewMatrix(Matrix4f viewMatrix) {
-        this.viewMatrix = viewMatrix;
-    }
-
-    public Matrix4f getProjectionMatrix() {
-        return projectionMatrix;
-    }
-
-    public void setProjectionMatrix(Matrix4f projectionMatrix) {
-        this.projectionMatrix = projectionMatrix;
-    }
-
     public Texture getTexture() {
         return texture;
     }

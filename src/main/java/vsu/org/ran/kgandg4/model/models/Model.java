@@ -25,6 +25,10 @@ public class Model {
     protected ArrayList<Vector3f> normals = new ArrayList<>();
     protected ArrayList<Polygon> polygons = new ArrayList<>();
 
+    public Matrix4f getModelMatrix() {
+        return Matrix4f.identityMatrix();
+    }
+
     public String getName() {
         return name;
     }

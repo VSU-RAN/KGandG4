@@ -9,6 +9,7 @@ import math.quaternion.Quat4f;
 import vsu.org.ran.kgandg4.affineTransformations.AffineBuilder;
 import vsu.org.ran.kgandg4.affineTransformations.transformations.TranslationTransformation;
 import vsu.org.ran.kgandg4.affineTransformations.transformations.RotateTransformationOnQuad;
+import vsu.org.ran.kgandg4.camera.Camera;
 
 public class GraphicConveyor {
 
@@ -173,6 +174,23 @@ public class GraphicConveyor {
 
         return true;
     }
+
+//    public static Vector3f screenToModel(
+//            float screenX, float screenY, float zbufferDepth,
+//            Camera camera, Matrix4f modelMatrix, int width, int height) {
+//        if (camera == null) {
+//            return null;
+//        }
+//
+//        Matrix4f viewMatrix = camera.getViewMatrix();
+//        Matrix4f projectionMatrix = camera.getProjectionMatrix();
+//
+//        return screenToModel(
+//                screenX, screenY, zbufferDepth,
+//                width, height,
+//                viewMatrix, projectionMatrix, modelMatrix);
+//
+//    }
 
     public static Vector3f screenToModel(
             float screenX, float screenY, float zbufferDepth, // Это [0,1]

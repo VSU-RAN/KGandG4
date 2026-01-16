@@ -46,8 +46,6 @@ public class RenderEngine {
         if(model == null) {
             return;
         }
-        Matrix4f viewMatrix = context.getViewMatrix();
-        Matrix4f projectionMatrix = context.getProjectionMatrix();
 
         Lightning lightning = context.getLightning();
         Vector3f ray = context.getCameraDirectionNormalized();
@@ -70,10 +68,6 @@ public class RenderEngine {
             Vector3f normal = triangle.getNormal(i, model);
 
             Vector3f transformed = getVertexAfterMVPandNormalize(pvmMatrix, worldVertex);
-
-            if (Math.abs(transformed.getZ()) < 0.001f) {
-                System.out.println("WARNING: z слишком близко к 0! Деление на ноль?");
-            }
 
             if (!GraphicConveyor.isValidVertex(transformed)) {
                 break;

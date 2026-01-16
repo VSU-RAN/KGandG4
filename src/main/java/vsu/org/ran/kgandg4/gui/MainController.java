@@ -71,9 +71,6 @@ public class MainController {
     @Autowired
     private Scene scene;
 
-    @Autowired
-    private RenderContext renderContext;
-
 
 
     @FXML
@@ -150,18 +147,17 @@ public class MainController {
                 if (panelManager.isPanelOpen("edit")) {
                     EditPanelController editController = panelManager.getController("edit", EditPanelController.class);
 
-                    // 1. Получаем глубину из Z-буфера
                     float screenX = (float)event.getX();
                     float screenY = (float)event.getY();
-                    float depth = scene.getZbuffer().readDepth(screenX, screenY);
 
-                    if (depth >= 0.999f) {
-                        System.out.println("Клик в пустоту - очищаем выбор");
+                    float z = scene.getZbuffer().readDepth(screenX, screenY);
+
+                    if (z >= 0.999f) {
+                        System.out.println("  -> Empty click");
                         editController.clearSelection();
                         return;
                     }
 
-                    // 2. Преобразуем экранные координаты в координаты модели
                     Camera camera = scene.getActiveCamera();
                     int width = (int)canvas.getWidth();
                     int height = (int)canvas.getHeight();
@@ -173,14 +169,13 @@ public class MainController {
                     float far = camera.getFarPlane();
 
                     Vector3f modelCoords = GraphicConveyor.screenToModel(
-                            screenX, screenY, depth,
+                            screenX, screenY, z,
                             width, height,
                             viewMatrix, projectionMatrix, modelMatrix,
                             near, far
                     );
 
                     if (modelCoords != null) {
-                        // 3. Передаем координаты в пространстве модели
                         editController.handleModelClick(modelCoords);
                     }
                 }
