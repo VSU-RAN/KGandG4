@@ -3,7 +3,10 @@ package vsu.org.ran.kgandg4.model;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.List;
 
+import javafx.scene.image.Image;
+import javafx.scene.paint.Color;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.ReadOnlyObjectWrapper;
@@ -18,8 +21,9 @@ import vsu.org.ran.kgandg4.dependecyIndjection.annotations.Value;
 import vsu.org.ran.kgandg4.model.models.Model;
 import vsu.org.ran.kgandg4.IO.objReader.ObjReader;
 import vsu.org.ran.kgandg4.model.models.Polygon;
-import vsu.org.ran.kgandg4.model.models.Triangle;
 import vsu.org.ran.kgandg4.normals.NormalCalculator;
+import vsu.org.ran.kgandg4.render_engine.MaterialSettings;
+import vsu.org.ran.kgandg4.render_engine.Texture;
 import vsu.org.ran.kgandg4.triangulation.Triangulator;
 import vsu.org.ran.kgandg4.model.models.TriangulatedModel;
 import vsu.org.ran.kgandg4.dependecyIndjection.annotations.Autowired;
@@ -32,6 +36,10 @@ public class ModelManager {
 
     @Autowired
     private NormalCalculator normalCalculator;
+
+    @Autowired
+    private MaterialSettings materialSettings;
+
 
     @Value("${model.default.threshold:0.3}")
     private float modelDefaultThreshold;
@@ -62,6 +70,16 @@ public class ModelManager {
         triangulatedModel.setId(nextId++);
         triangulatedModel.setVisible(true);
         triangulatedModel.setName(name != null ? name : "Модель " + String.valueOf(nextId));
+
+        Texture texture;
+        if (model.hasTexture()) {
+            texture = model.getTexture().copy();
+        } else {
+            texture = materialSettings.createDefaultTexture();
+        }
+
+        triangulatedModel.setTexture(texture);
+
 
         this.modelList.add(triangulatedModel);
 
@@ -478,4 +496,34 @@ public class ModelManager {
     public ReadOnlyObjectProperty<String> selectionInfoProperty() {
         return selectionInfoProperty.getReadOnlyProperty();
     }
+
+    public void loadTextureForActiveModel(Image image) {
+        Model activeModel = this.getCurrentModel();
+        if (activeModel != null && image != null) {
+            Texture texture = activeModel.getTexture();
+            if (texture == null) {
+                texture = new Texture(materialSettings.getDefaultMaterialColor());
+                activeModel.setTexture(texture);
+            }
+            texture.loadFromImage(image);
+        }
+    }
+
+    // Обновление цвета активной модели
+    public void setActiveModelColor(Color color) {
+        Model activeModel = this.getCurrentModel();
+        if (activeModel != null) {
+            activeModel.setMaterialColor(color);
+        }
+    }
+
+    public Color getMaterialColor() {
+        Model activeModel = this.getCurrentModel();
+        if (activeModel != null && activeModel.getTexture() != null) {
+            return activeModel.getTexture().getMaterialColor();
+        }
+        return materialSettings.getDefaultMaterialColor();
+    }
+
+
 }

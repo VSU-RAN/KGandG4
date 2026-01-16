@@ -13,7 +13,7 @@ import static math.vector.Vector3f.dotProduct;
 
 public class Rasterization {
     public static void drawTriangle(PixelWriter pw, Zbuffer zbuffer, Texture texture,
-                                    Vector3f ray, Lightning lightning,
+                                    Vector3f ray, Lightning lightning, boolean useTexture,
                                     int x0, int y0, float z0, float u0, float v0, Vector3f n0,
                                     int x1, int y1, float z1, float u1, float v1, Vector3f n1,
                                     int x2, int y2, float z2, float u2, float v2, Vector3f n2) {
@@ -72,7 +72,7 @@ public class Rasterization {
         if (y0 == y1 && y1 == y2) {
             for (int x = minX; x <= max(x0, max(x1, x2)); x++) {
                 double[] barycentric = findBarycentricCords(x, y0, x0, y0, x1, y1, x2, y2);
-                drawPixel(pw, zbuffer, texture, ray, lightning,
+                drawPixel(pw, zbuffer, texture, ray, lightning, useTexture,
                         x, y0,
                         barycentric[0], barycentric[1], barycentric[2],
                         z0, z1, z2,
@@ -117,7 +117,7 @@ public class Rasterization {
             xEnd = min(xEnd, maxX);
             for (int x = xStart; x <= xEnd; x++) {
                 double[] barycentric = findBarycentricCords(x, y, x0, y0, x1, y1, x2, y2);
-                drawPixel(pw, zbuffer, texture, ray, lightning,
+                drawPixel(pw, zbuffer, texture, ray, lightning, useTexture,
                         x, y,
                         barycentric[0], barycentric[1], barycentric[2],
                         z0, z1, z2,
@@ -157,7 +157,7 @@ public class Rasterization {
             xEnd = min(xEnd, maxX);
             for (int x = xStart; x <= xEnd; x++) {
                 double[] barycentric = findBarycentricCords(x, y, x0, y0, x1, y1, x2, y2);
-                drawPixel(pw, zbuffer, texture, ray, lightning,
+                drawPixel(pw, zbuffer, texture, ray, lightning, useTexture,
                         x, y,
                         barycentric[0], barycentric[1], barycentric[2],
                         z0, z1, z2,
@@ -173,7 +173,7 @@ public class Rasterization {
 
     private static void drawPixel(
             PixelWriter pw, Zbuffer zbuffer, Texture texture,
-            Vector3f ray, Lightning lightning,
+            Vector3f ray, Lightning lightning, boolean useTexture,
             int x, int y,
             double alpha, double beta, double gamma,
             float z0, float z1, float z2,
@@ -194,7 +194,7 @@ public class Rasterization {
                 float v = vOverZ * z_interpolated;
 
                 // Получаем цвет (Texture возвращает wireframe или текстурный цвет)
-                Color color = texture.getColor(u, v);
+                Color color = texture.getColor(u, v, useTexture);
 
                 Vector3f n = new Vector3f(
                         (float) (alpha * n0.getX() + beta * n1.getX() + gamma * n2.getX()),

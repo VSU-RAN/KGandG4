@@ -1,5 +1,6 @@
 package vsu.org.ran.kgandg4.model.models;
 
+import javafx.scene.paint.Color;
 
 import java.util.Objects;
 import java.util.ArrayList;
@@ -11,6 +12,8 @@ import math.vector.Vector3f;
 import math.vector.Vector4f;
 import vsu.org.ran.kgandg4.dependecyIndjection.annotations.Component;
 import vsu.org.ran.kgandg4.dependecyIndjection.annotations.Value;
+import vsu.org.ran.kgandg4.gui.ConstantsAndStyles;
+import vsu.org.ran.kgandg4.render_engine.Texture;
 
 import vsu.org.ran.kgandg4.affineTransformations.AffineBuilder;
 import vsu.org.ran.kgandg4.render_engine.GraphicConveyor;
@@ -20,6 +23,9 @@ public class Model {
     protected int id;
     protected String name;
     protected boolean visible = true;
+    protected boolean active = false;
+    protected Texture texture;
+
 
     protected Vector3f position = new Vector3f(0, 0, 0);
     protected Vector3f rotation = new Vector3f(0, 0, 0); // в градусах
@@ -33,8 +39,18 @@ public class Model {
     protected ArrayList<Vector3f> normals = new ArrayList<>();
     protected ArrayList<Polygon> polygons = new ArrayList<>();
 
-    public Matrix4f getModelMatrix() {
-        return Matrix4f.identityMatrix();
+    public Model() {
+        this(ConstantsAndStyles.DEFAULT_MODEL_TEXT);
+    }
+
+    protected Model(String name) {
+        this.name = name;
+        this.texture = null;
+    }
+
+    protected Model(String name, Texture texture) {
+        this.name = name;
+        this.texture = texture;
     }
     public Model() {
         this.cachedTransformMatrix = Matrix4f.identityMatrix();
@@ -64,6 +80,40 @@ public class Model {
     public void setVisible(boolean visible) {
         this.visible = visible;
     }
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
+    }
+
+
+    public Texture getTexture() {
+        return texture;
+    }
+
+    public void setTexture(Texture texture) {
+        this.texture = texture;
+    }
+
+    public boolean hasTexture() {
+        return texture != null && texture.hasTexture();
+    }
+
+    public Color getColor(float u, float v, boolean useTexture) {
+        return texture.getColor(u, v, useTexture);
+    }
+
+    public void setMaterialColor(Color color) {
+        texture.setMaterialColor(color);
+    }
+
+    public Matrix4f getModelMatrix() {
+        return Matrix4f.identityMatrix();
+    }
+
 
     public void markTransformDirty() {
         this.isTransformDirty = true;
@@ -350,14 +400,13 @@ public class Model {
      * Очищает нормали и текстурные координаты, если они пустые или не используются
      * @deprecated Используйте {@link #clearUnusedTextureVerticesAndNormals()}
      */
-
     @Deprecated
     private void clearNormalsAndTexturesIfNeeded() {
         clearUnusedTextureVerticesAndNormals();
     }
 
     /**
-     * Валидация модели - метод проверяет все индексы на корректность
+     * Валидирует модель - проверяет все индексы на корректность
      */
     public boolean validate() {
         System.out.println("=== Валидация модели '" + name + "' ===");

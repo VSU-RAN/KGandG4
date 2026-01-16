@@ -177,7 +177,7 @@ public class RenderPanelController implements Initializable, PanelController {
 
     private void initMaterialColorControls() {
         // Начальный цвет из RenderContext
-        if (scene != null && scene.getTexture() != null) {
+        if (scene != null) {
             Color materialColor = scene.getMaterialColor();
             faceColorPicker.setValue(materialColor);
             updateRGBFromColor(materialColor);
@@ -274,7 +274,7 @@ public class RenderPanelController implements Initializable, PanelController {
                     updateRGBFromColor(newVal);
 
                     // Сохраняем цвет в RenderContext
-                    if (scene != null && scene.getTexture() != null) {
+                    if (scene != null) {
                         scene.setMaterialColor(newVal);
                     }
                 } finally {
@@ -360,7 +360,7 @@ public class RenderPanelController implements Initializable, PanelController {
             }
 
             // Сохраняем цвет в RenderContext
-            if (scene != null && scene.getTexture() != null) {
+            if (scene != null) {
                 scene.setMaterialColor(color);
             }
         } finally {

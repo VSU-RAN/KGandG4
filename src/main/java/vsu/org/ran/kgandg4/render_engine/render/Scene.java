@@ -5,6 +5,8 @@ import javafx.scene.canvas.GraphicsContext;
 
 import vsu.org.ran.kgandg4.camera.Camera;
 import vsu.org.ran.kgandg4.camera.CameraManager;
+import vsu.org.ran.kgandg4.model.models.Model;
+import vsu.org.ran.kgandg4.render_engine.MaterialSettings;
 import vsu.org.ran.kgandg4.render_engine.Texture;
 import vsu.org.ran.kgandg4.render_engine.Zbuffer;
 import vsu.org.ran.kgandg4.model.ModelManager;
@@ -30,17 +32,38 @@ public class Scene {
     private RenderEngine renderEngine;
 
     @Autowired
-    private Texture texture;
-
-    @Autowired
     private Zbuffer zbuffer;
 
     @Autowired
     private Lightning lightning;
 
-    public Texture getTexture() {
-        return texture;
+    @Autowired
+    private MaterialSettings materialSettings;
+
+    private boolean textureModeEnabled = false;
+
+    public void setTextureEnabled(boolean enabled) throws IllegalStateException {
+        if (enabled) {
+            boolean hasVisibleModelWithLoadedTexture = modelManager.getModels().stream().filter(Model::isVisible).anyMatch(Model::hasTexture);
+            if (!hasVisibleModelWithLoadedTexture) {
+                throw new IllegalStateException(
+                        "Невозможно включить режим текстур.\n\n" +
+                                "Нет видимых моделей с загруженными текстурами.\n" +
+                                "1. Загрузите текстуру для хотя бы одной видимой модели\n" +
+                                "2. Попробуйте снова"
+                );
+            }
+            this.textureModeEnabled = true;
+        } else {
+            this.textureModeEnabled = false;
+        }
+        renderContext.setTextureEnabled(enabled);
     }
+
+    public boolean isTextureEnabled() {
+        return textureModeEnabled;
+    }
+
 
     public Lightning getLightning() {
         return lightning;
@@ -52,15 +75,6 @@ public class Scene {
 
     public Camera getActiveCamera() {
         return cameraManager.getActiveCamera();
-    }
-
-    public Color getMaterialColor() {
-        return texture.getMaterialColor();
-    }
-
-    public void setMaterialColor(Color color) {
-        texture.setMaterialColor(color);
-
     }
 
     public Color getLightColor() {
@@ -79,12 +93,12 @@ public class Scene {
         lightning.setIntensity(intensity);
     }
 
-    public void setTextureEnabled(boolean enabled) throws IllegalStateException {
-        renderContext.setTextureEnabled(enabled);
+    public Color getMaterialColor() {
+       return modelManager.getMaterialColor();
     }
 
-    public boolean isTextureEnabled() {
-        return renderContext.isTextureEnabled();
+    public void setMaterialColor(Color color) {
+        modelManager.setActiveModelColor(color);
     }
 
 
@@ -129,7 +143,6 @@ public class Scene {
                 gc,
                 camera,
                 allModels,
-                texture,
                 zbuffer,
                 lightning,
                 width,

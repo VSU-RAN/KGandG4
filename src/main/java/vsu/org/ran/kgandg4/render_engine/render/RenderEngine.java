@@ -181,8 +181,8 @@ public class RenderEngine {
             drawTriangle(
                     context.getGraphicsContext().getPixelWriter(),
                     context.getZbuffer(),
-                    context.getTexture(),
-                    ray, lightning,
+                    model.getTexture(),
+                    ray, lightning, mode.isTexture() && model.hasTexture(),
                     x0, y0, z0, u0, v0, n0,
                     x1, y1, z1, u1, v1, n1,
                     x2, y2, z2, u2, v2, n2

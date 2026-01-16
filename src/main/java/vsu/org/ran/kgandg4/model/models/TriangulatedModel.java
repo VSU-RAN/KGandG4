@@ -4,8 +4,14 @@ import java.util.List;
 import java.util.ArrayList;
 
 import math.vector.Vector3f;
+import vsu.org.ran.kgandg4.gui.ConstantsAndStyles;
 
 public class TriangulatedModel extends Model {
+
+    public TriangulatedModel() {
+        super(ConstantsAndStyles.DEFAULT_MODEL_TEXT);
+    }
+
     public List<Triangle> getTriangles() {
         List<Triangle> triangles = new ArrayList<>();
         for (Polygon polygon : polygons) {

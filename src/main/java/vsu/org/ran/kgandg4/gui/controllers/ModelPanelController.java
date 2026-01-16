@@ -15,6 +15,7 @@ import javafx.collections.ListChangeListener;
 
 import javafx.scene.Parent;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
 import javafx.scene.layout.VBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.Button;
@@ -63,9 +64,6 @@ public class ModelPanelController implements Initializable, PanelController {
 
     @Autowired
     private FileDialogService fileDialogService;
-
-    @Autowired
-    private Texture texture;
 
     @Autowired
     private ModelManager modelManager;
@@ -219,11 +217,39 @@ public class ModelPanelController implements Initializable, PanelController {
             clearTexturePreview();
         } else {
             modelInfoLabel.setText(model.toString());
-            if (texture.hasTexture()) {
-                updateTexturePreview();
-            } else {
-                clearTexturePreview();
+            updateTexturePreviewForModel(model);
+        }
+    }
+
+    private void updateTexturePreviewForModel(Model model) {
+        if (model == null || texturePreview == null || textureInfoLabel == null) {
+            clearTexturePreview();
+            return;
+        }
+
+        Texture texture = model.getTexture();
+        if (texture != null && texture.hasTexture()) {
+            Image image = texture.getTexture();
+            if (image != null) {
+                texturePreview.setImage(image);
+                textureInfoLabel.setText(String.format("Текстура: %dx%d", (int)image.getWidth(), (int)image.getHeight()));
+                textureInfoLabel.setStyle("-fx-text-fill: green;");
+                return;
             }
+        }
+
+        if (texture != null) {
+            clearTexturePreview();
+            textureInfoLabel.setText(String.format("Цвет: RGB(%.0f, %.0f, %.0f)",
+                            texture.getMaterialColor().getRed() * 255,
+                            texture.getMaterialColor().getGreen() * 255,
+                            texture.getMaterialColor().getBlue() * 255)
+            );
+            textureInfoLabel.setStyle("-fx-text-fill: #666;");
+        } else {
+            clearTexturePreview();
+            textureInfoLabel.setText("Текстура не назначена");
+            textureInfoLabel.setStyle("-fx-text-fill: #666;");
         }
     }
 
@@ -266,6 +292,10 @@ public class ModelPanelController implements Initializable, PanelController {
         if (loadModelButton != null) {
             // Кнопка загрузки всегда активна
             loadModelButton.setDisable(false);
+        }
+
+        if (loadTextureButton != null) {
+            loadTextureButton.setDisable(modelManager.getCurrentModel() == null);
         }
     }
 
@@ -425,46 +455,32 @@ public class ModelPanelController implements Initializable, PanelController {
     }
 
     private void loadTexture(File file) {
-        if (texture == null || alertService == null) {
+        Model currentModel = modelManager.getCurrentModel();
+        if (currentModel == null) {
             return;
         }
 
         textureInfoLabel.setText("Загрузка...");
         texturePreview.setImage(null);
 
-        CompletableFuture<Void> loadFuture = texture.loadFromFile(file.toURI().toString());
-
-        loadFuture.thenAcceptAsync(result -> {
-            Platform.runLater(() -> {
-                updateTexturePreview();
-                updateModelInfo(modelManager.getCurrentModel());
-                alertService.showInfo("Успех", "Текстура загружена: " + file.getName());
-            });
-        }).exceptionallyAsync(error -> {
-            Platform.runLater(() -> {
-                onTextureLoadError(file, error instanceof Exception ?
-                        (Exception) error : new Exception(error));
-            });
-            return null;
-        });
-    }
-
-    public void updateTexturePreview() {
-        if (texturePreview == null || texture == null) {
-            return;
-        }
-
         try {
-            texturePreview.setImage(null);
-            if (texture.hasTexture()) {
-                texturePreview.setImage(texture.getTexture());
-                textureInfoLabel.setText(texture.toString());
-            } else {
-                clearTexturePreview();
-            }
+            // Загружаем изображение
+            Image image = new Image("file:" + file.getAbsolutePath());
+
+            // Загружаем текстуру в активную модель
+            modelManager.loadTextureForActiveModel(image);
+
+            // Обновляем UI
+            updateTexturePreviewForModel(currentModel);
+
+            alertService.showInfo("Успех",
+                    "Текстура загружена для модели: " + currentModel.getName());
+
         } catch (Exception e) {
-            texturePreview.setImage(null);
-            textureInfoLabel.setText("Ошибка загрузки текстуры");
+            Platform.runLater(() -> {
+                textureInfoLabel.setText("Ошибка загрузки");
+                alertService.showError("Ошибка загрузки текстуры", e.getMessage());
+            });
         }
     }
 
@@ -487,9 +503,13 @@ public class ModelPanelController implements Initializable, PanelController {
 
     @FXML
     private void onLoadTextureClick() {
+        if (modelManager.getCurrentModel() == null) {
+            alertService.showInfo("Нет активной модели", "Выберите модель для загрузки текстуры");
+            return;
+        }
+
         if (fileDialogService != null && panelManager != null) {
-            fileDialogService.showOpenTextureDialog(panelManager.getMainWindow())
-                    .ifPresent(this::loadTexture);
+            fileDialogService.showOpenTextureDialog(panelManager.getMainWindow()).ifPresent(this::loadTexture);
         }
     }
 
