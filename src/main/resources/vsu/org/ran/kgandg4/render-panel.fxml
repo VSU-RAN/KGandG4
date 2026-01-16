@@ -35,6 +35,8 @@
             <Label style="-fx-font-weight: 600; -fx-font-size: 14px; -fx-text-fill: #495057;"
                    text="Настройки отображения:"/>
             <VBox spacing="6" style="-fx-padding: 0 0 0 8;">
+                <CheckBox fx:id="wireframeOnlyCheck" text="Только сетка"
+                          style="-fx-font-size: 13px;"/>
                 <CheckBox fx:id="showWireframeCheck" text="Полигональная сетка"
                           style="-fx-font-size: 13px;"/>
                 <CheckBox fx:id="useTextureCheck" text="Использовать текстуру"

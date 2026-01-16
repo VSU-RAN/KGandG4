@@ -33,6 +33,8 @@ public class RenderContext {
     private boolean defaultEnableWireframe;
     @Value("${render.default.enable_texture:true}")
     private boolean defaultEnableTexture;
+    @Value("${render.default.enable_only_wireframe:false}")
+    private boolean defaultOnlyEnableWireframe;
 
     /// Состояние рендеринга ///
     private GraphicsContext graphicsContext;
@@ -52,7 +54,7 @@ public class RenderContext {
 
     @PostConstruct
     private void init() {
-        this.mode = new RenderMode(defaultEnableWireframe, defaultEnableTexture, defaultEnableLighting);
+        this.mode = new RenderMode(defaultEnableWireframe, defaultEnableTexture, defaultEnableLighting, defaultOnlyEnableWireframe);
         this.wireframeColor = Color.web(defaultWireframeColor);
     }
 
@@ -139,16 +141,33 @@ public class RenderContext {
 
 
     /// УПРАВЛЕНИЕ РЕЖИМАМИ РЕНДЕРИНГА ///
-    public void setWireframeEnabled(boolean enabled) {
-        updateRenderMode(enabled, mode.isTexture(), mode.isLighting());
+    public void setWireframeEnabled(boolean enabled) throws IllegalStateException {
+        if (enabled && mode.isOnlyWireframe()) {
+            updateRenderMode(false, false, false, false);
+        }
+        updateRenderMode(enabled, mode.isTexture(), mode.isLighting(), false);
     }
 
-    public void setTextureEnabled(boolean enabled) {
-        updateRenderMode(mode.isWireframe(), enabled, mode.isLighting());
+    public void setTextureEnabled(boolean enabled) throws IllegalStateException {
+        if (enabled && mode.isOnlyWireframe()) {
+            updateRenderMode(false, false, false, false);
+        }
+        updateRenderMode(mode.isWireframe(), enabled, mode.isLighting(), false);
     }
 
-    public void setLightEnabled(boolean enabled) {
-        updateRenderMode(mode.isWireframe(), mode.isTexture(), enabled);
+    public void setLightEnabled(boolean enabled) throws IllegalStateException {
+        if (enabled && mode.isOnlyWireframe()) {
+            updateRenderMode(false, false, false, false);
+        }
+        updateRenderMode(mode.isWireframe(), mode.isTexture(), enabled, false);
+    }
+
+    public void setWireframeOnlyEnabled(boolean enabled) throws IllegalStateException {
+        if (enabled) {
+            updateRenderMode(false, false, false, true);
+        } else {
+            updateRenderMode(defaultEnableWireframe, defaultEnableTexture, defaultEnableLighting, false);
+        }
     }
 
     public boolean isWireframeEnabled() {
@@ -163,13 +182,21 @@ public class RenderContext {
         return mode.isLighting();
     }
 
-    private void updateRenderMode(boolean wireframe, boolean texture, boolean lighting) throws IllegalStateException {
-        this.mode = new RenderMode(wireframe, texture, lighting);
+    public boolean isWireframeOnlyEnabled() {return mode.isOnlyWireframe();}
 
-        if (this.texture != null) {
-            this.texture.enableTexture(texture);
+    private void updateRenderMode(boolean wireframe, boolean texture, boolean lighting, boolean onlyWireframe) throws IllegalStateException {
+        this.mode = new RenderMode(wireframe, texture, lighting, onlyWireframe);
+
+        if (this.texture != null && texture) {
+            try {
+                this.texture.enableTexture(texture);
+            } catch (IllegalStateException e) {
+                this.mode = new RenderMode(wireframe, false, lighting, onlyWireframe);
+                throw e;
+            }
+        } else if (this.texture != null) {
+            this.texture.enableTexture(false);
         }
-
 
         if (this.lightning != null) {
             this.lightning.setEnabled(lighting);

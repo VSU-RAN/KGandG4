@@ -35,7 +35,7 @@ public class RenderPanelController implements Initializable, PanelController {
     @FXML private Label blueValue;
     @FXML private Label lightIntensityValue;
 
-
+    @FXML private CheckBox wireframeOnlyCheck;
     @FXML private CheckBox showWireframeCheck;
     @FXML private CheckBox useTextureCheck;
     @FXML private CheckBox useLightingCheck;
@@ -51,6 +51,7 @@ public class RenderPanelController implements Initializable, PanelController {
     private AlertService alertService;
 
     private boolean updatingColor = false;
+    private boolean updatingCheckboxes = false;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -69,40 +70,107 @@ public class RenderPanelController implements Initializable, PanelController {
 
     private void initCheckboxes() {
         if (scene != null) {
+            wireframeOnlyCheck.setSelected(scene.isWireframeOnlyEnabled());
             showWireframeCheck.setSelected(scene.isWireframeEnabled());
             useTextureCheck.setSelected(scene.isTextureEnabled());
             useLightingCheck.setSelected(scene.isLightEnabled());
         }
 
         showWireframeCheck.selectedProperty().addListener((obs, oldVal, newVal) -> {
-            if (scene != null) {
-                scene.setWireframeEnabled(newVal);
+            if (updatingCheckboxes) return;
+
+            updatingCheckboxes = true;
+            try {
+                if (scene != null) {
+                    if (newVal && wireframeOnlyCheck.isSelected()) {
+                        wireframeOnlyCheck.setSelected(false);
+                        scene.setWireframeOnlyEnabled(false);
+                    }
+                    scene.setWireframeEnabled(newVal);
+                }
+            } finally {
+                updatingCheckboxes = false;
             }
         });
 
         useTextureCheck.selectedProperty().addListener((obs, oldVal, newVal) -> {
-            if (scene != null) {
-                try {
-                    scene.setTextureEnabled(newVal);
-                } catch (IllegalStateException e) {
-                    useTextureCheck.setSelected(oldVal);
-                    alertService.showError("Текстура не загружена", e.getMessage() + "\n\nПожалуйста, сначала загрузите текстуру в панели редактирования модели.");
+            if (updatingCheckboxes) return;
+
+            updatingCheckboxes = true;
+            try {
+                if (scene != null) {
+                    if (newVal && wireframeOnlyCheck.isSelected()) {
+                        wireframeOnlyCheck.setSelected(false);
+                        scene.setWireframeOnlyEnabled(false);
+                    }
+                    try {
+                        scene.setTextureEnabled(newVal);
+                    } catch (IllegalStateException e) {
+                        useTextureCheck.setSelected(oldVal);
+                        alertService.showError("Текстура не загружена", e.getMessage() + "\n\nПожалуйста, сначала загрузите текстуру в панели редактирования модели.");
+                    }
                 }
+            } finally {
+                updatingCheckboxes = false;
             }
         });
 
         useLightingCheck.selectedProperty().addListener((obs, oldVal, newVal) -> {
-            if (scene!= null) {
-                scene.setLightEnabled(newVal);
+            updatingCheckboxes = true;
+            try {
+                if (scene != null) {
+                    if (newVal && wireframeOnlyCheck.isSelected()) {
+                        wireframeOnlyCheck.setSelected(false);
+                        scene.setWireframeOnlyEnabled(false);
+                    }
+                    scene.setLightEnabled(newVal);
+                }
+            } finally {
+                updatingCheckboxes = false;
+            }
+        });
+
+        wireframeOnlyCheck.selectedProperty().addListener((obs, oldVal, newVal) -> {
+            if (updatingCheckboxes) return;
+
+            updatingCheckboxes = true;
+            try {
+                if (scene != null) {
+                    if (newVal) {
+                        // Отключаем все остальные режимы
+                        showWireframeCheck.setSelected(false);
+                        useTextureCheck.setSelected(false);
+                        useLightingCheck.setSelected(false);
+
+                        // Устанавливаем режим в сцене
+                        scene.setWireframeEnabled(false);
+                        scene.setTextureEnabled(false);
+                        scene.setLightEnabled(false);
+                        scene.setWireframeOnlyEnabled(true);
+                    } else {
+                        // При выключении "только каркас" включаем базовый каркас
+                        showWireframeCheck.setSelected(true);
+                        scene.setWireframeEnabled(true);
+                        scene.setWireframeOnlyEnabled(false);
+                    }
+                }
+            } finally {
+                updatingCheckboxes = false;
             }
         });
     }
 
     private void updateCheckboxesFromContext() {
         if (scene == null) return;
-        showWireframeCheck.setSelected(scene.isWireframeEnabled());
-        useTextureCheck.setSelected(scene.isTextureEnabled());
-        useLightingCheck.setSelected(scene.isLightEnabled());
+        updatingCheckboxes = true;
+        try {
+            showWireframeCheck.setSelected(scene.isWireframeEnabled());
+            wireframeOnlyCheck.setSelected(scene.isWireframeOnlyEnabled());
+            useTextureCheck.setSelected(scene.isTextureEnabled());
+            useLightingCheck.setSelected(scene.isLightEnabled());
+        } finally {
+            updatingCheckboxes = false;
+        }
     }
 
 

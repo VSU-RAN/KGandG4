@@ -41,13 +41,43 @@ public class RenderEngine {
     }
 
     public static void render(RenderContext context) {
-        for (TriangulatedModel model : context.getVisibleModels()) {
-            renderSingleModel(context, model);
+        RenderMode mode = context.getMode();
+
+        if (mode.isOnlyWireframe()) {
+            renderWireframeOnly(context);
+        }
+        else {
+            renderWithOptions(context);
         }
     }
 
-    private static void renderSingleModel(RenderContext context, TriangulatedModel model) {
-        if(model == null) {
+
+    private static void renderWireframeOnly(RenderContext context) {
+        for (TriangulatedModel model : context.getVisibleModels()) {
+            renderSingleModelWireframeOnly(context, model);
+        }
+    }
+
+    private static void renderWithOptions(RenderContext context) {
+        for (TriangulatedModel model : context.getVisibleModels()) {
+            renderSingleModelWithOptions(context, model);
+        }
+    }
+
+    private static void renderSingleModelWireframeOnly(RenderContext context, TriangulatedModel model) {
+        if (model == null) {
+            return;
+        }
+
+        Matrix4f pvmMatrix = context.getPVMMatrix();
+
+        for (Triangle triangle : model.getTriangles()) {
+            renderTriangleWireframeOnly(context, model, triangle, pvmMatrix);
+        }
+    }
+
+    private static void renderSingleModelWithOptions(RenderContext context, TriangulatedModel model) {
+        if (model == null) {
             return;
         }
 
@@ -56,13 +86,59 @@ public class RenderEngine {
         RenderMode renderMode = context.getMode();
         Matrix4f pvmMatrix = context.getPVMMatrix();
 
-
         for (Triangle triangle : model.getTriangles()) {
-            renderTriangle(context, model, triangle, pvmMatrix, ray, renderMode, lightning);
+            renderTriangleWithOptions(context, model, triangle, pvmMatrix, ray, renderMode, lightning);
         }
     }
 
-    private static void renderTriangle(RenderContext context, TriangulatedModel model, Triangle triangle, Matrix4f pvmMatrix, Vector3f ray, RenderMode mode, Lightning lightning) {
+    private static void renderTriangleWireframeOnly(RenderContext context, TriangulatedModel model, Triangle triangle, Matrix4f pvmMatrix) {
+        TriangleData data = new TriangleData();
+
+        for (int i = 0; i < 3; i++) {
+            Vector3f worldVertex = triangle.getWorldVertex(i, model);
+            Vector3f transformed = getVertexAfterMVPandNormalize(pvmMatrix, worldVertex);
+
+            if (!GraphicConveyor.isValidVertex(transformed)) {
+                break;
+            }
+
+            Point2f screenPoint = vertexToPoint(transformed, context.getWidth(), context.getHeight());
+            data.setVertex(i, screenPoint, transformed.getZ(), new Vector2f(0, 0), new Vector3f(0, 0, 0), worldVertex);
+        }
+
+        if (data.isValid()) {
+            int x0 = (int) data.screenPoints[0].getX();
+            int y0 = (int) data.screenPoints[0].getY();
+            float z0 = data.zValues[0];
+
+            int x1 = (int) data.screenPoints[1].getX();
+            int y1 = (int) data.screenPoints[1].getY();
+            float z1 = data.zValues[1];
+
+            int x2 = (int) data.screenPoints[2].getX();
+            int y2 = (int) data.screenPoints[2].getY();
+            float z2 = data.zValues[2];
+
+            Vector3f worldVertex0 = data.worldVertices[0];
+            Vector3f worldVertex1 = data.worldVertices[1];
+            Vector3f worldVertex2 = data.worldVertices[2];
+            Vector3f cameraPos = context.getCamera().getPosition();
+
+            // Рисуем только каркас
+            if (GraphicConveyor.isFrontFace(worldVertex0, worldVertex1, worldVertex2, cameraPos)) {
+                drawWireFrameTriangle(
+                        context.getGraphicsContext().getPixelWriter(),
+                        context.getZbuffer(),
+                        context.getWireframeColor(),
+                        x0, y0, z0,
+                        x1, y1, z1,
+                        x2, y2, z2
+                );
+            }
+        }
+    }
+
+    private static void renderTriangleWithOptions(RenderContext context, TriangulatedModel model, Triangle triangle, Matrix4f pvmMatrix, Vector3f ray, RenderMode mode, Lightning lightning) {
         TriangleData data = new TriangleData();
 
         for (int i = 0; i < 3; i++) {
