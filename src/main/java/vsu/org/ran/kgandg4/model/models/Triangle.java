@@ -58,10 +58,4 @@ public class Triangle extends Polygon {
         return (u >= 0) && (v >= 0) && (u + v < 1);
     }
 
-    public Vector3f computeFaceNormal(Model model) {
-        Vector3f[] vertices = getWorldVertices(model);
-        Vector3f u = vertices[1].subtract(vertices[0]);
-        Vector3f v = vertices[2].subtract(vertices[0]);
-        return Vector3f.crossProduct(u, v).normalized();
-    }
 }
