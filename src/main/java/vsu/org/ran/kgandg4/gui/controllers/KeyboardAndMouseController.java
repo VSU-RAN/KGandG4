@@ -51,6 +51,7 @@ public class KeyboardAndMouseController {
     private boolean isDragging;
 
     private boolean shiftPressed = false;
+    private boolean altPressed = false;
 
     public void attachToScene(Scene scene) {
         if (scene == null) return;
@@ -170,6 +171,17 @@ public class KeyboardAndMouseController {
                 // + = Zoom Out
                 activeCamera.zoom(ZOOM_SPEED);
                 break;
+            case ALT:
+                // ALT + ЛКМ
+                if (altPressed) {
+
+                } else {
+
+                }
+                break;
+            case I:
+                performCameraInversion(activeCamera);
+                break;
         }
     }
 
@@ -203,9 +215,6 @@ public class KeyboardAndMouseController {
         prevMouseY = event.getSceneY();
 
         if (leftMouseButtonPressed) {
-            float orbitX = (float) dx * MOUSE_ORBIT_SENSITIVITY;
-            float orbitY = (float) dy * MOUSE_ORBIT_SENSITIVITY;
-            activeCamera.orbit(orbitX, orbitY);
 
         } else if (rightMouseButtonPressed) {
             activeCamera.movePositionAndTarget(new Vector3f(
@@ -214,7 +223,9 @@ public class KeyboardAndMouseController {
                     0
             ));
         } else if (middleMouseButtonPressed) {
-            performCameraInversion(activeCamera);
+            float orbitX = (float) dx * MOUSE_ORBIT_SENSITIVITY;
+            float orbitY = (float) dy * MOUSE_ORBIT_SENSITIVITY;
+            activeCamera.orbit(orbitX, orbitY);
         }
     }
 
@@ -257,5 +268,13 @@ public class KeyboardAndMouseController {
         double dy = event.getDeltaY();
 
         activeCamera.zoom((float) -dy * MOUSE_ZOOM_SENSITIVITY);
+    }
+
+    public boolean isAltPressed() {
+        return altPressed;
+    }
+
+    public void setAltPressed(boolean altPressed) {
+        this.altPressed = altPressed;
     }
 }
