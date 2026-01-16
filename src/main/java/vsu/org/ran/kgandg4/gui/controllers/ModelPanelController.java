@@ -340,7 +340,7 @@ public class ModelPanelController implements Initializable, PanelController {
         }
     }
 
-    // НОВЫЙ МЕТОД: Удаление выбранной модели
+    // НОВЫЙ МЕТОД: Удаление выбранной модели (асинхронный)
     @FXML
     private void onRemoveModelClick() {
         Model selected = modelListView != null ? modelListView.getSelectionModel().getSelectedItem() : null;
@@ -352,22 +352,24 @@ public class ModelPanelController implements Initializable, PanelController {
                     return;
                 }
 
-                // Подтверждение удаления
-                boolean confirmed = alertService.showConfirmation("Подтверждение",
-                        "Вы действительно хотите удалить модель '" + selected.getName() + "'?\n\n" +
-                                "Это действие необратимо.");
-
-                if (confirmed) {
+                try {
                     // Удаляем модель
                     modelManager.removeModel(selected.getId());
 
-                    alertService.showInfo("Успех", "Модель '" + selected.getName() + "' удалена");
-
-                    // Обновляем состояние кнопок
-                    updateButtonsState();
+                    Platform.runLater(() -> {
+                        alertService.showInfo("Успех", "Модель '" + selected.getName() + "' удалена");
+                        updateButtonsState();
+                    });
+                } catch (IllegalArgumentException e) {
+                    Platform.runLater(() -> {
+                        alertService.showError("Ошибка", e.getMessage());
+                    });
+                } catch (Exception e) {
+                    Platform.runLater(() -> {
+                        alertService.showError("Ошибка", "Не удалось удалить модель: " + e.getMessage());
+                    });
                 }
-            } catch (IllegalArgumentException e) {
-                alertService.showError("Ошибка", e.getMessage());
+
             } catch (Exception e) {
                 alertService.showError("Ошибка", "Не удалось удалить модель: " + e.getMessage());
             }

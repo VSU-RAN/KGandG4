@@ -31,6 +31,8 @@ public class ModelManager {
     @Value("${model.default.threshold:0.3}")
     private float modelDefaultThreshold;
 
+    private volatile boolean isProcessing = false;
+
     private ObservableList<Model> modelList = FXCollections.observableArrayList();
     private int nextId = 0;
     private final ReadOnlyObjectWrapper<Model> activeModelProperty = new ReadOnlyObjectWrapper<>();
@@ -77,16 +79,57 @@ public class ModelManager {
         }
     }
 
+    /**
+     * Удаляет модель по ID
+     * @param id ID модели
+     * @throws IllegalArgumentException если нельзя удалить последнюю модель
+     */
     public void removeModel(int id) {
         if (modelList.size() <= 1) {
             throw new IllegalArgumentException("Нельзя удалить последнюю модель");
         }
 
-        Model model = this.getModelById(id);
+        Model modelToRemove = null;
+        try {
+            modelToRemove = this.getModelById(id);
+        } catch (IllegalArgumentException e) {
+            throw e;
+        }
 
-        modelList.remove(model);
-        if (activeModelProperty.get() != null && activeModelProperty.get().equals(model)) {
-            switchToModel(0);
+        // ВАЖНО: Сначала убираем модель из активных, чтобы рендер не пытался ее рисовать
+        boolean wasActive = activeModelProperty.get() != null &&
+                activeModelProperty.get().equals(modelToRemove);
+
+        if (wasActive) {
+            activeModelProperty.set(null);
+
+            // Очищаем выбор В САМОМ НАЧАЛЕ
+            clearSelection();
+            selectionInfoProperty.set("Нет активной модели");
+
+            // Даем немного времени, чтобы рендер успел обработать null
+            try {
+                Thread.sleep(50);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }
+        // Если удалили активную модель, нужно выбрать новую
+        if (wasActive) {
+
+            // Выбираем новую активную модель (если есть)
+            Model newActiveModel = null;
+            if (!modelList.isEmpty()) {
+                // Берем первую модель в списке
+                newActiveModel = modelList.get(0);
+            }
+
+            // Устанавливаем новую активную модель
+            activeModelProperty.set(newActiveModel);
+
+            if (newActiveModel != null) {
+                selectionInfoProperty.set("Активна модель: " + newActiveModel.getName());
+            }
         }
     }
 
@@ -298,44 +341,28 @@ public class ModelManager {
      * @return true если модель удалена, false если модели не было
      */
     public boolean deleteCurrentModel() {
+        System.out.println("DEBUG: deleteCurrentModel() called");
+
         Model currentModel = getCurrentModel();
         if (currentModel == null) {
+            System.out.println("DEBUG: No current model to delete");
             return false;
         }
 
         int modelId = currentModel.getId();
         String modelName = currentModel.getName();
 
-        // Находим и удаляем модель из списка
-        boolean removed = false;
-        for (int i = 0; i < modelList.size(); i++) {
-            if (modelList.get(i).getId() == modelId) {
-                modelList.remove(i);
-                removed = true;
-                break;
-            }
-        }
+        System.out.println("DEBUG: Deleting model: " + modelName + " (ID: " + modelId + ")");
 
-        if (!removed) {
+        // Используем существующий метод removeModel
+        try {
+            removeModel(modelId);
+            System.out.println("DEBUG: Model deleted successfully");
+            return true;
+        } catch (IllegalArgumentException e) {
+            System.out.println("DEBUG: Failed to delete model: " + e.getMessage());
             return false;
         }
-
-        // Сбрасываем выбор
-        clearSelection();
-
-        // Если удалили активную модель, устанавливаем активной другую (если есть)
-        if (currentModel != null && currentModel.getId() == modelId) {
-            currentModel = modelList.isEmpty() ? null : modelList.get(0);
-            activeModelProperty.set(currentModel);
-
-            if (currentModel != null) {
-                selectionInfoProperty.set("Активна модель: " + currentModel.getName());
-            } else {
-                selectionInfoProperty.set("Ничего не выбрано");
-            }
-        }
-
-        return true;
     }
 
     /**
