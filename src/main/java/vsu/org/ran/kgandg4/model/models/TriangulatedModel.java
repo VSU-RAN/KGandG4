@@ -1,11 +1,9 @@
 package vsu.org.ran.kgandg4.model.models;
 
-
+import java.util.List;
+import java.util.ArrayList;
 
 import math.vector.Vector3f;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class TriangulatedModel extends Model {
     public List<Triangle> getTriangles() {

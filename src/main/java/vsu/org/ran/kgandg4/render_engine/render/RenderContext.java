@@ -14,7 +14,6 @@ import vsu.org.ran.kgandg4.model.models.TriangulatedModel;
 import vsu.org.ran.kgandg4.dependecyIndjection.annotations.Value;
 import vsu.org.ran.kgandg4.dependecyIndjection.annotations.Component;
 import vsu.org.ran.kgandg4.dependecyIndjection.annotations.PostConstruct;
-import static vsu.org.ran.kgandg4.render_engine.GraphicConveyor.rotateScaleTranslate;
 
 @Component
 public class RenderContext {
@@ -51,7 +50,6 @@ public class RenderContext {
         this.wireframeColor = Color.web(defaultWireframeColor);
     }
 
-
     public void setup(
             GraphicsContext gc,
             Camera camera,
@@ -81,7 +79,7 @@ public class RenderContext {
     }
 
     private void calculatePVMMatrix() {
-        Matrix4f modelMatrix = rotateScaleTranslate();
+        Matrix4f modelMatrix = model.getCachedTransformMatrix();  //  = rotateScaleTranslate();
         Matrix4f viewMatrix = camera.getViewMatrix();
         Matrix4f projectionMatrix = camera.getProjectionMatrix();
 
@@ -89,7 +87,6 @@ public class RenderContext {
         this.pvmMatrix = new Matrix4f(projectionMatrix.copy());
         pvmMatrix.multiplyV(viewMatrix);
         pvmMatrix.multiplyV(modelMatrix);
-
     }
 
     public Matrix4f getPVMMatrix() {
@@ -103,6 +100,7 @@ public class RenderContext {
         }
         return cameraDirectionNormalized;
     }
+
 
 
     /// Геттеры для состояния рендеринга ///
@@ -152,7 +150,6 @@ public class RenderContext {
         if (this.texture != null) {
             this.texture.enableTexture(texture);
         }
-
 
         if (this.lightning != null) {
             this.lightning.setEnabled(lighting);

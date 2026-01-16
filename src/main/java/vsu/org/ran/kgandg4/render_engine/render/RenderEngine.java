@@ -43,15 +43,14 @@ public class RenderEngine {
     public static void render(RenderContext context) {
         TriangulatedModel model = context.getModel();
 
-        if(model == null) {
+        if (model == null) {
             return;
         }
 
         Lightning lightning = context.getLightning();
         Vector3f ray = context.getCameraDirectionNormalized();
         RenderMode renderMode = context.getMode();
-        Matrix4f pvmMatrix = context.getPVMMatrix();
-
+        Matrix4f pvmMatrix = context.getPVMMatrix(); // pvmMatrix забираем у модели и поедель неё делаем
 
         for (Triangle triangle : model.getTriangles()) {
             renderTriangle(context, triangle, pvmMatrix, ray, renderMode, lightning);

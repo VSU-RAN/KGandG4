@@ -50,7 +50,7 @@ public class GraphicConveyor {
 
         // 2. Вращение (в порядке Z, Y, X - углы Эйлера)
         if (modelRotation.getX() != 0.0f || modelRotation.getY() != 0.0f || modelRotation.getZ() != 0.0f) {
-            // Создаем кватернион для вращения вокруг оси Z
+            // Создаём кватернион для вращения вокруг оси Z
             float halfZ = modelRotation.getZ() * 0.5f;
             Quat4f rotationQuat = new Quat4f(
                     0,
@@ -126,10 +126,13 @@ public class GraphicConveyor {
 //                 0, 0, 0, 1}
 //        );
         return new Matrix4f(
-                new float[]{resultX.getX(), resultX.getY(), resultX.getZ(), -(resultX.dotProduct(eye)),
+                new float[]
+                {
+                 resultX.getX(), resultX.getY(), resultX.getZ(), -(resultX.dotProduct(eye)),
                  resultY.getX(), resultY.getY(), resultY.getZ(), -(resultY.dotProduct(eye)),
                  resultZ.getX(), resultZ.getY(), resultZ.getZ(), -(resultZ.dotProduct(eye)),
-                 0, 0, 0, 1}
+                 0, 0, 0, 1
+                }
         );
         //Как в методичке
     }
@@ -140,11 +143,11 @@ public class GraphicConveyor {
             final float nearPlane,
             final float farPlane) {
 
-        float tangensMinusOnDegreeFov = (float) (1.0F / (Math.tan(Math.toRadians(fov) * 0.5F)));
+        float tangentsMinusOnDegreeFov = (float) (1.0F / (Math.tan(Math.toRadians(fov) * 0.5F)));
 
         return new Matrix4f(
-                new float[]{tangensMinusOnDegreeFov / aspectRatio, 0, 0, 0,
-                0, tangensMinusOnDegreeFov, 0, 0,
+                new float[]{tangentsMinusOnDegreeFov / aspectRatio, 0, 0, 0,
+                0, tangentsMinusOnDegreeFov, 0, 0,
                 0, 0, (farPlane + nearPlane) / (farPlane - nearPlane), (2 * farPlane * nearPlane) / (nearPlane - farPlane),
                 0, 0, 1, 0}
         );
@@ -157,11 +160,13 @@ public class GraphicConveyor {
         Vector4f result4f = PVM.transformed(vertexWithW); // v' = PVM * v;
 
         return new Vector3f(result4f.getX() / result4f.getW(),
-                result4f.getY() / result4f.getW(), result4f.getZ() / result4f.getW());
+                            result4f.getY() / result4f.getW(),
+                            result4f.getZ() / result4f.getW());
     }
 
     public static Point2f vertexToPoint(final Vector3f vertex, final int width, final int height) {
-        return new Point2f((float) (width - 1) / 2 * vertex.getX() + (float) (width - 1) / 2, (float) (1 - height) / 2 * vertex.getY() + (float) (height - 1) / 2);
+        return new Point2f((float) (width - 1) / 2 * vertex.getX() + (float) (width - 1) / 2,
+                           (float) (1 - height) / 2 * vertex.getY() + (float) (height - 1) / 2);
         //Как в методичке
     }
 

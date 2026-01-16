@@ -58,6 +58,7 @@ public class KeyboardAndMouseController {
     private boolean isDragging;
 
     private boolean shiftPressed = false;
+    private boolean altPressed = false;
 
     public void attachToScene(Scene scene) {
         if (scene == null) return;
@@ -196,6 +197,17 @@ public class KeyboardAndMouseController {
             case MINUS:
                 // + = Zoom Out
                 activeCamera.zoom(ZOOM_SPEED);
+                break;
+            case ALT:
+                // ALT + ЛКМ
+                if (altPressed) {
+
+                } else {
+
+                }
+                break;
+            case I:
+                performCameraInversion(activeCamera);
                 break;
         }
     }
