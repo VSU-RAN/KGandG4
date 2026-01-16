@@ -16,12 +16,15 @@ import javafx.collections.ListChangeListener;
 import javafx.scene.Parent;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
+import javafx.scene.image.PixelWriter;
+import javafx.scene.image.WritableImage;
 import javafx.scene.layout.VBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.Button;
 import javafx.scene.image.ImageView;
 import javafx.scene.control.ScrollPane;
 
+import javafx.scene.paint.Color;
 import vsu.org.ran.kgandg4.gui.PanelManager;
 import vsu.org.ran.kgandg4.model.ModelManager;
 import vsu.org.ran.kgandg4.model.models.Model;
@@ -240,6 +243,9 @@ public class ModelPanelController implements Initializable, PanelController {
 
         if (texture != null) {
             clearTexturePreview();
+            Color color = texture.getMaterialColor();
+            createColorPreview(color);
+
             textureInfoLabel.setText(String.format("Цвет: RGB(%.0f, %.0f, %.0f)",
                             texture.getMaterialColor().getRed() * 255,
                             texture.getMaterialColor().getGreen() * 255,
@@ -250,6 +256,28 @@ public class ModelPanelController implements Initializable, PanelController {
             clearTexturePreview();
             textureInfoLabel.setText("Текстура не назначена");
             textureInfoLabel.setStyle("-fx-text-fill: #666;");
+        }
+    }
+
+    private void createColorPreview(javafx.scene.paint.Color color) {
+        if (texturePreview == null) return;
+
+        double width = texturePreview.getFitWidth();
+        double height = texturePreview.getFitHeight();
+
+        try {
+            WritableImage image = new WritableImage((int) width, (int) height);
+            PixelWriter pixelWriter = image.getPixelWriter();
+
+            for (int y = 0; y < height; y++) {
+                for (int x = 0; x < width; x++) {
+                    pixelWriter.setColor(x, y, color);
+                }
+            }
+
+            texturePreview.setImage(image);
+        } catch (Exception e) {
+            texturePreview.setImage(null);
         }
     }
 
