@@ -13,6 +13,7 @@ import javafx.scene.layout.AnchorPane;
 import math.vector.Vector3f;
 
 import vsu.org.ran.kgandg4.gui.controllers.*;
+import vsu.org.ran.kgandg4.model.models.Model;
 import vsu.org.ran.kgandg4.model.ModelManager;
 import vsu.org.ran.kgandg4.camera.CameraManager;
 import vsu.org.ran.kgandg4.render_engine.render.RenderLoopService;
@@ -62,7 +63,8 @@ public class MainController {
     @Autowired
     private AlertService alertService;
 
-
+    @Autowired
+    private TransformPanelController transformPanelController;
 
     @FXML
     private void initialize() {
@@ -78,6 +80,8 @@ public class MainController {
         setupCanvas();
         setupEventHandlers();
         setupCanvasClickHandler();
+
+        setupTransformPanel();  // Настройка TransformPanelController
 
         startRenderLoop();
     }
@@ -116,6 +120,7 @@ public class MainController {
         }
     }
 
+
     private void setupEventHandlers() {
         mainContainer.setOnMouseClicked(event -> {
             mainContainer.requestFocus();
@@ -127,7 +132,6 @@ public class MainController {
             }
         });
     }
-
 
 
     private void setupCanvasClickHandler() {
@@ -147,6 +151,19 @@ public class MainController {
     }
 
 
+    private void setupTransformPanel() {
+//         Связка с текущей моделью
+//        transformPanelController.setCurrentModel(modelManager.getCurrentModel());
+
+        // Установка callback для перерисовки
+        transformPanelController.setOnTransformChanged(() -> {
+            // RenderLoopService работает в цикле, поэтому изменения
+            // автоматически подхватятся в следующем кадре
+            System.out.println("Transformation changed - will be rendered in next frame");
+        });
+    }
+
+
     private void startRenderLoop() {
         canvas.sceneProperty().addListener((obs, oldScene, newScene) -> {
             if (newScene != null) {
@@ -160,6 +177,7 @@ public class MainController {
             }
         });
     }
+
 
     private void updateRenderSize() {
         Platform.runLater(() -> {
@@ -181,12 +199,24 @@ public class MainController {
     }
 
 
-
     private void togglePanel(String panelId) {
         panelManager.togglePanel(panelId, rightPanelContainer);
 
         if (panelManager.isPanelOpen(panelId)) {
             mainSplitPane.setDividerPositions(0.75);
+
+            if (panelId.equals("transform")) {
+                if (modelManager != null) {
+                    Model currentModel = modelManager.getCurrentModel();
+                    transformPanelController.setCurrentModel(currentModel);
+
+                    if (currentModel == null) {
+                        System.out.println("Warning: No model selected for transformation");
+                    } else {
+                        System.out.println("Transform panel opened for model: " + currentModel.getName());
+                    }
+                }
+            }
         } else {
             mainSplitPane.setDividerPositions(1.0);
         }

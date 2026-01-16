@@ -1,11 +1,15 @@
 package vsu.org.ran.kgandg4.model.models;
 
+import java.util.ArrayList;
+import java.util.Objects;
+
 import math.matrix.Matrix4f;
 import math.vector.Vector2f;
 import math.vector.Vector3f;
+import math.vector.Vector4f;
 
-import java.util.ArrayList;
-import java.util.Objects;
+import vsu.org.ran.kgandg4.affineTransformations.AffineBuilder;
+import vsu.org.ran.kgandg4.render_engine.GraphicConveyor;
 
 public class Model {
     protected int id;
@@ -24,10 +28,15 @@ public class Model {
     protected ArrayList<Vector3f> normals = new ArrayList<>();
     protected ArrayList<Polygon> polygons = new ArrayList<>();
 
+    public Model() {
+        this.cachedTransformMatrix = Matrix4f.identityMatrix();
+        this.isTransformDirty = false;
+    }
 
     public String getName() {
         return name;
     }
+
     public void setName(String name) {
         this.name = name;
     }
@@ -131,8 +140,78 @@ public class Model {
         this.isTransformDirty = true;
     }
 
-    //todo: Можно добавить реализацию доставания TRS матрицы прямо отсюда
+    // todo: Можно добавить реализацию доставания TRS матрицы прямо отсюда
 
+    /**
+     * Метод построения матрицы модели: M = TRS.
+     * @return матрица модели
+     */
+    public Matrix4f getCachedTransformMatrix() {
+        if (isTransformDirty) {
+            updateTransformMatrix();
+        }
+        return new Matrix4f(cachedTransformMatrix.copy());
+    }
+
+    /**
+     * Метод построения матрицы модели: M = TRS.
+     */
+    private void updateTransformMatrix() {
+        // Матрица трансформации
+        AffineBuilder affineBuilder = new AffineBuilder();
+        // 1. Масштабирование
+        if (scale.getX() != 1.0f || scale.getY() != 1.0f || scale.getZ() != 1.0f) {
+            affineBuilder.scale(scale.getX(), scale.getY(), scale.getZ());
+        }
+        // 2. Вращение (в градусах, нужно преобразовать в радианы)
+        // Вращение через кватернионы (как в GraphicConveyor)
+        if (rotation.getX() != 0.0f) {
+            affineBuilder.rotateXQuat((float) Math.toRadians(rotation.getX()));
+        }
+        if (rotation.getY() != 0.0f) {
+            affineBuilder.rotateYQuat((float) Math.toRadians(rotation.getY()));
+        }
+        if (rotation.getZ() != 0.0f) {
+            affineBuilder.rotateZQuat((float) Math.toRadians(rotation.getZ()));
+        }
+        // 3. Перемещение
+        if (position.getX() != 0.0f || position.getY() != 0.0f || position.getZ() != 0.0f) {
+            affineBuilder.translate(position.getX(), position.getY(), position.getZ());
+        }
+
+        cachedTransformMatrix = affineBuilder.buildMatrix();
+        isTransformDirty = false;
+    }
+
+    // Метод для получения трансформированных вершин (для сохранения)
+    public ArrayList<Vector3f> getTransformedVertices() {
+        Matrix4f transformMatrix = getCachedTransformMatrix();
+        ArrayList<Vector3f> transformedVertices = new ArrayList<>();
+        for (Vector3f vertex : vertices) {
+            // Точка с w=1 для преобразования
+            Vector4f point = new Vector4f(vertex);
+
+            // Применяем трансформацию
+            Vector4f transformed = transformMatrix.transformed(point);
+            transformed.dehomogenize();
+
+            transformedVertices.add(new Vector3f(
+                    transformed.getX(),
+                    transformed.getY(),
+                    transformed.getZ()
+            ));
+        }
+
+        return transformedVertices;
+    }
+
+    public ArrayList<Vector3f> getOriginalVertices() {
+        return new ArrayList<>(vertices); // Копия исходных вершин
+    }
+
+    public Matrix4f getTRS() {
+        return GraphicConveyor.rotateScaleTranslate();
+    }
 
     @Override
     public String toString() {
