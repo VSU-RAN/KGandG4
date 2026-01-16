@@ -155,7 +155,7 @@ public class TransformPanelController implements Initializable, PanelController 
 
     private Runnable onTransformChanged; // Callback для обновления рендеринга
 
-    private Model currentModel;
+
     private boolean isResetting = false;
     private boolean updatingFromModel = false;
 
@@ -176,7 +176,7 @@ public class TransformPanelController implements Initializable, PanelController 
     }
 
     private void saveModel(boolean transformed) {
-        if (currentModel == null) {
+        if (modelManager.getCurrentModel() == null) {
             System.out.println("Нет модели для сохранения");
             if (alertService != null) {
                 System.out.println("Сохранение модели: Нет активной модели для сохранения");
@@ -195,7 +195,7 @@ public class TransformPanelController implements Initializable, PanelController 
 
                 if (transformed) {
                     // Сохранить преобразованную модель
-                    Model transformedCopy = createTransformedCopy(currentModel);
+                    Model transformedCopy = createTransformedCopy(modelManager.getCurrentModel());
                     ObjWriter.write(transformedCopy, path);
                     System.out.println("Сохранена преобразованная модель: " + path);
                     if (alertService != null) {
@@ -204,7 +204,7 @@ public class TransformPanelController implements Initializable, PanelController 
                     }
                 } else {
                     // Сохранить исходную модель
-                    ObjWriter.write(currentModel, path);
+                    ObjWriter.write(modelManager.getCurrentModel(), path);
                     System.out.println("Сохранена исходная модель: " + path);
                     if (alertService != null) {
                         alertService.showInfo("Сохранение",
@@ -418,13 +418,14 @@ public class TransformPanelController implements Initializable, PanelController 
 
     @FXML
     public void applyTransformations() {
-        if (currentModel == null) {
+        if (modelManager.getCurrentModel() == null) {
             System.out.println("Нет модели для применения трансформаций");
             if (alertService != null) {
                 System.out.println("Трансформация модели: Нет активной модели");
             }
             return;
         }
+        Model currentModel = modelManager.getCurrentModel();
 
         // Берем актуальные значения из слайдеров (на случай ручного ввода)
         translateX = (float) translateXSlider.getValue();
@@ -466,7 +467,7 @@ public class TransformPanelController implements Initializable, PanelController 
         translateZField.setText("0.0");
         isResetting = false;
 
-        if (applyImmediatelyCheck.isSelected() && currentModel != null) {
+        if (applyImmediatelyCheck.isSelected() && modelManager.getCurrentModel() != null) {
             applyTransformations();
         }
     }
@@ -485,7 +486,7 @@ public class TransformPanelController implements Initializable, PanelController 
         rotateZField.setText("0.0");
         isResetting = false;
 
-        if (applyImmediatelyCheck.isSelected() && currentModel != null) {
+        if (applyImmediatelyCheck.isSelected() &&  modelManager.getCurrentModel() != null) {
             applyTransformations();
         }
     }
@@ -504,7 +505,7 @@ public class TransformPanelController implements Initializable, PanelController 
         scaleZField.setText("1.0");
         isResetting = false;
 
-        if (applyImmediatelyCheck.isSelected() && currentModel != null) {
+        if (applyImmediatelyCheck.isSelected() &&  modelManager.getCurrentModel() != null) {
             applyTransformations();
         }
     }
@@ -517,88 +518,9 @@ public class TransformPanelController implements Initializable, PanelController 
         resetScale();
         isResetting = false;
 
-        if (applyImmediatelyCheck.isSelected() && currentModel != null) {
+        if (applyImmediatelyCheck.isSelected() &&  modelManager.getCurrentModel() != null) {
             applyTransformations();
         }
-    }
-
-    public void setCurrentModel(Model model) {
-        this.currentModel = model;
-        if (model != null) {
-            System.out.println("TransformPanelController: установлена модель '" + model.getName() + "'");
-            updateUIFromModel();
-        } else {
-            System.out.println("TransformPanelController: модель сброшена (null)");
-        }
-    }
-
-    private void updateUIFromModel() {
-        if (currentModel == null || updatingFromModel) {
-            return;
-        }
-
-        updatingFromModel = true;
-
-        try {
-            Vector3f pos = currentModel.getPosition();
-            Vector3f rot = currentModel.getRotation();
-            Vector3f scale = currentModel.getScale();
-
-            // Обновляем слайдеры
-            translateXSlider.setValue(pos.getX());
-            translateYSlider.setValue(pos.getY());
-            translateZSlider.setValue(pos.getZ());
-
-            rotateXSlider.setValue(rot.getX());
-            rotateYSlider.setValue(rot.getY());
-            rotateZSlider.setValue(rot.getZ());
-
-            scaleXSlider.setValue(scale.getX());
-            scaleYSlider.setValue(scale.getY());
-            scaleZSlider.setValue(scale.getZ());
-
-            // Обновляем локальные переменные
-            translateX = pos.getX();
-            translateY = pos.getY();
-            translateZ = pos.getZ();
-
-            rotateX = rot.getX();
-            rotateY = rot.getY();
-            rotateZ = rot.getZ();
-
-            scaleX = scale.getX();
-            scaleY = scale.getY();
-            scaleZ = scale.getZ();
-
-            // Обновляем текстовые поля
-            translateXField.setText(String.format("%.2f", translateX));
-            translateYField.setText(String.format("%.2f", translateY));
-            translateZField.setText(String.format("%.2f", translateZ));
-
-            rotateXField.setText(String.format("%.1f", rotateX));
-            rotateYField.setText(String.format("%.1f", rotateY));
-            rotateZField.setText(String.format("%.1f", rotateZ));
-
-            scaleXField.setText(String.format("%.2f", scaleX));
-            scaleYField.setText(String.format("%.2f", scaleY));
-            scaleZField.setText(String.format("%.2f", scaleZ));
-
-        } finally {
-            updatingFromModel = false;
-        }
-    }
-
-    // Геттеры для настроек сохранения
-    public boolean isSaveOriginal() {
-        return saveAsOriginal;
-    }
-
-    public boolean isSaveTransformed() {
-        return !saveAsOriginal;
-    }
-
-    public void setOnTransformChanged(Runnable callback) {
-        this.onTransformChanged = callback;
     }
 
     private void notifyTransformationChanged() {
@@ -612,7 +534,59 @@ public class TransformPanelController implements Initializable, PanelController 
         System.out.println("TransformPanelController: панель показана");
         // Сбрасываем UI только, но не применяем трансформации
         // (модель может быть null, поэтому не вызываем resetAllTransformations)
-        resetAllUI();
+        updateUIFromCurrentModel();
+    }
+
+    private void updateUIFromCurrentModel() {
+        Model currentModel = modelManager.getCurrentModel();
+        if (currentModel == null) {
+            resetAllUI();  // если нет модели - сбрасываем
+            return;
+        }
+
+        updatingFromModel = true;
+        try {
+            // Получаем текущие значения из модели
+            Vector3f position = currentModel.getPosition();
+            Vector3f rotation = currentModel.getRotation();
+            Vector3f scale = currentModel.getScale();
+
+            // Устанавливаем значения в UI
+            translateXSlider.setValue(position.getX());
+            translateYSlider.setValue(position.getY());
+            translateZSlider.setValue(position.getZ());
+            translateXField.setText(String.format("%.2f", position.getX()));
+            translateYField.setText(String.format("%.2f", position.getY()));
+            translateZField.setText(String.format("%.2f", position.getZ()));
+
+            rotateXSlider.setValue(rotation.getX());
+            rotateYSlider.setValue(rotation.getY());
+            rotateZSlider.setValue(rotation.getZ());
+            rotateXField.setText(String.format("%.1f", rotation.getX()));
+            rotateYField.setText(String.format("%.1f", rotation.getY()));
+            rotateZField.setText(String.format("%.1f", rotation.getZ()));
+
+            scaleXSlider.setValue(scale.getX());
+            scaleYSlider.setValue(scale.getY());
+            scaleZSlider.setValue(scale.getZ());
+            scaleXField.setText(String.format("%.2f", scale.getX()));
+            scaleYField.setText(String.format("%.2f", scale.getY()));
+            scaleZField.setText(String.format("%.2f", scale.getZ()));
+
+            // Обновляем локальные переменные
+            translateX = position.getX();
+            translateY = position.getY();
+            translateZ = position.getZ();
+            rotateX = rotation.getX();
+            rotateY = rotation.getY();
+            rotateZ = rotation.getZ();
+            scaleX = scale.getX();
+            scaleY = scale.getY();
+            scaleZ = scale.getZ();
+
+        } finally {
+            updatingFromModel = false;
+        }
     }
 
     private void resetAllUI() {
@@ -650,13 +624,5 @@ public class TransformPanelController implements Initializable, PanelController 
         scaleZField.setText("1.0");
 
         isResetting = false;
-    }
-
-    public boolean isResetting() {
-        return isResetting;
-    }
-
-    public void setResetting(boolean resetting) {
-        isResetting = resetting;
     }
 }

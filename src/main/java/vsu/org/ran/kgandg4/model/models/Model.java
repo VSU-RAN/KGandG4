@@ -10,13 +10,10 @@ import math.matrix.Matrix4f;
 import math.vector.Vector2f;
 import math.vector.Vector3f;
 import math.vector.Vector4f;
-import vsu.org.ran.kgandg4.dependecyIndjection.annotations.Component;
-import vsu.org.ran.kgandg4.dependecyIndjection.annotations.Value;
 import vsu.org.ran.kgandg4.gui.ConstantsAndStyles;
 import vsu.org.ran.kgandg4.render_engine.Texture;
 
 import vsu.org.ran.kgandg4.affineTransformations.AffineBuilder;
-import vsu.org.ran.kgandg4.render_engine.GraphicConveyor;
 import java.util.*;
 
 public class Model {
@@ -45,16 +42,14 @@ public class Model {
 
     protected Model(String name) {
         this.name = name;
+        this.cachedTransformMatrix = Matrix4f.identityMatrix();
+        this.isTransformDirty = false;
         this.texture = null;
     }
 
     protected Model(String name, Texture texture) {
         this.name = name;
         this.texture = texture;
-    }
-    public Model() {
-        this.cachedTransformMatrix = Matrix4f.identityMatrix();
-        this.isTransformDirty = false;
     }
 
     public String getName() {
@@ -102,16 +97,8 @@ public class Model {
         return texture != null && texture.hasTexture();
     }
 
-    public Color getColor(float u, float v, boolean useTexture) {
-        return texture.getColor(u, v, useTexture);
-    }
-
     public void setMaterialColor(Color color) {
         texture.setMaterialColor(color);
-    }
-
-    public Matrix4f getModelMatrix() {
-        return Matrix4f.identityMatrix();
     }
 
 
@@ -151,31 +138,32 @@ public class Model {
         this.polygons = polygons;
     }
 
-    public Vector3f getPosition() {
-        return new Vector3f(position.getX(), position.getY(), position.getZ());
-    }
-
     public void setPosition(Vector3f position) {
         this.position = new Vector3f(position.getX(), position.getY(), position.getZ());
         this.isTransformDirty = true;
     }
 
-    public Vector3f getRotation() {
-        return new Vector3f(rotation.getX(), rotation.getY(), rotation.getZ());
-    }
 
     public void setRotation(Vector3f rotation) {
         this.rotation = new Vector3f(rotation.getX(), rotation.getY(), rotation.getZ());
         this.isTransformDirty = true;
     }
 
-    public Vector3f getScale() {
-        return new Vector3f(scale.getX(), scale.getY(), scale.getZ());
-    }
-
     public void setScale(Vector3f scale) {
         this.scale = new Vector3f(scale.getX(), scale.getY(), scale.getZ());
         this.isTransformDirty = true;
+    }
+
+    public Vector3f getPosition() {
+        return position;
+    }
+
+    public Vector3f getRotation() {
+        return rotation;
+    }
+
+    public Vector3f getScale() {
+        return scale;
     }
 
     public void deleteVertices() {

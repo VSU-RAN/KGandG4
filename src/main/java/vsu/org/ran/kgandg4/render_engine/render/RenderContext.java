@@ -12,10 +12,7 @@ import vsu.org.ran.kgandg4.render_engine.Zbuffer;
 import vsu.org.ran.kgandg4.render_engine.Lightning;
 import vsu.org.ran.kgandg4.model.models.TriangulatedModel;
 
-import java.util.Collections;
 import java.util.List;
-
-import static vsu.org.ran.kgandg4.render_engine.GraphicConveyor.rotateScaleTranslate;
 
 public class RenderContext {
     private final GraphicsContext graphicsContext;
@@ -30,7 +27,6 @@ public class RenderContext {
     private final Scene scene;
 
     /// Настройки рендеринга ///
-    private Matrix4f pvmMatrix;
     private Vector3f cameraDirection;
     private List<TriangulatedModel> visibleModels;
 
@@ -59,20 +55,16 @@ public class RenderContext {
         this.scene = scene;
     }
 
-    private void calculatePVMMatrix() {
-        Matrix4f modelMatrix = rotateScaleTranslate();
+    public Matrix4f getPVMMatrixForModel(Model model) {
+        Matrix4f modelMatrix = model.getCachedTransformMatrix();
         Matrix4f viewMatrix = camera.getViewMatrix();
         Matrix4f projectionMatrix = camera.getProjectionMatrix();
 
-        // PVM матрица как в методичке
-        this.pvmMatrix = new Matrix4f(projectionMatrix.copy());
+        Matrix4f pvmMatrix = new Matrix4f(projectionMatrix.copy());
         pvmMatrix.multiplyV(viewMatrix);
         pvmMatrix.multiplyV(modelMatrix);
-    }
 
-    public Matrix4f getPVMMatrix() {
-        calculatePVMMatrix();
-        return this.pvmMatrix;
+        return pvmMatrix;
     }
 
     public Vector3f getCameraDirectionNormalized() {

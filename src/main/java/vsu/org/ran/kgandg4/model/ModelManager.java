@@ -3,7 +3,6 @@ package vsu.org.ran.kgandg4.model;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.util.List;
 
 import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
@@ -44,8 +43,6 @@ public class ModelManager {
 
     @Value("${model.default.threshold:0.3}")
     private float modelDefaultThreshold;
-
-    private volatile boolean isProcessing = false;
 
     private ObservableList<Model> modelList = FXCollections.observableArrayList();
     private int nextId = 0;
@@ -104,18 +101,6 @@ public class ModelManager {
 
         return triangulatedModel;
     }
-
-
-    public void removeModel(TriangulatedModel model) {
-        if (modelList.size() <= 1) {
-            throw new IllegalArgumentException("Нельзя удалить последнюю модель");
-        }
-        modelList.remove(model);
-        if (activeModelProperty.get() != null && activeModelProperty.get().equals(model)) {
-            switchToModel(0);
-        }
-    }
-
     /**
      * Удаляет модель по ID
      * @param id ID модели
@@ -319,21 +304,6 @@ public class ModelManager {
         return false;
     }
 
-    public boolean deleteAllFromCurrentModel() {
-        Model activeModel = getCurrentModel();
-        if (activeModel == null) {
-            return false;
-        }
-
-        activeModel.deleteVertices();
-        activeModel.deletePolygons();
-        activeModel.deleteTextureVertices();
-        activeModel.deleteNormals();
-
-        clearSelection();
-        return true;
-    }
-
     /**
      * Удаляет вершину по индексу
      * @param index индекс вершины
@@ -389,26 +359,16 @@ public class ModelManager {
      * @return true если модель удалена, false если модели не было
      */
     public boolean deleteCurrentModel() {
-        System.out.println("DEBUG: deleteCurrentModel() called");
-
         Model currentModel = getCurrentModel();
         if (currentModel == null) {
-            System.out.println("DEBUG: No current model to delete");
             return false;
         }
 
         int modelId = currentModel.getId();
-        String modelName = currentModel.getName();
-
-        System.out.println("DEBUG: Deleting model: " + modelName + " (ID: " + modelId + ")");
-
-        // Используем существующий метод removeModel
         try {
             removeModel(modelId);
-            System.out.println("DEBUG: Model deleted successfully");
             return true;
         } catch (IllegalArgumentException e) {
-            System.out.println("DEBUG: Failed to delete model: " + e.getMessage());
             return false;
         }
     }

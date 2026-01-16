@@ -71,7 +71,7 @@ public class RenderEngine {
             return;
         }
 
-        Matrix4f pvmMatrix = context.getPVMMatrix();
+        Matrix4f pvmMatrix = context.getPVMMatrixForModel(model);
 
         for (Triangle triangle : model.getTriangles()) {
             renderTriangleWireframeOnly(context, model, triangle, pvmMatrix);
@@ -86,7 +86,7 @@ public class RenderEngine {
         Lightning lightning = context.getLightning();
         Vector3f ray = context.getCameraDirectionNormalized();
         RenderMode renderMode = context.getMode();
-        Matrix4f pvmMatrix = context.getPVMMatrix();
+        Matrix4f pvmMatrix = context.getPVMMatrixForModel(model);
 
         for (Triangle triangle : model.getTriangles()) {
             renderTriangleWithOptions(context, model, triangle, pvmMatrix, ray, renderMode, lightning, colorProvider);
