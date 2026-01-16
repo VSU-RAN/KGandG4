@@ -1,11 +1,11 @@
 package vsu.org.ran.kgandg4.render_engine;
 
+import utils.MathUtil;
 import math.point.Point2f;
 import math.vector.Vector3f;
 import math.vector.Vector4f;
 import math.matrix.Matrix4f;
 
-import vsu.org.ran.kgandg4.Math.Mathet;
 import vsu.org.ran.kgandg4.camera.Camera;
 
 public class GraphicConveyor {
@@ -109,7 +109,7 @@ public class GraphicConveyor {
         Vector4f clipCoords = new Vector4f(ndcX, ndcY, zbufferDepth, 1.0f);
 
         // 3. Clip Space → глаз (обратная проекция)
-        Matrix4f inverseProj = Mathet.invert(projectionMatrix);
+        Matrix4f inverseProj = MathUtil.invert(projectionMatrix);
         Vector4f eyeCoords = inverseProj.transformed(clipCoords);
 
         // Перспективное деление
@@ -123,7 +123,7 @@ public class GraphicConveyor {
         }
 
         // 4. Глаз → мир (обратный вид)
-        Matrix4f inverseView = Mathet.invert(viewMatrix);
+        Matrix4f inverseView = MathUtil.invert(viewMatrix);
         if (inverseView == null) {
             System.out.println("Ошибка: не удалось инвертировать видовую матрицу");
             return new Vector3f(eyeCoords.getX(), eyeCoords.getY(), eyeCoords.getZ());
@@ -132,7 +132,7 @@ public class GraphicConveyor {
 
 
         // 5. Мир → модель (обратная модель)
-        Matrix4f inverseModel = Mathet.invert(modelMatrix);
+        Matrix4f inverseModel = MathUtil.invert(modelMatrix);
         if (inverseModel == null) {
             System.out.println("Ошибка: не удалось инвертировать матрицу модели");
             return new Vector3f(worldCoords.getX(), worldCoords.getY(), worldCoords.getZ());
