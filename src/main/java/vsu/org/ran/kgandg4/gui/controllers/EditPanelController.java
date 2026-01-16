@@ -7,13 +7,14 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.fxml.Initializable;
 
-import vsu.org.ran.kgandg4.model.ModelManager;
 import math.vector.Vector3f;
-import vsu.org.ran.kgandg4.dependecyIndjection.annotations.Autowired;
-import vsu.org.ran.kgandg4.dependecyIndjection.annotations.Component;
+
+import vsu.org.ran.kgandg4.model.ModelManager;
+import vsu.org.ran.kgandg4.model.models.Model;
 import vsu.org.ran.kgandg4.gui.PanelController;
 import vsu.org.ran.kgandg4.gui.ConstantsAndStyles;
-import vsu.org.ran.kgandg4.model.models.Model;
+import vsu.org.ran.kgandg4.dependecyIndjection.annotations.Autowired;
+import vsu.org.ran.kgandg4.dependecyIndjection.annotations.Component;
 
 @Component
 public class EditPanelController implements Initializable, PanelController {
