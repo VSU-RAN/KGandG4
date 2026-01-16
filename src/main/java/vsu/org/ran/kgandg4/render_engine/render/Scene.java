@@ -15,6 +15,9 @@ import vsu.org.ran.kgandg4.model.models.TriangulatedModel;
 import vsu.org.ran.kgandg4.dependecyIndjection.annotations.Autowired;
 import vsu.org.ran.kgandg4.dependecyIndjection.annotations.Component;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Component
 public class Scene {
     @Autowired
@@ -115,22 +118,19 @@ public class Scene {
 
         gc.clearRect(0, 0, width, height);
 
-        for (Model model: modelManager.getModels()) {
-            if (model.isVisible()) {
-                renderContext.setup(
-                        gc,
-                        camera,
-                        (TriangulatedModel) model,
-                        texture,
-                        zbuffer,
-                        lightning,
-                        width,
-                        height
-                );
+        List<TriangulatedModel> allModels = modelManager.getModels().stream().map(model -> (TriangulatedModel) model).toList();
 
-                // Рендерим модель
-                RenderEngine.render(renderContext);
-            }
-        }
+        renderContext.setup(
+                gc,
+                camera,
+                allModels,
+                texture,
+                zbuffer,
+                lightning,
+                width,
+                height
+        );
+
+        RenderEngine.render(renderContext);
     }
 }

@@ -41,25 +41,29 @@ public class RenderEngine {
     }
 
     public static void render(RenderContext context) {
-        TriangulatedModel model = context.getModel();
+        for (TriangulatedModel model : context.getVisibleModels()) {
+            renderSingleModel(context, model);
+        }
+    }
 
-        if (model == null) {
+    private static void renderSingleModel(RenderContext context, TriangulatedModel model) {
+        if(model == null) {
             return;
         }
 
         Lightning lightning = context.getLightning();
         Vector3f ray = context.getCameraDirectionNormalized();
         RenderMode renderMode = context.getMode();
-        Matrix4f pvmMatrix = context.getPVMMatrix(); // pvmMatrix забираем у модели и поедель неё делаем
+        Matrix4f pvmMatrix = context.getPVMMatrix();
+
 
         for (Triangle triangle : model.getTriangles()) {
-            renderTriangle(context, triangle, pvmMatrix, ray, renderMode, lightning);
+            renderTriangle(context, model, triangle, pvmMatrix, ray, renderMode, lightning);
         }
     }
 
-    private static void renderTriangle(RenderContext context, Triangle triangle, Matrix4f pvmMatrix, Vector3f ray, RenderMode mode, Lightning lightning) {
+    private static void renderTriangle(RenderContext context, TriangulatedModel model, Triangle triangle, Matrix4f pvmMatrix, Vector3f ray, RenderMode mode, Lightning lightning) {
         TriangleData data = new TriangleData();
-        TriangulatedModel model = context.getModel();
 
         for (int i = 0; i < 3; i++) {
             Vector3f worldVertex = triangle.getWorldVertex(i, model);
@@ -109,12 +113,22 @@ public class RenderEngine {
             );
 
             if (mode.isWireframe()) {
-                drawWireFrameTriangle(context.getGraphicsContext().getPixelWriter(),
-                        context.getZbuffer(),
-                        context.getWireframeColor(),
-                        x0, y0, z0,
-                        x1, y1, z1,
-                        x2, y2, z2);
+                Vector3f worldVertex0 = data.worldVertices[0];
+                Vector3f worldVertex1 = data.worldVertices[1];
+                Vector3f worldVertex2 = data.worldVertices[2];
+
+                Vector3f cameraPos = context.getCamera().getPosition();
+
+                if (GraphicConveyor.isFrontFace(worldVertex0, worldVertex1, worldVertex2, cameraPos)) {
+                    drawWireFrameTriangle(
+                            context.getGraphicsContext().getPixelWriter(),
+                            context.getZbuffer(),
+                            context.getWireframeColor(),
+                            x0, y0, z0,
+                            x1, y1, z1,
+                            x2, y2, z2
+                    );
+                }
             }
         }
     }

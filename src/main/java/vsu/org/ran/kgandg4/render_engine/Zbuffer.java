@@ -63,8 +63,6 @@ public class Zbuffer {
             return 1.0f;
         }
 
-        float normalizedZ = (z + 1.0f) / 2.0f; // [-1,1] → [0,1]
-
-        return Math.max(0, Math.min(1, normalizedZ));
+        return z;
     }
 }

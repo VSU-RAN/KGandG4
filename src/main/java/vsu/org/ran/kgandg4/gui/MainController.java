@@ -159,26 +159,14 @@ public class MainController {
                     float z = scene.getZbuffer().readDepth(screenX, screenY);
 
                     if (z >= 0.999f) {
-                        System.out.println("  -> Empty click");
                         editController.clearSelection();
                         return;
                     }
 
-                    Camera camera = scene.getActiveCamera();
-                    int width = (int)canvas.getWidth();
-                    int height = (int)canvas.getHeight();
-
-                    Matrix4f viewMatrix = camera.getViewMatrix();
-                    Matrix4f projectionMatrix = camera.getProjectionMatrix();
-                    Matrix4f modelMatrix = GraphicConveyor.rotateScaleTranslate();
-                    float near = camera.getNearPlane();
-                    float far = camera.getFarPlane();
-
                     Vector3f modelCoords = GraphicConveyor.screenToModel(
                             screenX, screenY, z,
-                            width, height,
-                            viewMatrix, projectionMatrix, modelMatrix,
-                            near, far
+                            cameraManager.getActiveCamera(), modelManager.getCurrentModel().getModelMatrix(),
+                            (int) canvas.getWidth(), (int) canvas.getHeight()
                     );
 
                     if (modelCoords != null) {

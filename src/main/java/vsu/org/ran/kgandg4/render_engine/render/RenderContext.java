@@ -7,6 +7,7 @@ import math.matrix.Matrix4f;
 import math.vector.Vector3f;
 
 import vsu.org.ran.kgandg4.camera.Camera;
+import vsu.org.ran.kgandg4.model.models.Model;
 import vsu.org.ran.kgandg4.render_engine.Texture;
 import vsu.org.ran.kgandg4.render_engine.Zbuffer;
 import vsu.org.ran.kgandg4.render_engine.Lightning;
@@ -14,6 +15,11 @@ import vsu.org.ran.kgandg4.model.models.TriangulatedModel;
 import vsu.org.ran.kgandg4.dependecyIndjection.annotations.Value;
 import vsu.org.ran.kgandg4.dependecyIndjection.annotations.Component;
 import vsu.org.ran.kgandg4.dependecyIndjection.annotations.PostConstruct;
+
+import java.util.Collections;
+import java.util.List;
+
+import static vsu.org.ran.kgandg4.render_engine.GraphicConveyor.rotateScaleTranslate;
 
 @Component
 public class RenderContext {
@@ -31,7 +37,7 @@ public class RenderContext {
     /// Состояние рендеринга ///
     private GraphicsContext graphicsContext;
     private Camera camera;
-    private TriangulatedModel model;
+    private List<TriangulatedModel> models;
     private Texture texture;
     private Zbuffer zbuffer;
     private Lightning lightning;
@@ -50,10 +56,11 @@ public class RenderContext {
         this.wireframeColor = Color.web(defaultWireframeColor);
     }
 
+
     public void setup(
             GraphicsContext gc,
             Camera camera,
-            TriangulatedModel model,
+            List<TriangulatedModel> models,
             Texture texture,
             Zbuffer zbuffer,
             Lightning lightning,
@@ -62,7 +69,7 @@ public class RenderContext {
     ) {
         this.graphicsContext = gc;
         this.camera = camera;
-        this.model = model;
+        this.models = models;
         this.texture = texture;
         this.zbuffer = zbuffer;
         this.lightning = lightning;
@@ -79,7 +86,7 @@ public class RenderContext {
     }
 
     private void calculatePVMMatrix() {
-        Matrix4f modelMatrix = model.getCachedTransformMatrix();  //  = rotateScaleTranslate();
+        Matrix4f modelMatrix = rotateScaleTranslate();
         Matrix4f viewMatrix = camera.getViewMatrix();
         Matrix4f projectionMatrix = camera.getProjectionMatrix();
 
@@ -101,11 +108,23 @@ public class RenderContext {
         return cameraDirectionNormalized;
     }
 
+    public Camera getCamera() {
+        return camera;
+    }
 
 
     /// Геттеры для состояния рендеринга ///
     public GraphicsContext getGraphicsContext() { return graphicsContext; }
-    public TriangulatedModel getModel() { return model; }
+
+    public List<TriangulatedModel> getAllModels() {
+        return Collections.unmodifiableList(models);
+    }
+
+    public List<TriangulatedModel> getVisibleModels() {
+        return models.stream().filter(Model::isVisible).toList();
+    }
+
+
     public Texture getTexture() { return texture; }
     public Zbuffer getZbuffer() { return zbuffer; }
     public int getWidth() { return width; }
@@ -150,6 +169,7 @@ public class RenderContext {
         if (this.texture != null) {
             this.texture.enableTexture(texture);
         }
+
 
         if (this.lightning != null) {
             this.lightning.setEnabled(lighting);
