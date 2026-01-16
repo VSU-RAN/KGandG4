@@ -7,6 +7,7 @@ import math.vector.Vector3f;
 
 import vsu.org.ran.kgandg4.model.models.Triangle;
 import vsu.org.ran.kgandg4.model.models.TriangulatedModel;
+import vsu.org.ran.kgandg4.render_engine.ColorProvider;
 import vsu.org.ran.kgandg4.render_engine.GraphicConveyor;
 import vsu.org.ran.kgandg4.render_engine.Lightning;
 
@@ -60,7 +61,8 @@ public class RenderEngine {
 
     private static void renderWithOptions(RenderContext context) {
         for (TriangulatedModel model : context.getVisibleModels()) {
-            renderSingleModelWithOptions(context, model);
+            ColorProvider colorProvider = context.getScene().getColorProviderFor(model);
+            renderSingleModelWithOptions(context, model, colorProvider);
         }
     }
 
@@ -76,7 +78,7 @@ public class RenderEngine {
         }
     }
 
-    private static void renderSingleModelWithOptions(RenderContext context, TriangulatedModel model) {
+    private static void renderSingleModelWithOptions(RenderContext context, TriangulatedModel model, ColorProvider colorProvider) {
         if (model == null) {
             return;
         }
@@ -87,7 +89,7 @@ public class RenderEngine {
         Matrix4f pvmMatrix = context.getPVMMatrix();
 
         for (Triangle triangle : model.getTriangles()) {
-            renderTriangleWithOptions(context, model, triangle, pvmMatrix, ray, renderMode, lightning);
+            renderTriangleWithOptions(context, model, triangle, pvmMatrix, ray, renderMode, lightning, colorProvider);
         }
     }
 
@@ -138,7 +140,9 @@ public class RenderEngine {
         }
     }
 
-    private static void renderTriangleWithOptions(RenderContext context, TriangulatedModel model, Triangle triangle, Matrix4f pvmMatrix, Vector3f ray, RenderMode mode, Lightning lightning) {
+    private static void renderTriangleWithOptions(RenderContext context, TriangulatedModel model, Triangle triangle,
+                                                  Matrix4f pvmMatrix, Vector3f ray, RenderMode mode, Lightning lightning, ColorProvider colorProvider
+    ) {
         TriangleData data = new TriangleData();
 
         for (int i = 0; i < 3; i++) {
@@ -182,7 +186,7 @@ public class RenderEngine {
                     context.getGraphicsContext().getPixelWriter(),
                     context.getZbuffer(),
                     model.getTexture(),
-                    ray, lightning, mode.isTexture() && model.hasTexture(),
+                    ray, lightning, colorProvider,
                     x0, y0, z0, u0, v0, n0,
                     x1, y1, z1, u1, v1, n1,
                     x2, y2, z2, u2, v2, n2

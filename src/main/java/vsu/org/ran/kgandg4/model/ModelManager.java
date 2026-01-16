@@ -17,6 +17,7 @@ import javafx.collections.ObservableList;
 import math.vector.Vector3f;
 
 import vsu.org.ran.kgandg4.IO.ObjWriter;
+import vsu.org.ran.kgandg4.dependecyIndjection.annotations.PostConstruct;
 import vsu.org.ran.kgandg4.dependecyIndjection.annotations.Value;
 import vsu.org.ran.kgandg4.model.models.Model;
 import vsu.org.ran.kgandg4.IO.objReader.ObjReader;
@@ -54,6 +55,18 @@ public class ModelManager {
     private final ObjectProperty<Integer> selectedPolygonIndex = new SimpleObjectProperty<>();
     private final ReadOnlyObjectWrapper<String> selectionInfoProperty = new ReadOnlyObjectWrapper<>("Ничего не выбрано");
 
+    @PostConstruct
+    public void init() {
+        activeModelProperty.addListener((obs, oldModel, newModel) -> {
+            if (oldModel != null) {
+                oldModel.setActive(false);
+            }
+            if (newModel != null) {
+                newModel.setActive(true);
+            }
+        });
+    }
+
     public Model loadModel(File file) throws IOException {
         String content = Files.readString(file.toPath());
         Model loadModel = ObjReader.read(content);
@@ -83,9 +96,10 @@ public class ModelManager {
 
         this.modelList.add(triangulatedModel);
 
-        // Если это первая модель или нет активной модели, делаем ее активной
-        if (modelList.size() == 1 || activeModelProperty.get() == null) {
-            switchToModelById(triangulatedModel.getId());
+        if (modelList.size() == 1) {
+            activeModelProperty.set(triangulatedModel);
+        } else {
+            triangulatedModel.setActive(false);
         }
 
         return triangulatedModel;

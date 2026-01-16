@@ -11,76 +11,52 @@ import vsu.org.ran.kgandg4.model.models.Model;
 import vsu.org.ran.kgandg4.render_engine.Zbuffer;
 import vsu.org.ran.kgandg4.render_engine.Lightning;
 import vsu.org.ran.kgandg4.model.models.TriangulatedModel;
-import vsu.org.ran.kgandg4.dependecyIndjection.annotations.Value;
-import vsu.org.ran.kgandg4.dependecyIndjection.annotations.Component;
-import vsu.org.ran.kgandg4.dependecyIndjection.annotations.PostConstruct;
 
 import java.util.Collections;
 import java.util.List;
 
 import static vsu.org.ran.kgandg4.render_engine.GraphicConveyor.rotateScaleTranslate;
 
-@Component
 public class RenderContext {
-    /// Конфигурационные значения ///
-
-    @Value("${render.default.wireframe_color:#FF0000}")
-    private String defaultWireframeColor;
-    @Value("${render.default.enable_lighting:true}")
-    private boolean defaultEnableLighting;
-    @Value("${render.default.enable_wireframe:true}")
-    private boolean defaultEnableWireframe;
-    @Value("${render.default.enable_texture:true}")
-    private boolean defaultEnableTexture;
-    @Value("${render.default.enable_only_wireframe:false}")
-    private boolean defaultOnlyEnableWireframe;
-
-    /// Состояние рендеринга ///
-    private GraphicsContext graphicsContext;
-    private Camera camera;
-    private List<TriangulatedModel> models;
-    private Zbuffer zbuffer;
-    private Lightning lightning;
-    private int width;
-    private int height;
+    private final GraphicsContext graphicsContext;
+    private final Camera camera;
+    private final List<TriangulatedModel> allModels;
+    private final Zbuffer zbuffer;
+    private final Lightning lightning;
+    private final int width;
+    private final int height;
+    private final RenderMode renderMode;
+    private final Color wireframeColor;
+    private final Scene scene;
 
     /// Настройки рендеринга ///
-    private RenderMode mode;
-    private Color wireframeColor;
     private Matrix4f pvmMatrix;
-    private Vector3f cameraDirectionNormalized;
-
-    @PostConstruct
-    private void init() {
-        this.mode = new RenderMode(defaultEnableWireframe, defaultEnableTexture, defaultEnableLighting, defaultOnlyEnableWireframe);
-        this.wireframeColor = Color.web(defaultWireframeColor);
-    }
+    private Vector3f cameraDirection;
+    private List<TriangulatedModel> visibleModels;
 
 
-    public void setup(
-            GraphicsContext gc,
+    public RenderContext(
+            GraphicsContext graphicsContext,
             Camera camera,
-            List<TriangulatedModel> models,
+            List<TriangulatedModel> allModels,
             Zbuffer zbuffer,
             Lightning lightning,
             int width,
-            int height
+            int height,
+            RenderMode renderMode,
+            Color wireframeColor,
+            Scene scene
     ) {
-        this.graphicsContext = gc;
+        this.graphicsContext = graphicsContext;
         this.camera = camera;
-        this.models = models;
+        this.allModels = allModels;
         this.zbuffer = zbuffer;
         this.lightning = lightning;
         this.width = width;
         this.height = height;
-
-        if (camera != null) {
-            camera.setAspectRatio((float) width / height);
-            this.cameraDirectionNormalized = camera.getDirection().normalized();
-        }
-        this.camera = camera;
-
-        calculatePVMMatrix();
+        this.renderMode = renderMode;
+        this.wireframeColor = wireframeColor;
+        this.scene = scene;
     }
 
     private void calculatePVMMatrix() {
@@ -100,10 +76,10 @@ public class RenderContext {
     }
 
     public Vector3f getCameraDirectionNormalized() {
-        if (cameraDirectionNormalized == null && camera != null) {
-            cameraDirectionNormalized = camera.getDirection().normalized();
+        if (cameraDirection == null) {
+            cameraDirection = camera.getDirection().normalized();
         }
-        return cameraDirectionNormalized;
+        return cameraDirection;
     }
 
     public Camera getCamera() {
@@ -114,77 +90,22 @@ public class RenderContext {
     /// Геттеры для состояния рендеринга ///
     public GraphicsContext getGraphicsContext() { return graphicsContext; }
 
-    public List<TriangulatedModel> getAllModels() {
-        return Collections.unmodifiableList(models);
+    public Scene getScene() {
+        return scene;
     }
 
     public List<TriangulatedModel> getVisibleModels() {
-        return models.stream().filter(Model::isVisible).toList();
+        if (visibleModels == null) {
+            visibleModels = allModels.stream().filter(Model::isVisible).toList();
+        }
+        return visibleModels;
     }
 
     public Zbuffer getZbuffer() { return zbuffer; }
     public int getWidth() { return width; }
     public int getHeight() { return height; }
     public Lightning getLightning() {return lightning;}
-
-
-
-    /// ГЕТТЕРЫ ДЛЯ НАСТРОЕК И ВЫЧИСЛЯЕМЫХ ПАРАМЕТРОВ ///
-    public RenderMode getMode() { return mode; }
     public Color getWireframeColor() { return wireframeColor; }
-
-
-    /// УПРАВЛЕНИЕ РЕЖИМАМИ РЕНДЕРИНГА ///
-    public void setWireframeEnabled(boolean enabled) throws IllegalStateException {
-        if (enabled && mode.isOnlyWireframe()) {
-            updateRenderMode(false, false, false, false);
-        }
-        updateRenderMode(enabled, mode.isTexture(), mode.isLighting(), false);
-    }
-
-    public void setTextureEnabled(boolean enabled) throws IllegalStateException {
-        if (enabled && mode.isOnlyWireframe()) {
-            updateRenderMode(false, false, false, false);
-        }
-        updateRenderMode(mode.isWireframe(), enabled, mode.isLighting(), false);
-    }
-
-    public void setLightEnabled(boolean enabled) throws IllegalStateException {
-        if (enabled && mode.isOnlyWireframe()) {
-            updateRenderMode(false, false, false, false);
-        }
-        updateRenderMode(mode.isWireframe(), mode.isTexture(), enabled, false);
-    }
-
-    public void setWireframeOnlyEnabled(boolean enabled) throws IllegalStateException {
-        if (enabled) {
-            updateRenderMode(false, false, false, true);
-        } else {
-            updateRenderMode(defaultEnableWireframe, defaultEnableTexture, defaultEnableLighting, false);
-        }
-    }
-
-    public boolean isWireframeEnabled() {
-        return mode.isWireframe();
-    }
-
-    public boolean isTextureEnabled() {
-        return mode.isTexture();
-    }
-
-    public boolean isLightEnabled() {
-        return mode.isLighting();
-    }
-
-    public boolean isWireframeOnlyEnabled() {return mode.isOnlyWireframe();}
-
-    private void updateRenderMode(boolean wireframe, boolean texture, boolean lighting, boolean onlyWireframe) throws IllegalStateException {
-        this.mode = new RenderMode(wireframe, texture, lighting, onlyWireframe);
-
-        if (this.lightning != null) {
-            this.lightning.setEnabled(lighting);
-        }
-    }
-
+    public RenderMode getMode() {return renderMode;}
 }
 

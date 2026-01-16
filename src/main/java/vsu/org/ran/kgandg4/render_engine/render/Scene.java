@@ -5,63 +5,165 @@ import javafx.scene.canvas.GraphicsContext;
 
 import vsu.org.ran.kgandg4.camera.Camera;
 import vsu.org.ran.kgandg4.camera.CameraManager;
+import vsu.org.ran.kgandg4.dependecyIndjection.annotations.PostConstruct;
+import vsu.org.ran.kgandg4.dependecyIndjection.annotations.Value;
 import vsu.org.ran.kgandg4.model.models.Model;
-import vsu.org.ran.kgandg4.render_engine.MaterialSettings;
-import vsu.org.ran.kgandg4.render_engine.Texture;
-import vsu.org.ran.kgandg4.render_engine.Zbuffer;
+import vsu.org.ran.kgandg4.render_engine.*;
 import vsu.org.ran.kgandg4.model.ModelManager;
-import vsu.org.ran.kgandg4.render_engine.Lightning;
 import vsu.org.ran.kgandg4.model.models.TriangulatedModel;
 import vsu.org.ran.kgandg4.dependecyIndjection.annotations.Autowired;
 import vsu.org.ran.kgandg4.dependecyIndjection.annotations.Component;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 public class Scene {
-    @Autowired
-    private RenderContext renderContext;
+    /// Конфигурационные значения ///
+    @Value("${render.default.wireframe_color:#FF0000}")
+    private String defaultWireframeColor;
 
-    @Autowired
-    private ModelManager modelManager;
+    @Value("${render.default.inactive_color:#FF0000}")
+    private String defaultInactiveColor;
 
-    @Autowired
-    private CameraManager cameraManager;
+    @Value("${render.default.enable_lighting:true}")
+    private boolean defaultEnableLighting;
+    @Value("${render.default.enable_wireframe:true}")
+    private boolean defaultEnableWireframe;
+    @Value("${render.default.enable_texture:true}")
+    private boolean defaultEnableTexture;
+    @Value("${render.default.enable_only_wireframe:false}")
+    private boolean defaultOnlyEnableWireframe;
 
-    @Autowired
-    private RenderEngine renderEngine;
+    private RenderMode renderMode;
+    private Color wireframeColor;
+    private Color inactiveColor;
 
-    @Autowired
-    private Zbuffer zbuffer;
+    @Autowired private ModelManager modelManager;
+    @Autowired private CameraManager cameraManager;
+    @Autowired private Zbuffer zbuffer;
+    @Autowired private Lightning lightning;
 
-    @Autowired
-    private Lightning lightning;
 
-    @Autowired
-    private MaterialSettings materialSettings;
+    @PostConstruct
+    public void init() {
+        this.wireframeColor = Color.web(defaultWireframeColor);
+        this.inactiveColor = Color.web(defaultInactiveColor);
 
-    private boolean textureModeEnabled = false;
+        this.renderMode = new RenderMode(
+                defaultEnableWireframe,
+                defaultEnableTexture,
+                defaultEnableLighting,
+                defaultOnlyEnableWireframe
+        );
+        lightning.setEnabled(renderMode.isLighting());
+    }
 
     public void setTextureEnabled(boolean enabled) throws IllegalStateException {
-        if (enabled) {
-            boolean hasVisibleModelWithLoadedTexture = modelManager.getModels().stream().filter(Model::isVisible).anyMatch(Model::hasTexture);
-            if (!hasVisibleModelWithLoadedTexture) {
-                throw new IllegalStateException(
-                        "Невозможно включить режим текстур.\n\n" +
-                                "Нет видимых моделей с загруженными текстурами.\n" +
-                                "1. Загрузите текстуру для хотя бы одной видимой модели\n" +
-                                "2. Попробуйте снова"
-                );
-            }
-            this.textureModeEnabled = true;
-        } else {
-            this.textureModeEnabled = false;
+        if (enabled && !canEnableTextureMode()) {
+            throw new IllegalStateException(
+                    "Невозможно включить режим текстур.\n\n" +
+                            "Нет видимых моделей с загруженными текстурами.\n" +
+                            "1. Загрузите текстуру для хотя бы одной видимой модели\n" +
+                            "2. Попробуйте снова"
+            );
         }
-        renderContext.setTextureEnabled(enabled);
+        this.renderMode = new RenderMode(
+                renderMode.isWireframe(),
+                enabled,
+                renderMode.isLighting(),
+                renderMode.isOnlyWireframe()
+        );
     }
 
     public boolean isTextureEnabled() {
-        return textureModeEnabled;
+        return renderMode.isTexture();
+    }
+
+    public boolean canEnableTextureMode() {
+        return modelManager.getModels().stream().filter(Model::isVisible).anyMatch(Model::hasTexture);
+    }
+
+    public void setWireframeEnabled(boolean enabled) {
+        if (enabled && renderMode.isOnlyWireframe()) {
+            setWireframeOnlyEnabled(false);
+        }
+        this.renderMode = new RenderMode(
+                enabled,
+                renderMode.isTexture(),
+                renderMode.isLighting(),
+                false
+        );
+    }
+
+    public void setWireframeOnlyEnabled(boolean enabled) {
+        if (enabled) {
+            this.renderMode = new RenderMode(
+                    false,
+                    false,
+                    false,
+                    true
+            );
+        } else {
+            this.renderMode = new RenderMode(
+                    defaultEnableWireframe,
+                    defaultEnableTexture,
+                    defaultEnableLighting,
+                    false
+            );
+        }
+    }
+
+    public void setLightEnabled(boolean enabled) {
+        this.renderMode = new RenderMode(
+                renderMode.isWireframe(),
+                renderMode.isTexture(),
+                enabled,
+                renderMode.isOnlyWireframe()
+        );
+
+        if (lightning != null) {
+            lightning.setEnabled(enabled);
+        }
+    }
+
+    public boolean isLightEnabled() {
+        return renderMode.isLighting();
+    }
+
+    public boolean isWireframeOnlyEnabled() {
+        return renderMode.isOnlyWireframe();
+    }
+
+    public boolean isWireframeEnabled() {
+        return renderMode.isWireframe();
+    }
+
+    public ColorProvider getColorProviderFor(TriangulatedModel model) {
+        return ColorProvider.forModel(model, this);
+    }
+
+
+
+    public Color getWireframeColor() {
+        return wireframeColor;
+    }
+
+    public void setWireframeColor(Color color) {
+        this.wireframeColor = color;
+    }
+
+    public Color getInactiveColor() {
+        return inactiveColor;
+    }
+
+
+    public Color getMaterialColor() {
+        return modelManager.getMaterialColor();
+    }
+
+    public void setMaterialColor(Color color) {
+        modelManager.setActiveModelColor(color);
     }
 
 
@@ -71,10 +173,6 @@ public class Scene {
 
     public Zbuffer getZbuffer() {
         return zbuffer;
-    }
-
-    public Camera getActiveCamera() {
-        return cameraManager.getActiveCamera();
     }
 
     public Color getLightColor() {
@@ -93,39 +191,6 @@ public class Scene {
         lightning.setIntensity(intensity);
     }
 
-    public Color getMaterialColor() {
-       return modelManager.getMaterialColor();
-    }
-
-    public void setMaterialColor(Color color) {
-        modelManager.setActiveModelColor(color);
-    }
-
-
-    public void setLightEnabled(boolean enabled) {
-        renderContext.setLightEnabled(enabled);
-    }
-
-    public boolean isLightEnabled() {
-        return renderContext.isLightEnabled();
-    }
-
-    public void setWireframeEnabled(boolean enabled) {
-        renderContext.setWireframeEnabled(enabled);
-    }
-
-    public boolean isWireframeEnabled() {
-        return renderContext.isWireframeEnabled();
-    }
-
-    public void setWireframeOnlyEnabled(boolean enabled) {
-        renderContext.setWireframeOnlyEnabled(enabled);
-    }
-
-    public boolean isWireframeOnlyEnabled() {
-        return renderContext.isWireframeOnlyEnabled();
-    }
-
 
     public void renderFrame(GraphicsContext gc, int width, int height) {
         Camera camera = cameraManager.getActiveCamera();
@@ -137,16 +202,23 @@ public class Scene {
 
         gc.clearRect(0, 0, width, height);
 
-        List<TriangulatedModel> allModels = modelManager.getModels().stream().map(model -> (TriangulatedModel) model).toList();
+        List<TriangulatedModel> visibleModels = modelManager.getModels().stream()
+                .filter(Model::isVisible)
+                .filter(m -> m instanceof TriangulatedModel)
+                .map(m -> (TriangulatedModel) m)
+                .collect(Collectors.toList());
 
-        renderContext.setup(
+        RenderContext renderContext = new RenderContext(
                 gc,
                 camera,
-                allModels,
+                visibleModels,
                 zbuffer,
                 lightning,
                 width,
-                height
+                height,
+                renderMode,
+                wireframeColor,
+                this
         );
 
         RenderEngine.render(renderContext);
