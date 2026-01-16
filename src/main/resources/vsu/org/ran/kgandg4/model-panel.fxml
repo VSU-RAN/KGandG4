@@ -33,12 +33,32 @@
                       style="-fx-background-color: white; -fx-border-color: #dee2e6; -fx-border-radius: 4; -fx-background-radius: 4;" />
         </VBox>
 
-        <!-- Кнопки управления моделями -->
+        <!-- Кнопки управления моделями (как в панели камер) -->
         <HBox spacing="8" alignment="CENTER">
+            <!-- Кнопка "+" для добавления камеры у нас нет, но можно добавить позже -->
+            <!--
+            <Button fx:id="addModelButton"
+                    prefWidth="42" prefHeight="32"
+                    style="-fx-font-weight: bold; -fx-font-size: 14px; -fx-background-color: #28a745; -fx-text-fill: white; -fx-border-radius: 4; -fx-background-radius: 4; -fx-cursor: hand;"
+                    text="+" />
+            -->
+
+            <!-- Кнопка удаления (как в камерах) -->
+            <Button fx:id="removeModelButton" onAction="#onRemoveModelClick"
+                    prefWidth="42" prefHeight="32"
+                    style="-fx-font-weight: bold;
+                           -fx-font-size: 14px;
+                           -fx-background-color: #dc3545;
+                           -fx-text-fill: white;
+                           -fx-border-radius: 4;
+                           -fx-background-radius: 4;
+                           -fx-cursor: hand;"
+                    text="-" />
+
             <Button fx:id="switchModelButton" onAction="#onSwitchModelClick"
-                    prefHeight="32" minWidth="120"
+                    prefHeight="32" minWidth="100"
                     style="-fx-font-size: 13px; -fx-font-weight: 500; -fx-background-color: #007bff; -fx-text-fill: white; -fx-border-radius: 4; -fx-background-radius: 4; -fx-cursor: hand;"
-                    text="Сделать активной" />
+                    text="Переключить" />
 
             <Button fx:id="nextModelButton" onAction="#onNextModelClick"
                     prefHeight="32" minWidth="70"

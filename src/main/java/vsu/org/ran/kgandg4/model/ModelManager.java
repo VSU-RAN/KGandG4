@@ -36,6 +36,8 @@ public class ModelManager {
     @Value("${model.default.threshold:0.3}")
     private float modelDefaultThreshold;
 
+    private volatile boolean isProcessing = false;
+
     private ObservableList<Model> modelList = FXCollections.observableArrayList();
     private int nextId = 0;
     private final ReadOnlyObjectWrapper<Model> activeModelProperty = new ReadOnlyObjectWrapper<>();
@@ -82,16 +84,68 @@ public class ModelManager {
         }
     }
 
+    /**
+     * Удаляет модель по ID
+     * @param id ID модели
+     * @throws IllegalArgumentException если нельзя удалить последнюю модель
+     */
     public void removeModel(int id) {
         if (modelList.size() <= 1) {
             throw new IllegalArgumentException("Нельзя удалить последнюю модель");
         }
 
-        Model model = this.getModelById(id);
+        // Находим модель для удаления
+        Model modelToRemove = null;
+        int modelIndex = -1;
+        for (int i = 0; i < modelList.size(); i++) {
+            if (modelList.get(i).getId() == id) {
+                modelToRemove = modelList.get(i);
+                modelIndex = i;
+                break;
+            }
+        }
 
-        modelList.remove(model);
-        if (activeModelProperty.get() != null && activeModelProperty.get().equals(model)) {
-            switchToModel(0);
+        if (modelToRemove == null) {
+            throw new IllegalArgumentException("Нет модели с таким ID: " + id);
+        }
+
+        // Проверяем, является ли модель активной
+        boolean wasActive = activeModelProperty.get() != null &&
+                activeModelProperty.get().getId() == id;
+
+        // Если удаляемая модель активна, очищаем выбор
+        if (wasActive) {
+            clearSelection();
+
+            // Находим новую модель для активации
+            Model newActiveModel = null;
+            if (modelIndex > 0) {
+                // Если не первая, берем предыдущую
+                newActiveModel = modelList.get(modelIndex - 1);
+            } else {
+                // Если первая, берем следующую
+                newActiveModel = modelList.get(1);
+            }
+
+            // Устанавливаем новую активную модель
+            activeModelProperty.set(newActiveModel);
+        }
+
+        // Удаляем модель из списка
+        boolean removed = modelList.remove(modelToRemove);
+
+        if (!removed) {
+            throw new IllegalStateException("Не удалось удалить модель из списка");
+        }
+
+        // Обновляем информацию о выборе
+        if (wasActive) {
+            Model current = getCurrentModel();
+            if (current != null) {
+                selectionInfoProperty.set("Активна модель: " + current.getName());
+            } else {
+                selectionInfoProperty.set("Нет активной модели");
+            }
         }
     }
 
@@ -248,6 +302,90 @@ public class ModelManager {
         return true;
     }
 
+    /**
+     * Удаляет вершину по индексу
+     * @param index индекс вершины
+     * @return true если вершина удалена, false если неверный индекс
+     */
+    public boolean deleteVertexByIndex(int index) {
+        Model activeModel = getCurrentModel();
+        if (activeModel == null) {
+            return false;
+        }
+
+        if (index < 0 || index >= activeModel.getVertices().size()) {
+            return false;
+        }
+
+        activeModel.removeVertex(index);
+
+        // Если удалили выбранную вершину, сбрасываем выбор
+        if (selectedVertexIndex.get() != null && selectedVertexIndex.get() == index) {
+            clearSelection();
+        }
+
+        return true;
+    }
+
+    /**
+     * Удаляет полигон по индексу
+     * @param index индекс полигона
+     * @return true если полигон удален, false если неверный индекс
+     */
+    public boolean deletePolygonByIndex(int index) {
+        Model activeModel = getCurrentModel();
+        if (activeModel == null) {
+            return false;
+        }
+
+        if (index < 0 || index >= activeModel.getPolygons().size()) {
+            return false;
+        }
+
+        activeModel.removePolygon(index);
+
+        // Если удалили выбранный полигон, сбрасываем выбор
+        if (selectedPolygonIndex.get() != null && selectedPolygonIndex.get() == index) {
+            clearSelection();
+        }
+
+        return true;
+    }
+
+    /**
+     * Удаляет текущую модель
+     * @return true если модель удалена, false если модели не было
+     */
+    public boolean deleteCurrentModel() {
+        System.out.println("DEBUG: deleteCurrentModel() called");
+
+        Model currentModel = getCurrentModel();
+        if (currentModel == null) {
+            System.out.println("DEBUG: No current model to delete");
+            return false;
+        }
+
+        int modelId = currentModel.getId();
+        String modelName = currentModel.getName();
+
+        System.out.println("DEBUG: Deleting model: " + modelName + " (ID: " + modelId + ")");
+
+        // Используем существующий метод removeModel
+        try {
+            removeModel(modelId);
+            System.out.println("DEBUG: Model deleted successfully");
+            return true;
+        } catch (IllegalArgumentException e) {
+            System.out.println("DEBUG: Failed to delete model: " + e.getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Удаляет элемент по индексу (устаревший метод)
+     * @deprecated Используйте {@link #deleteVertexByIndex(int)} или {@link #deletePolygonByIndex(int)}
+     */
+    @Deprecated
     public boolean deleteByIndex(int index) {
         Model activeModel = getCurrentModel();
         if (activeModel == null) {
@@ -255,15 +393,11 @@ public class ModelManager {
         }
 
         if (index >= 0 && index < activeModel.getVertices().size()) {
-            activeModel.removeVertex(index);
-            clearSelection();
-            return true;
+            return deleteVertexByIndex(index);
         }
 
         if (index >= 0 && index < activeModel.getPolygons().size()) {
-            activeModel.removePolygon(index);
-            clearSelection();
-            return true;
+            return deletePolygonByIndex(index);
         }
 
         return false;
