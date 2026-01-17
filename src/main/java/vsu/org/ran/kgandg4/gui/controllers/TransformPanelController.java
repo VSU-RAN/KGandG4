@@ -195,7 +195,7 @@ public class TransformPanelController implements Initializable, PanelController 
 
                 if (transformed) {
                     // Сохранить преобразованную модель
-                    Model transformedCopy = createTransformedCopy(modelManager.getCurrentModel());
+                    Model transformedCopy = Model.transformedModel(modelManager.getCurrentModel());
                     ObjWriter.write(transformedCopy, path);
                     System.out.println("Сохранена преобразованная модель: " + path);
                     if (alertService != null) {
@@ -230,27 +230,7 @@ public class TransformPanelController implements Initializable, PanelController 
             }
         }
     }
-
-    private Model createTransformedCopy(Model original) {
-        // Создаём новую модель
-        Model copyModel = new Model();
-        // Копируем основные свойства
-        copyModel.setId(original.getId());
-        copyModel.setName(original.getName() + "_transformed");
-        copyModel.setVisible(original.isVisible());
-        // Используем трансформированные вершины
-        copyModel.setVertices(original.getTransformedVertices());
-        // Копируем остальные данные (они не меняются)
-        copyModel.setTextureVertices(new ArrayList<>(original.getTextureVertices()));
-        copyModel.setNormals(new ArrayList<>(original.getNormals()));
-        copyModel.setPolygons(new ArrayList<>(original.getPolygons()));
-        // Сбрасываем трансформации в новой модели (ведь вершины уже трансформированы)
-        copyModel.setPosition(new Vector3f(0, 0, 0));
-        copyModel.setRotation(new Vector3f(0, 0, 0));
-        copyModel.setScale(new Vector3f(1, 1, 1));
-
-        return copyModel;
-    }
+    
 
     private void setupSliderFieldBindings() {
         // Перемещение X
