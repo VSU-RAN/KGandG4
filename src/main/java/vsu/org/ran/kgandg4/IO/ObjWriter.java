@@ -9,12 +9,14 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 
 import math.vector.Vector2f;
 import math.vector.Vector3f;
 
 import vsu.org.ran.kgandg4.model.models.Model;
 import vsu.org.ran.kgandg4.model.models.Polygon;
+import vsu.org.ran.kgandg4.IO.objReader.ObjReaderException;
 
 public class ObjWriter {
 
@@ -153,8 +155,12 @@ public class ObjWriter {
         for (int j = 0; j < vertexIndices.size(); j++) { //проверка каждого индекса
             int idx = vertexIndices.get(j);
             if (idx < 0 || idx >= totalVertices) {
-                throw new IllegalArgumentException("Полигон " + polygonNumber + ", вершина #" + (j + 1) +
-                        ": индекс " + idx + " выходит за пределы [0, " + (totalVertices - 1) + "]");
+                throw new IllegalArgumentException(
+                        ObjReaderException.indexOutOfBounds(
+                                "Полигон " + polygonNumber + ", вершина #" + (j + 1),
+                                idx, 0, totalVertices - 1, -1
+                        ).getMessage()
+                );
             }
         }
     }
@@ -162,17 +168,23 @@ public class ObjWriter {
     private void validateTextureIndices(List<Integer> textureIndices, List<Integer> vertexIndices,
                                         int polygonNumber, int totalTextures) {
         if (textureIndices.size() != vertexIndices.size()) {
-            throw new IllegalArgumentException("Полигон " + polygonNumber +
-                    ": количество текстурных координат (" + textureIndices.size() +
-                    ") не совпадает с количеством вершин (" + vertexIndices.size() + ")");
+            throw new IllegalArgumentException(
+                    ObjReaderException.countMismatch(
+                            "Полигон " + polygonNumber,
+                            textureIndices.size(), vertexIndices.size(), -1
+                    ).getMessage()
+            );
         }
 
         for (int j = 0; j < textureIndices.size(); j++) {
             int idx = textureIndices.get(j);
             if (idx < 0 || idx >= totalTextures) { //в пределах
-                throw new IllegalArgumentException("Полигон " + polygonNumber +
-                        ", текстурная координата #" + (j + 1) + ": индекс " + idx +
-                        " выходит за пределы [0, " + (totalTextures - 1) + "]");
+                throw new IllegalArgumentException(
+                        ObjReaderException.indexOutOfBounds(
+                                "Полигон " + polygonNumber + ", текстурная координата #" + (j + 1),
+                                idx, 0, totalTextures - 1, -1
+                        ).getMessage()
+                );
             }
         }
     }
@@ -180,17 +192,23 @@ public class ObjWriter {
     private void validateNormalIndices(List<Integer> normalIndices, List<Integer> vertexIndices,
                                        int polygonNumber, int totalNormals) {
         if (normalIndices.size() != vertexIndices.size()) {
-            throw new IllegalArgumentException("Полигон " + polygonNumber +
-                    ": количество нормалей (" + normalIndices.size() +
-                    ") не совпадает с количеством вершин (" + vertexIndices.size() + ")");
+            throw new IllegalArgumentException(
+                    ObjReaderException.countMismatch(
+                            "Полигон " + polygonNumber,
+                            normalIndices.size(), vertexIndices.size(), -1
+                    ).getMessage()
+            );
         }
 
         for (int j = 0; j < normalIndices.size(); j++) {
             int idx = normalIndices.get(j);
             if (idx < 0 || idx >= totalNormals) {
-                throw new IllegalArgumentException("Полигон " + polygonNumber +
-                        ", нормаль #" + (j + 1) + ": индекс " + idx +
-                        " выходит за пределы [0, " + (totalNormals - 1) + "]");
+                throw new IllegalArgumentException(
+                        ObjReaderException.indexOutOfBounds(
+                                "Полигон " + polygonNumber + ", нормаль #" + (j + 1),
+                                idx, 0, totalNormals - 1, -1
+                        ).getMessage()
+                );
             }
         }
     }
@@ -265,18 +283,32 @@ public class ObjWriter {
         List<Integer> textureVertexIndices = polygon.getTextureVertexIndices();
         List<Integer> normalIndices = polygon.getNormalIndices();
 
-        boolean hasTexture = textureVertexIndices != null && !textureVertexIndices.isEmpty();
-        boolean hasNormal = normalIndices != null && !normalIndices.isEmpty();
+        boolean hasAnyTexture = textureVertexIndices != null &&
+                !textureVertexIndices.isEmpty() &&
+                textureVertexIndices.stream().anyMatch(Objects::nonNull);
+        boolean hasAnyNormal = normalIndices != null &&
+                !normalIndices.isEmpty() &&
+                normalIndices.stream().anyMatch(Objects::nonNull);
 
         for (int i = 0; i < vertexIndices.size(); i++) {
             if (i > 0) {
                 faceBuilder.append(" ");
             }
 
+            Integer textureIdx = (hasAnyTexture && textureVertexIndices != null &&
+                    i < textureVertexIndices.size())
+                    ? textureVertexIndices.get(i) : null;
+            Integer normalIdx = (hasAnyNormal && normalIndices != null &&
+                    i < normalIndices.size())
+                    ? normalIndices.get(i) : null;
+
+            if (!hasAnyTexture) textureIdx = null;
+            if (!hasAnyNormal) normalIdx = null;
+
             faceBuilder.append(buildVertexReference(
                     vertexIndices.get(i),
-                    hasTexture && i < textureVertexIndices.size() ? textureVertexIndices.get(i) : null,
-                    hasNormal && i < normalIndices.size() ? normalIndices.get(i) : null
+                    textureIdx,
+                    normalIdx
             ));
         }
 
@@ -317,6 +349,10 @@ public class ObjWriter {
     }
 
     private String removeTrailingZeros(String formatted) {
+        if (!formatted.contains(".")) {
+            return formatted;
+        }
+
         String result = formatted.replaceAll("0+$", "");
         if (result.endsWith(".")) {
             result = result + "0";
